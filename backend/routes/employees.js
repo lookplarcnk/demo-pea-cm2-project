@@ -137,11 +137,11 @@ router.post('/employees', async (req, res) => {
 });
 
 // ---------------------------------------------------------
-// 4. แก้ไขโปรไฟล์ (คงเดิมตามคำสั่ง)
+// 4. แก้ไขโปรไฟล์ - ✅ เพิ่มการอัปเดต emp_gender เพื่อบันทึกค่าลงฐานข้อมูล
 // ---------------------------------------------------------
 router.put('/employees/:id', async (req, res) => {
   const { id } = req.params;
-  const { emp_name, emp_email, emp_phone, role, avatar, dept_name } = req.body;
+  const { emp_name, emp_email, emp_phone, role, avatar, dept_name, emp_gender } = req.body; // ✅ รับ emp_gender จาก Body
 
   try {
     const result = await pool.query(
@@ -151,10 +151,11 @@ router.put('/employees/:id', async (req, res) => {
            emp_phone = COALESCE($3, emp_phone), 
            role = COALESCE($4, role),
            avatar = COALESCE($5, avatar),
-           dept_name = COALESCE($6, dept_name)
-       WHERE emp_id::text = $7
-       RETURNING emp_id, emp_name, emp_email, role, dept_name, avatar, status`,
-      [emp_name, emp_email, emp_phone, role, avatar, dept_name, id]
+           dept_name = COALESCE($6, dept_name),
+           emp_gender = COALESCE($7, emp_gender) -- ✅ เพิ่มคอลัมน์เพศใน UPDATE
+       WHERE emp_id::text = $8
+       RETURNING emp_id, emp_name, emp_email, role, dept_name, avatar, status, emp_gender`,
+      [emp_name, emp_email, emp_phone, role, avatar, dept_name, emp_gender, id] // ✅ ส่งพารามิเตอร์ emp_gender เข้าไป
     );
 
     if (result.rows.length === 0) {

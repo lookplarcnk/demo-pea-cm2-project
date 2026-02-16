@@ -4,13 +4,15 @@ import axios from "axios";
 import LogoutModal from "./LogoutModal"; 
 // ✅ นำเข้าคอมโพเนนต์โปรไฟล์ใหม่
 import AdminProfileModal from "./AdminProfileModal";
-import Logo from "../assets/img/logo-pea.png"; // ✅ นำเข้า Logo
+import Logo from "../assets/img/logo-pea.png"; 
+// ✅ เพิ่มการนำเข้า toast
+import toast, { Toaster } from "react-hot-toast";
 import {
   FiUsers, FiUserCheck, FiUserPlus, FiUserX, FiSearch, FiEdit, 
   FiMenu, FiSettings, FiLogOut, FiPieChart, FiFileText, 
   FiTrendingUp, FiX, FiCheck, FiCamera, FiFilter, 
   FiChevronLeft, FiChevronRight, FiShield, FiCalendar, FiPhone, FiChevronDown, FiHash, FiBriefcase, FiPlus, FiTrash2, FiEdit3,
-  FiCheckCircle, FiSend // ✅ เพิ่มการนำเข้าไอคอนที่ขาดไปตรงนี้เพื่อให้รันได้
+  FiCheckCircle, FiSend 
 } from "react-icons/fi";
 
 const API_BASE_URL = "http://localhost:5000/api";
@@ -22,6 +24,10 @@ export default function UserManagementPage() {
   const [openAddUserModal, setOpenAddUserModal] = useState(false);
   const [openLogoutModal, setOpenLogoutModal] = useState(false);
   const [openManageDeptModal, setOpenManageDeptModal] = useState(false);
+  
+  // ✅ State สำหรับการแก้ไข
+  const [openEditModal, setOpenEditModal] = useState(false);
+  const [selectedUserForEdit, setSelectedUserForEdit] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState("ทั้งหมด");
@@ -71,12 +77,10 @@ export default function UserManagementPage() {
 
   const fetchData = async () => {
     try {
-      // ⭐ เรียกใช้ Endpoint /employees ตามปกติเพื่อให้ได้ข้อมูลพนักงานทุกคน
       const endpoint = activeTab === "พนักงานภายใน" ? "/employees" : "/public-users";
       const response = await axios.get(`${API_BASE_URL}${endpoint}`);
       
       if (activeTab === "พนักงานภายใน") {
-        // ⭐ แมพข้อมูลทุกคนโดยไม่กรองบทบาทออก เพื่อให้แสดงผลครบถ้วน (รวมพนักงานทั่วไปและหัวหน้า)
         const mappedUsers = response.data.map(u => ({
           id: u.emp_id,
           empCode: u.emp_id.toString().padStart(5, '0'), 
@@ -85,7 +89,7 @@ export default function UserManagementPage() {
           phone: u.emp_phone || "ไม่ระบุ", 
           gender: u.emp_gender || "ไม่ระบุ", 
           department: u.dept_name || u.emp_dept || "ไม่ระบุแผนก",
-          role: u.role || "พนักงานทั่วไป", // แสดง Role จริงจากฐานข้อมูล
+          role: u.role || "พนักงานทั่วไป", 
           status: u.status || "ใช้งานอยู่",
           avatar: `https://i.pravatar.cc/150?u=${u.emp_id}`,
           canApprove: u.can_approve || false,
@@ -128,7 +132,6 @@ export default function UserManagementPage() {
       const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                            u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            (u.empCode && u.empCode.toLowerCase().includes(searchQuery.toLowerCase()));
-      // กรองตาม selectedRole: ถ้าเป็น "ทั้งหมด" จะแสดงทุกคน
       const matchesRole = activeTab === "พนักงานภายใน" ? (selectedRole === "ทั้งหมด" || u.role === selectedRole) : true;
       return matchesSearch && matchesRole;
     });
@@ -148,8 +151,9 @@ export default function UserManagementPage() {
       const endpoint = activeTab === "พนักงานภายใน" ? `/employees/${id}/status` : `/public-users/${id}/status`;
       await axios.patch(`${API_BASE_URL}${endpoint}`);
       fetchData(); 
+      toast.success("อัปเดตสถานะผู้ใช้งานสำเร็จ");
     } catch (err) {
-      alert("ไม่สามารถอัปเดตสถานะได้");
+      toast.error("ไม่สามารถอัปเดตสถานะได้");
     }
   };
 
@@ -166,9 +170,40 @@ export default function UserManagementPage() {
       });
       fetchData();
       setOpenAddUserModal(false);
-      alert("เพิ่มพนักงานสำเร็จ");
+      toast.success("เพิ่มพนักงานใหม่สำเร็จ");
     } catch (err) {
-      alert("ไม่สามารถบันทึกข้อมูลพนักงานได้");
+      toast.error(err.response?.data?.error || "ไม่สามารถบันทึกข้อมูลได้");
+    }
+  };
+
+  // ✅ บันทึกการแก้ไขข้อมูลลงฐานข้อมูล
+  const handleEditUserSubmit = async (updatedUser) => {
+    try {
+      const endpoint = activeTab === "พนักงานภายใน" 
+        ? `/employees/${updatedUser.id}` 
+        : `/public-users/${updatedUser.id}`;
+        
+      const payload = activeTab === "พนักงานภายใน" ? {
+        emp_name: updatedUser.name,
+        emp_email: updatedUser.email,
+        emp_phone: updatedUser.phone,
+        emp_gender: updatedUser.gender,
+        dept_name: updatedUser.department,
+        role: updatedUser.role
+      } : {
+        first_name: updatedUser.name.split(' ')[0],
+        last_name: updatedUser.name.split(' ').slice(1).join(' '),
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        gender: updatedUser.gender 
+      };
+
+      await axios.put(`${API_BASE_URL}${endpoint}`, payload);
+      fetchData();
+      setOpenEditModal(false);
+      toast.success("บันทึกการแก้ไขข้อมูลสำเร็จ");
+    } catch (err) {
+      toast.error("ไม่สามารถบันทึกการแก้ไขได้");
     }
   };
 
@@ -181,22 +216,20 @@ export default function UserManagementPage() {
 
   return (
     <div className="flex min-h-screen bg-[#f8f9ff] font-sans text-slate-700 overflow-x-hidden text-left font-medium">
+      {/* ✅ ติดตั้ง Toaster Container */}
+      <Toaster position="top-right" reverseOrder={false} />
+      
       {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
 
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 flex flex-col transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        {/* ✅ แก้ไข: เปลี่ยนจากตัวอักษร A เป็น Logo การไฟฟ้า */}
         <div className="p-6 flex items-center gap-3 border-b border-slate-50 text-left">
-          <img 
-            src={Logo} 
-            alt="PEA Logo" 
-            className="h-12 w-auto object-contain" 
-          />
+          <img src={Logo} alt="PEA Logo" className="h-12 w-auto object-contain" />
           <div className="leading-tight text-left">
             <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight">PEA ADMIN</h1>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Chiang Mai 2 System</p>
           </div>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-2 font-bold text-left">
+        <nav className="flex-1 px-4 py-6 space-y-2 font-bold text-left text-left">
           <Link to="/AdminDashboard"><SidebarItem icon={<FiPieChart />} label="หน้าสรุปผล (Overview)" /></Link>
           <Link to="/ManageDocs"><SidebarItem icon={<FiFileText />} label="จัดการเอกสารทั้งหมด" /></Link>
           <Link to="/AdminApprovalCenter"><SidebarItem icon={<FiCheckCircle />} label="พิจารณาเอกสาร" /></Link>
@@ -204,7 +237,7 @@ export default function UserManagementPage() {
           <Link to="/UserManage"><SidebarItem icon={<FiUsers />} label="จัดการผู้ใช้งาน" active /></Link>
           <Link to="/AnalysisReport"><SidebarItem icon={<FiTrendingUp />} label="รายงานเชิงวิเคราะห์" /></Link>
         </nav>
-        <div className="p-6 border-t border-slate-50 space-y-2 font-bold text-left">
+        <div className="p-6 border-t border-slate-50 space-y-2 font-bold text-left text-left text-left text-left">
           <Link to="/AdminSetting"><SidebarItem icon={<FiSettings />} label="ตั้งค่าระบบ" /></Link>
           <div onClick={() => setOpenLogoutModal(true)} className="cursor-pointer">
             <SidebarItem icon={<FiLogOut />} label="ออกจากระบบ" danger />
@@ -213,43 +246,43 @@ export default function UserManagementPage() {
       </aside>
 
       <main className="flex-1 min-w-0 overflow-y-auto">
-        <div className="bg-white/50 backdrop-blur-md px-4 lg:px-10 py-6 border-b border-slate-100 sticky top-0 z-30 font-bold flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 lg:hidden text-slate-600 flex items-center justify-center"><FiMenu size={20} /></button>
-            <h2 className="text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight text-left">จัดการผู้ใช้งาน</h2>
+        <div className="bg-white/50 backdrop-blur-md px-4 lg:px-10 py-6 border-b border-slate-100 sticky top-0 z-30 font-bold flex justify-between items-center text-left text-left text-left text-left text-left">
+          <div className="flex items-center gap-3 text-left text-left text-left text-left">
+            <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 lg:hidden text-slate-600 flex items-center justify-center text-left text-left text-left text-left"><FiMenu size={20} /></button>
+            <h2 className="text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight text-left text-left text-left text-left">จัดการผู้ใช้งาน</h2>
           </div>
 
-          <div className="flex bg-slate-100 p-1 rounded-2xl">
+          <div className="flex bg-slate-100 p-1 rounded-2xl text-left text-left text-left text-left text-left">
             <button onClick={() => { setActiveTab("พนักงานภายใน"); setSelectedRole("ทั้งหมด"); }} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === "พนักงานภายใน" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400"}`}>พนักงานภายใน</button>
             <button onClick={() => { setActiveTab("บุคคลทั่วไป"); setSelectedRole("ทั้งหมด"); }} className={`px-6 py-2.5 rounded-xl text-xs font-black transition-all ${activeTab === "บุคคลทั่วไป" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400"}`}>บุคคลทั่วไป</button>
           </div>
 
-          <button onClick={() => setOpenProfileModal(true)} className="w-11 h-11 rounded-xl overflow-hidden border-2 border-white shadow-md active:scale-95 transition-transform">
+          <button onClick={() => setOpenProfileModal(true)} className="w-11 h-11 rounded-xl overflow-hidden border-2 border-white shadow-md active:scale-95 transition-transform text-left text-left text-left text-left">
             <img src={user.avatar} alt="profile" className="w-full h-full object-cover" />
           </button>
         </div>
 
-        <div className="px-4 lg:px-10 pb-10 mt-8 text-left space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="px-4 lg:px-10 pb-10 mt-8 text-left space-y-8 text-left text-left text-left text-left text-left">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left text-left text-left text-left">
                 <SummaryCard title={`ทั้งหมด (${activeTab})`} value={stats.total} icon={<FiUsers />} color="blue" />
                 <SummaryCard title="กำลังใช้งานอยู่" value={stats.active} icon={<FiUserCheck />} color="purple" />
                 <SummaryCard title="ระงับการใช้งาน" value={stats.suspended} icon={<FiUserX />} color="rose" />
             </div>
 
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden font-bold">
-                <div className="p-6 lg:p-8 flex flex-col xl:flex-row justify-between items-center gap-6 border-b border-slate-100 bg-slate-50/30 text-left">
-                    <div className="relative w-full xl:w-96 group text-left">
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden font-bold text-left text-left text-left text-left text-left text-left text-left text-left">
+                <div className="p-6 lg:p-8 flex flex-col xl:flex-row justify-between items-center gap-6 border-b border-slate-100 bg-slate-50/30 text-left text-left text-left text-left">
+                    <div className="relative w-full xl:w-96 group text-left text-left text-left text-left">
                         <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                        <input type="text" placeholder={`ค้นหาชื่อ, อีเมล หรือรหัส...`} className="pl-12 pr-4 py-3 rounded-2xl bg-white border border-slate-200 w-full outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-sm text-left" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                        <input type="text" placeholder={`ค้นหาชื่อ, อีเมล หรือรหัส...`} className="pl-12 pr-4 py-3 rounded-2xl bg-white border border-slate-200 w-full outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-sm text-left text-left text-left text-left" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                     </div>
                     
-                    <div className="flex flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto font-bold text-left">
+                    <div className="flex flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto font-bold text-left text-left text-left text-left text-left text-left text-left">
                         {activeTab === "พนักงานภายใน" && (
                           <>
-                            <button onClick={() => setOpenManageDeptModal(true)} className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2.5 active:scale-95 h-[48px]">
+                            <button onClick={() => setOpenManageDeptModal(true)} className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2.5 active:scale-95 h-[48px] text-left text-left text-left text-left">
                                 <FiBriefcase size={16} /> จัดการแผนก
                             </button>
-                            <button onClick={() => setOpenAddUserModal(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-7 py-3 rounded-2xl font-black shadow-lg shadow-indigo-100 flex items-center gap-2 uppercase tracking-wider text-xs transition-all active:scale-95 h-[48px]">
+                            <button onClick={() => setOpenAddUserModal(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-7 py-3 rounded-2xl font-black shadow-lg shadow-indigo-100 flex items-center gap-2 uppercase tracking-wider text-xs transition-all active:scale-95 h-[48px] text-left text-left text-left text-left">
                                 <FiUserPlus size={18}/> เพิ่มพนักงาน
                             </button>
                           </>
@@ -257,47 +290,48 @@ export default function UserManagementPage() {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto text-left">
-                    <table className="w-full text-left">
-                        <thead className="bg-white text-slate-400 text-xs font-black uppercase tracking-widest border-b border-slate-100 text-left">
+                <div className="overflow-x-auto text-left text-left text-left text-left text-left text-left text-left">
+                    <table className="w-full text-left text-left text-left text-left text-left text-left text-left">
+                        <thead className="bg-white text-slate-400 text-xs font-black uppercase tracking-widest border-b border-slate-100 text-left text-left text-left text-left text-left text-left text-left text-left">
                             <tr>
                                 <th className="px-6 py-5 text-center w-20">ลำดับ</th>
-                                {activeTab === "พนักงานภายใน" && <th className="px-6 py-5 text-left">รหัสพนักงาน</th>}
-                                <th className="px-8 py-5 text-left">ผู้ใช้งาน</th>
-                                <th className="px-6 py-5 text-left">ติดต่อ</th>
-                                <th className="px-6 py-5 text-left">เข้าร่วมเมื่อ</th>
-                                {activeTab === "พนักงานภายใน" && <th className="px-6 py-5 text-left">แผนก</th>}
-                                <th className="px-6 py-5 text-center">สถานะ</th>
-                                <th className="px-8 py-5 text-right">ดำเนินการ</th>
+                                {activeTab === "พนักงานภายใน" && <th className="px-6 py-5 text-left text-left text-left text-left text-left text-left">รหัสพนักงาน</th>}
+                                <th className="px-8 py-5 text-left text-left text-left text-left text-left text-left text-left">ผู้ใช้งาน</th>
+                                <th className="px-6 py-5 text-left text-left text-left text-left text-left text-left text-left">ติดต่อ</th>
+                                <th className="px-6 py-5 text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">เข้าร่วมเมื่อ</th>
+                                {activeTab === "พนักงานภายใน" && <th className="px-6 py-5 text-left text-left text-left text-left text-left text-left">แผนก</th>}
+                                <th className="px-6 py-5 text-center text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">สถานะ</th>
+                                <th className="px-8 py-5 text-right text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">ดำเนินการ</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-50 font-bold text-left">
+                        <tbody className="divide-y divide-slate-50 font-bold text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">
                             {filteredData.map((u, index) => (
-                                <tr key={u.id} className="hover:bg-slate-50/50 transition-all font-bold group text-left">
+                                <tr key={u.id} className="hover:bg-slate-50/50 transition-all font-bold group text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">
                                     <td className="px-6 py-5 text-center"><span className="text-slate-400 font-black text-sm">{index + 1}</span></td>
                                     {activeTab === "พนักงานภายใน" && (
-                                        <td className="px-6 py-5 text-left">
+                                        <td className="px-6 py-5 text-left text-left text-left text-left">
                                             <span className={`text-[10px] px-3 py-1 rounded-lg border font-black tracking-widest uppercase shadow-sm ${getDeptColor(u.department)}`}>
                                               {u.empCode}
                                             </span>
                                         </td>
                                     )}
-                                    <td className="px-8 py-5 text-left">
-                                        <div className="flex items-center gap-4 text-left">
+                                    <td className="px-8 py-5 text-left text-left text-left text-left text-left">
+                                        <div className="flex items-center gap-4 text-left text-left text-left text-left text-left">
                                             <img src={u.avatar} className="w-12 h-12 rounded-2xl object-cover shadow-sm group-hover:scale-105 transition-transform" alt="avatar" />
-                                            <div className="text-left">
-                                                <p className="text-slate-800 text-lg font-black text-left">{u.name}</p>
-                                                <p className="text-xs text-slate-400 font-medium text-left">{u.role}</p>
+                                            <div className="text-left text-left text-left text-left text-left">
+                                                <p className="text-slate-800 text-lg font-black text-left text-left text-left text-left">{u.name}</p>
+                                                <p className="text-xs text-slate-400 font-medium text-left text-left text-left text-left">{u.role}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-5 text-left"><div className="flex items-center gap-2 text-slate-600 font-bold text-left"><FiPhone size={14} className="text-indigo-400" /><span className="text-xs">{u.phone}</span></div></td>
-                                    <td className="px-6 py-5 text-left"><div className="flex items-center gap-2 text-slate-500 font-bold text-left"><FiCalendar size={14} className="text-indigo-400" /><span className="text-xs">{u.joinDate}</span></div></td>
-                                    {activeTab === "พนักงานภายใน" && <td className="px-6 py-5 text-left"><span className="text-slate-600 font-bold text-left">{u.department}</span></td>}
-                                    <td className="px-6 py-5 text-center"><span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${u.status === 'ใช้งานอยู่' ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'}`}>{u.status}</span></td>
-                                    <td className="px-8 py-5 text-right font-bold text-left">
-                                        <div className="flex justify-end gap-2 text-left">
-                                            <button className="p-2.5 bg-white border border-slate-100 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all shadow-sm"><FiEdit size={16} /></button>
+                                    <td className="px-6 py-5 text-left text-left text-left text-left text-left text-left"><div className="flex items-center gap-2 text-slate-600 font-bold text-left text-left text-left text-left text-left text-left text-left"><FiPhone size={14} className="text-indigo-400" /><span className="text-xs">{u.phone}</span></div></td>
+                                    <td className="px-6 py-5 text-left text-left text-left text-left text-left text-left text-left"><div className="flex items-center gap-2 text-slate-500 font-bold text-left text-left text-left text-left text-left text-left text-left text-left"><FiCalendar size={14} className="text-indigo-400" /><span className="text-xs">{u.joinDate}</span></div></td>
+                                    {activeTab === "พนักงานภายใน" && <td className="px-6 py-5 text-left text-left text-left text-left text-left text-left text-left"><span className="text-slate-600 font-bold text-left text-left text-left text-left text-left text-left">{u.department}</span></td>}
+                                    <td className="px-6 py-5 text-center text-left text-left text-left text-left text-left text-left"><span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${u.status === 'ใช้งานอยู่' ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'}`}>{u.status}</span></td>
+                                    <td className="px-8 py-5 text-right font-bold text-left text-left text-left text-left text-left text-left text-left text-left">
+                                        <div className="flex justify-end gap-2 text-left text-left text-left text-left text-left text-left text-left text-left">
+                                            {/* ✅ ฟังก์ชันเรียก Modal แก้ไขข้อมูล */}
+                                            <button onClick={() => { setSelectedUserForEdit(u); setOpenEditModal(true); }} className="p-2.5 bg-white border border-slate-100 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all shadow-sm text-left text-left text-left text-left"><FiEdit size={16} /></button>
                                             <button onClick={() => handleToggleStatus(u.id)} className={`p-2.5 bg-white border border-slate-100 rounded-xl transition-all shadow-sm ${u.status === 'ระงับการใช้งาน' ? 'text-emerald-500 hover:bg-emerald-50' : 'text-rose-500 hover:bg-rose-50'}`}>{u.status === 'ใช้งานอยู่' ? <FiUserX size={16} /> : <FiUserCheck size={16} />}</button>
                                         </div>
                                     </td>
@@ -310,15 +344,20 @@ export default function UserManagementPage() {
         </div>
       </main>
 
-      {/* ✅ เปลี่ยนจุดที่เรียกใช้ในไฟล์จาก <ProfileModal ... /> เป็นการใช้คอมโพเนนต์ส่วนกลาง */}
       {openProfileModal && (
-        <AdminProfileModal 
-          user={user} 
-          setUser={setUser} 
-          onClose={() => setOpenProfileModal(false)} 
-        />
+        <AdminProfileModal user={user} setUser={setUser} onClose={() => setOpenProfileModal(false)} />
       )}
       
+      {/* ✅ เรียกใช้ EditUserModal */}
+      {openEditModal && (
+        <EditUserModal 
+          user={selectedUserForEdit} 
+          onSave={handleEditUserSubmit} 
+          onClose={() => setOpenEditModal(false)} 
+          departments={departments} 
+        />
+      )}
+
       {openAddUserModal && <AddUserModal onAdd={handleAddUser} onClose={() => setOpenAddUserModal(false)} departments={departments} />}
       {openManageDeptModal && <ManageDeptModal departments={departments} onClose={() => setOpenManageDeptModal(false)} fetchDepartments={fetchDepartments} />}
       <LogoutModal isOpen={openLogoutModal} onClose={() => setOpenLogoutModal(false)} onConfirm={handleConfirmLogout} />
@@ -326,8 +365,83 @@ export default function UserManagementPage() {
   );
 }
 
-/* --- Helper Components (คงเดิม) --- */
+/* --- ✅ Modal สำหรับแก้ไขข้อมูลผู้ใช้งาน --- */
+function EditUserModal({ user, onSave, onClose, departments }) {
+  const [formData, setFormData] = useState({ ...user });
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email) return toast.error("กรุณากรอกข้อมูลที่จำเป็น");
+    onSave(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 font-bold text-left text-left text-left text-left text-left text-left text-left text-left">
+      <div className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl p-10 relative animate-in zoom-in duration-300 text-left text-left text-left text-left text-left text-left text-left text-left">
+        <button onClick={onClose} className="absolute right-8 top-8 w-10 h-10 text-slate-400 hover:text-rose-500 flex items-center justify-center hover:bg-rose-50 rounded-full font-black text-left text-left text-left text-left text-left text-left text-left text-left"><FiX size={24} /></button>
+        <h3 className="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tight text-left text-left text-left text-left">แก้ไขข้อมูลผู้ใช้งาน</h3>
+        <form onSubmit={handleSubmit} className="space-y-5 text-left text-left text-left text-left text-left text-left text-left text-left text-left">
+          <div className="grid grid-cols-2 gap-5 text-left text-left text-left text-left text-left text-left text-left text-left">
+            <ProfileInput label="ชื่อ-นามสกุล" value={formData.name} onChange={(v) => setFormData({...formData, name: v})} />
+            <ProfileInput label="อีเมล" value={formData.email} onChange={(v) => setFormData({...formData, email: v})} />
+          </div>
+          <div className="grid grid-cols-2 gap-5 text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">
+            <ProfileInput label="เบอร์โทรศัพท์" value={formData.phone} onChange={(v) => setFormData({...formData, phone: v})} />
+            <div className="space-y-2 text-left block text-left text-left text-left text-left text-left text-left text-left">
+              <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left text-left text-left text-left text-left text-left text-left text-left">เพศ</label>
+              <div className="relative text-left text-left text-left text-left text-left text-left text-left text-left">
+                <select className="appearance-none w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold cursor-pointer text-left text-left text-left text-left text-left text-left text-left text-left text-left" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
+                    <option value="ชาย">ชาย</option><option value="หญิง">หญิง</option>
+                </select>
+                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-left text-left text-left text-left text-left text-left text-left text-left text-left" />
+              </div>
+            </div>
+          </div>
+          {formData.role && (
+            <div className="grid grid-cols-2 gap-5 text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">
+              <div className="space-y-2 text-left block text-left text-left text-left text-left text-left text-left text-left text-left text-left">
+                <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left text-left text-left text-left text-left text-left text-left text-left text-left">แผนก</label>
+                <div className="relative text-left text-left text-left text-left text-left text-left text-left text-left text-left">
+                  <select className="appearance-none w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold cursor-pointer text-left text-left text-left text-left text-left text-left text-left text-left text-left" value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})}>
+                      {departments.map((dept, idx) => <option key={idx} value={dept}>{dept}</option>)}
+                  </select>
+                  <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-left text-left text-left text-left text-left text-left text-left text-left text-left" />
+                </div>
+              </div>
+              <div className="space-y-2 text-left block text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">
+                <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">ระดับสิทธิ์</label>
+                <div className="relative text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left">
+                  <select className="appearance-none w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold cursor-pointer text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
+                      <option>Admin</option><option>หัวหน้าแผนก</option><option>พนักงานทั่วไป</option>
+                  </select>
+                  <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-left text-left text-left text-left text-left text-left text-left text-left text-left text-left" />
+                </div>
+              </div>
+            </div>
+          )}
+          {/* ✅ ส่วนปุ่มยกเลิกและบันทึกสวยงาม อยู่กึ่งกลาง และใช้สี Rose สำหรับปุ่มยกเลิก */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 w-full px-4 text-center text-center">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className="w-full sm:w-40 bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-[1.5rem] transition-all active:scale-95 uppercase tracking-widest text-xs shadow-md shadow-rose-100 flex items-center justify-center text-center text-center text-center text-center"
+            >
+              ยกเลิก
+            </button>
+            <button 
+              type="submit" 
+              className="w-full sm:w-64 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 px-8 rounded-[1.5rem] shadow-lg shadow-indigo-100 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs text-center text-center"
+            >
+              <FiCheck size={18} /> บันทึกการแก้ไข
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+/* --- Helper Components อื่นๆ (คงเดิม) --- */
 function ManageDeptModal({ departments, onClose, fetchDepartments }) {
   const [newDept, setNewDept] = useState("");
   const [editingDept, setEditingDept] = useState(null); 
@@ -335,14 +449,14 @@ function ManageDeptModal({ departments, onClose, fetchDepartments }) {
 
   const handleAdd = async () => {
     const trimmed = newDept.trim();
-    if (!trimmed) return alert("กรุณากรอกชื่อแผนก");
+    if (!trimmed) return toast.error("กรุณากรอกชื่อแผนก");
     try {
       await axios.post(`${API_BASE_URL}/departments`, { dept_name: trimmed });
       setNewDept("");
       await fetchDepartments();
-      alert("เพิ่มแผนกสำเร็จ");
+      toast.success("เพิ่มแผนกใหม่สำเร็จ");
     } catch (err) {
-      alert(err.response?.data?.error || "ไม่สามารถเพิ่มแผนกได้");
+      toast.error(err.response?.data?.error || "ไม่สามารถเพิ่มแผนกได้");
     }
   };
 
@@ -356,9 +470,9 @@ function ManageDeptModal({ departments, onClose, fetchDepartments }) {
       await axios.put(`${API_BASE_URL}/departments/${encodeURIComponent(oldName)}`, { dept_name: trimmedValue });
       setEditingDept(null);
       await fetchDepartments();
-      alert("แก้ไขชื่อแผนกสำเร็จ");
+      toast.success("แก้ไขชื่อแผนกสำเร็จ");
     } catch (err) {
-      alert(err.response?.data?.error || "ไม่สามารถแก้ไขชื่อแผนกได้");
+      toast.error(err.response?.data?.error || "ไม่สามารถแก้ไขชื่อแผนกได้");
     }
   };
 
@@ -367,44 +481,42 @@ function ManageDeptModal({ departments, onClose, fetchDepartments }) {
     try {
       await axios.delete(`${API_BASE_URL}/departments/${encodeURIComponent(deptName)}`);
       await fetchDepartments();
-      alert("ลบแผนกเรียบร้อยแล้ว");
+      toast.success("ลบแผนกเรียบร้อยแล้ว");
     } catch (err) {
-      alert("ไม่สามารถลบได้ เนื่องจากแผนกนี้อาจถูกใช้งานอยู่");
+      toast.error("ไม่สามารถลบได้ เนื่องจากแผนกนี้อาจถูกใช้งานอยู่");
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4 font-bold text-left">
-      <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl p-8 relative animate-in zoom-in duration-300 text-left">
-        <button onClick={onClose} className="absolute right-6 top-6 w-8 h-8 text-slate-400 hover:text-rose-500 flex items-center justify-center hover:bg-rose-50 rounded-full transition-all"><FiX size={20} /></button>
-        <h3 className="text-xl font-black text-slate-800 mb-6 uppercase tracking-tight text-left">จัดการรายชื่อแผนก</h3>
-        
-        <div className="flex gap-3 mb-6 text-left">
-          <input type="text" value={newDept} onChange={(e) => setNewDept(e.target.value)} placeholder="ระบุชื่อแผนกใหม่..." className="flex-1 bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-indigo-500/10 outline-none font-bold text-left" />
-          <button onClick={handleAdd} className="bg-indigo-600 text-white px-5 py-3 rounded-xl font-black text-xs hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-lg shadow-indigo-100"><FiPlus size={16}/> เพิ่ม</button>
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4 font-bold text-left text-left text-left text-left text-left">
+      <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl p-8 relative animate-in zoom-in duration-300 text-left text-left text-left text-left text-left">
+        <button onClick={onClose} className="absolute right-6 top-6 w-8 h-8 text-slate-400 hover:text-rose-500 flex items-center justify-center hover:bg-rose-50 rounded-full transition-all text-left text-left text-left text-left text-left text-left text-left text-left"><FiX size={20} /></button>
+        <h3 className="text-xl font-black text-slate-800 mb-6 uppercase tracking-tight text-left text-left text-left text-left text-left">จัดการรายชื่อแผนก</h3>
+        <div className="flex gap-3 mb-6 text-left text-left text-left text-left text-left">
+          <input type="text" value={newDept} onChange={(e) => setNewDept(e.target.value)} placeholder="ระบุชื่อแผนกใหม่..." className="flex-1 bg-slate-50 border-none rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-indigo-500/10 outline-none font-bold text-left text-left text-left text-left text-left" />
+          <button onClick={handleAdd} className="bg-indigo-600 text-white px-5 py-3 rounded-xl font-black text-xs hover:bg-indigo-700 transition-all flex items-center gap-2 shadow-lg shadow-indigo-100 text-left text-left text-left text-left text-left"><FiPlus size={16}/> เพิ่ม</button>
         </div>
-
-        <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar text-left">
+        <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar text-left text-left text-left text-left text-left">
           {departments.length > 0 ? departments.map((dept, index) => (
-            <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl group hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100 transition-all text-left">
+            <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl group hover:bg-white hover:shadow-sm border border-transparent hover:border-slate-100 transition-all text-left text-left text-left text-left text-left">
               {editingDept === dept ? (
-                <div className="flex-1 flex gap-2 items-center text-left">
-                  <input autoFocus type="text" className="flex-1 bg-white border border-indigo-200 rounded-lg px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 font-bold text-left" value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdate(dept)} />
-                  <button onClick={() => handleUpdate(dept)} className="text-indigo-600 hover:bg-indigo-50 p-2 rounded-lg transition-colors"><FiCheck size={16}/></button>
-                  <button onClick={() => setEditingDept(null)} className="text-rose-400 hover:bg-rose-50 p-2 rounded-lg transition-colors"><FiX size={16}/></button>
+                <div className="flex-1 flex gap-2 items-center text-left text-left text-left text-left text-left">
+                  <input autoFocus type="text" className="flex-1 bg-white border border-indigo-200 rounded-lg px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 font-bold text-left text-left text-left text-left text-left" value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdate(dept)} />
+                  <button onClick={() => handleUpdate(dept)} className="text-indigo-600 hover:bg-indigo-50 p-2 rounded-lg transition-colors text-left text-left text-left text-left text-left"><FiCheck size={16}/></button>
+                  <button onClick={() => setEditingDept(null)} className="text-rose-400 hover:bg-rose-50 p-2 rounded-lg transition-colors text-left text-left text-left text-left text-left text-left text-left"><FiX size={16}/></button>
                 </div>
               ) : (
                 <>
-                  <span className="text-slate-700 text-sm font-bold text-left">{dept}</span>
-                  <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all text-left">
-                    <button onClick={() => { setEditingDept(dept); setEditValue(dept); }} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition-all"><FiEdit3 size={15}/></button>
-                    <button onClick={() => handleDelete(dept)} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-500 rounded-lg transition-all"><FiTrash2 size={15}/></button>
+                  <span className="text-slate-700 text-sm font-bold text-left text-left text-left text-left text-left">{dept}</span>
+                  <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all text-left text-left text-left text-left text-left text-left text-left">
+                    <button onClick={() => { setEditingDept(dept); setEditValue(dept); }} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition-all text-left text-left text-left text-left text-left text-left text-left"><FiEdit3 size={15}/></button>
+                    <button onClick={() => handleDelete(dept)} className="w-8 h-8 flex items-center justify-center text-slate-400 hover:bg-rose-50 hover:text-rose-500 rounded-lg transition-all text-left text-left text-left text-left text-left text-left text-left"><FiTrash2 size={15}/></button>
                   </div>
                 </>
               )}
             </div>
           )) : (
-            <div className="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest text-left">ไม่มีข้อมูลแผนก</div>
+            <div className="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest text-left text-left text-left text-left text-left">ไม่มีข้อมูลแผนก</div>
           )}
         </div>
       </div>
@@ -414,13 +526,7 @@ function ManageDeptModal({ departments, onClose, fetchDepartments }) {
 
 function AddUserModal({ onAdd, onClose, departments }) {
   const [formData, setFormData] = useState({ 
-    empCode: "", 
-    name: "", 
-    email: "", 
-    phone: "", 
-    department: "", 
-    role: "พนักงานทั่วไป",
-    gender: "ชาย" 
+    empCode: "", name: "", email: "", phone: "", department: "", role: "พนักงานทั่วไป", gender: "ชาย" 
   });
 
   useEffect(() => {
@@ -431,62 +537,71 @@ function AddUserModal({ onAdd, onClose, departments }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.empCode || !formData.email || !formData.department) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+    if (!formData.name || !formData.empCode || !formData.email || !formData.department) return toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
     onAdd(formData);
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 font-bold text-left">
-      <div className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl p-10 relative animate-in zoom-in duration-300 text-left">
-        <button onClick={onClose} className="absolute right-8 top-8 w-10 h-10 text-slate-400 hover:text-rose-500 transition-all flex items-center justify-center hover:bg-rose-50 rounded-full font-black"><FiX size={24} /></button>
-        <h3 className="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tight text-left">เพิ่มพนักงานใหม่</h3>
-        <p className="text-xs text-indigo-600 mb-6 bg-indigo-50 p-3 rounded-xl flex items-center gap-2 text-left"><FiHash /> รหัสผ่านเริ่มต้นจะถูกตั้งเป็น "รหัสพนักงาน" โดยอัตโนมัติ</p>
-        <form onSubmit={handleSubmit} className="space-y-5 text-left">
-          <div className="grid grid-cols-2 gap-5 text-left">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 font-bold text-left text-left text-left text-left text-left">
+      <div className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl p-10 relative animate-in zoom-in duration-300 text-left text-left text-left text-left text-left">
+        <button onClick={onClose} className="absolute right-8 top-8 w-10 h-10 text-slate-400 hover:text-rose-500 flex items-center justify-center hover:bg-rose-50 rounded-full font-black text-left text-left text-left text-left text-left text-left text-left text-left"><FiX size={24} /></button>
+        <h3 className="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tight text-left text-left text-left text-left text-left text-left">เพิ่มพนักงานใหม่</h3>
+        <p className="text-xs text-indigo-600 mb-6 bg-indigo-50 p-3 rounded-xl flex items-center gap-2 text-left text-left text-left text-left text-left text-left text-left"><FiHash /> รหัสผ่านเริ่มต้นจะถูกตั้งเป็น "รหัสพนักงาน" โดยอัตโนมัติ</p>
+        <form onSubmit={handleSubmit} className="space-y-5 text-left text-left text-left text-left text-left text-left">
+          <div className="grid grid-cols-2 gap-5 text-left text-left text-left text-left text-left text-left">
             <ProfileInput label="รหัสพนักงาน" value={formData.empCode} onChange={(v) => setFormData({...formData, empCode: v})} />
             <ProfileInput label="ชื่อ-นามสกุล" value={formData.name} onChange={(v) => setFormData({...formData, name: v})} />
           </div>
-          <div className="grid grid-cols-2 gap-5 text-left">
+          <div className="grid grid-cols-2 gap-5 text-left text-left text-left text-left text-left text-left">
             <ProfileInput label="อีเมล" value={formData.email} onChange={(v) => setFormData({...formData, email: v})} />
             <ProfileInput label="เบอร์โทรศัพท์" value={formData.phone} onChange={(v) => setFormData({...formData, phone: v})} />
           </div>
-          <div className="grid grid-cols-2 gap-5 text-left">
-            <div className="space-y-2 text-left block">
-              <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left">เพศ</label>
-              <div className="relative group text-left">
-                <select className="appearance-none w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold cursor-pointer text-left" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
-                    <option value="ชาย">ชาย</option>
-                    <option value="หญิง">หญิง</option>
+          <div className="grid grid-cols-2 gap-5 text-left text-left text-left text-left text-left text-left">
+            <div className="space-y-2 text-left block text-left text-left text-left text-left text-left text-left">
+              <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left text-left text-left text-left text-left text-left text-left">เพศ</label>
+              <div className="relative text-left text-left text-left text-left text-left text-left text-left">
+                <select className="appearance-none w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold cursor-pointer text-left text-left text-left text-left text-left text-left text-left" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
+                    <option value="ชาย">ชาย</option><option value="หญิง">หญิง</option>
                 </select>
-                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-left text-left text-left text-left text-left text-left text-left" />
               </div>
             </div>
-            <div className="space-y-2 text-left block text-left">
-              <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left">ระดับสิทธิ์</label>
-              <div className="relative group text-left">
-                <select className="appearance-none w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold cursor-pointer text-left" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
+            <div className="space-y-2 text-left block text-left text-left text-left text-left text-left text-left text-left">
+              <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left text-left text-left text-left text-left text-left text-left">ระดับสิทธิ์</label>
+              <div className="relative text-left text-left text-left text-left text-left text-left text-left">
+                <select className="appearance-none w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold cursor-pointer text-left text-left text-left text-left text-left text-left text-left" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
                     <option>Admin</option><option>หัวหน้าแผนก</option><option>พนักงานทั่วไป</option>
                 </select>
-                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-left text-left text-left text-left text-left text-left text-left" />
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-5 text-left">
-             <div className="space-y-2 text-left block text-left">
-              <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left">แผนก / หน่วยงาน</label>
-              <div className="relative group text-left">
-                <select className="appearance-none w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold cursor-pointer text-left" value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})}>
-                    {departments.map((dept, index) => (
-                      <option key={index} value={dept}>{dept}</option>
-                    ))}
+          <div className="grid grid-cols-1 gap-5 text-left text-left text-left text-left text-left text-left">
+             <div className="space-y-2 text-left block text-left text-left text-left text-left text-left text-left text-left">
+              <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left text-left text-left text-left text-left text-left text-left">แผนก / หน่วยงาน</label>
+              <div className="relative text-left text-left text-left text-left text-left text-left text-left">
+                <select className="appearance-none w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold cursor-pointer text-left text-left text-left text-left text-left text-left text-left" value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})}>
+                    {departments.map((dept, index) => <option key={index} value={dept}>{dept}</option>)}
                 </select>
-                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-left text-left text-left text-left text-left text-left text-left" />
               </div>
             </div>
           </div>
-          <div className="flex gap-4 mt-4 text-left">
-            <button type="button" onClick={onClose} className="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-2xl transition-all active:scale-95 uppercase tracking-widest text-xs text-left">ยกเลิก</button>
-            <button type="submit" className="flex-2 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 px-8 rounded-2xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs text-left"><FiCheck size={18} /> ยืนยันการเพิ่มพนักงาน</button>
+          {/* ✅ ส่วนปุ่มยกเลิกและเพิ่มพนักงานสวยงาม อยู่กึ่งกลาง และใช้สี Rose สำหรับปุ่มยกเลิก */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 w-full text-center text-center text-center text-center">
+            <button 
+              type="button" 
+              onClick={onClose} 
+              className="w-full sm:w-40 bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-[1.5rem] transition-all active:scale-95 uppercase tracking-widest text-xs shadow-sm shadow-rose-100 flex items-center justify-center text-center text-center text-center text-center text-center"
+            >
+              ยกเลิก
+            </button>
+            <button 
+              type="submit" 
+              className="w-full sm:w-64 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 px-8 rounded-[1.5rem] shadow-lg shadow-indigo-100 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs text-center text-center text-center"
+            >
+              <FiCheck size={18} /> ยืนยันการเพิ่มพนักงาน
+            </button>
           </div>
         </form>
       </div>
@@ -496,17 +611,17 @@ function AddUserModal({ onAdd, onClose, departments }) {
 
 function SidebarItem({ icon, label, active, danger }) {
   return (
-    <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left ${active ? "bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100" : "text-slate-400 hover:bg-slate-50 hover:text-slate-700"} ${danger ? "text-rose-500 mt-auto text-left" : ""}`}>
-      <span className="flex items-center justify-center">{icon}</span>{label}
+    <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left text-left text-left text-left text-left ${active ? "bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100" : "text-slate-400 hover:bg-slate-50 hover:text-slate-700"} ${danger ? "text-rose-500 mt-auto text-left text-left text-left text-left text-left" : ""}`}>
+      <span className="flex items-center justify-center text-left text-left text-left text-left text-left">{icon}</span>{label}
     </div>
   );
 }
 
 function ProfileInput({ label, value, onChange }) {
   return (
-    <div className="space-y-2 text-left block font-bold text-left">
-      <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left">{label}</label>
-      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold text-left" />
+    <div className="space-y-2 text-left block font-bold text-left text-left text-left text-left text-left text-left text-left">
+      <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 text-left text-left text-left text-left text-left text-left text-left">{label}</label>
+      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold text-left text-left text-left text-left text-left" />
     </div>
   );
 }
@@ -514,11 +629,11 @@ function ProfileInput({ label, value, onChange }) {
 function SummaryCard({ title, value, icon, color }) {
   const colors = { purple: "bg-purple-50 text-purple-600", blue: "bg-blue-50 text-blue-600", rose: "bg-rose-50 text-rose-600" };
   return (
-    <div className="bg-white rounded-[2rem] border border-slate-100 transition-all hover:shadow-lg group flex items-center p-6 shadow-sm relative overflow-hidden text-left">
-      <div className={`w-14 h-14 rounded-2xl text-2xl group-hover:scale-110 transition-transform ${colors[color]} flex items-center justify-center shadow-sm shrink-0 mr-5 z-10`}>{icon}</div>
-      <div className="flex flex-col z-10 overflow-hidden text-left">
-        <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.1em] truncate mb-0.5 text-left">{title}</p>
-        <p className="text-3xl font-black text-slate-800 leading-tight text-left">{value.toLocaleString()}</p>
+    <div className="bg-white rounded-[2rem] border border-slate-100 transition-all hover:shadow-lg group flex items-center p-6 shadow-sm relative overflow-hidden text-left text-left text-left text-left text-left">
+      <div className={`w-14 h-14 rounded-2xl text-2xl group-hover:scale-110 transition-transform ${colors[color]} flex items-center justify-center shadow-sm shrink-0 mr-5 z-10 text-left text-left text-left text-left text-left`}>{icon}</div>
+      <div className="flex flex-col z-10 overflow-hidden text-left text-left text-left text-left text-left text-left">
+        <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.1em] truncate mb-0.5 text-left text-left text-left text-left text-left text-left">{title}</p>
+        <p className="text-3xl font-black text-slate-800 leading-tight text-left text-left text-left text-left text-left">{value.toLocaleString()}</p>
       </div>
     </div>
   );
