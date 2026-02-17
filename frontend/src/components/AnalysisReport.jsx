@@ -119,27 +119,18 @@ export default function AnalyticalReportPage() {
     return () => clearInterval(interval);
   }, [fetchAnalytics]);
 
+  // ✅ แก้ไข: กรองข้อมูล Excel ตาม Period
   const downloadExcel = async () => {
     try {
-      const resDocs = await fetch(`http://localhost:5000/api/export/excel/documents`);
+      let queryParams = `period=${reportPeriod}`;
+      if (selectedDate) queryParams += `&start=${selectedDate}&end=${selectedDate}`;
+      
+      const resDocs = await fetch(`http://localhost:5000/api/export/excel/documents?${queryParams}`);
       const docsData = await resDocs.json();
-      const resStats = await fetch(`http://localhost:5000/api/admin/stats`);
-      const statsData = await resStats.json();
 
       const workbook = XLSX.utils.book_new();
       const wsDocs = XLSX.utils.json_to_sheet(docsData);
       XLSX.utils.book_append_sheet(workbook, wsDocs, "คลังเอกสาร");
-
-      const userSummary = [
-        ["หัวข้อสรุป", "จำนวน (ราย)"],
-        ["ผู้ใช้งานทั้งหมด", statsData.totalUsers],
-        ["ผู้ใช้งานใหม่เดือนนี้", statsData.newUsersThisMonth],
-        ["เอกสารทั้งหมดในระบบ", statsData.totalDocs],
-        ["เอกสารที่อัปโหลดเดือนนี้", statsData.docsThisMonth],
-        ["วันที่ออกรายงาน", new Date().toLocaleDateString("th-TH")]
-      ];
-      const wsUsers = XLSX.utils.aoa_to_sheet(userSummary);
-      XLSX.utils.book_append_sheet(workbook, wsUsers, "สรุปจำนวนผู้ใช้งาน");
       
       XLSX.writeFile(workbook, `Analytical-PEA-${reportPeriod}.xlsx`);
     } catch (error) {
@@ -147,44 +138,34 @@ export default function AnalyticalReportPage() {
     }
   };
 
-  // ✅ แก้ไข: Export PDF แบบสร้าง Table อัตโนมัติจาก Data (ไม่ใช่ภาพหน้าจอ)
+  // ✅ แก้ไข: ปรับปรุง PDF Export ให้กรองตาม Period สอดคล้องกับหน้าจอ
   const downloadPDF = async () => {
     try {
       setLoading(true);
-      const resDocs = await fetch(`http://localhost:5000/api/export/excel/documents`);
+      let queryParams = `period=${reportPeriod}`;
+      if (selectedDate) queryParams += `&start=${selectedDate}&end=${selectedDate}`;
+      
+      const resDocs = await fetch(`http://localhost:5000/api/export/pdf/documents?${queryParams}`);
+      if (!resDocs.ok) throw new Error("API Connection Failed");
       const docsData = await resDocs.json();
-      const resStats = await fetch(`http://localhost:5000/api/admin/stats`);
-      const totalStats = await resStats.json();
 
       const doc = new jsPDF();
-      
-      // ส่วนหัวเอกสาร
       doc.setFontSize(20);
-      doc.setTextColor(79, 70, 229); // Indigo 600
+      doc.setTextColor(79, 70, 229); 
       doc.text("Analytical Report - PEA CM2", 14, 20);
-      
-      doc.setFontSize(10);
-      doc.setTextColor(100);
-      doc.text(`Period: ${selectedDate || reportPeriod}`, 14, 28);
-      doc.text(`Report Generated at: ${new Date().toLocaleString("th-TH")}`, 14, 34);
+      doc.setFontSize(10); doc.setTextColor(100);
+      doc.text(`Report Period: ${reportPeriod}`, 14, 28);
+      doc.text(`Generated at: ${new Date().toLocaleString("th-TH")}`, 14, 34);
 
-      // 1. ตารางสรุปสถิติหลัก
       doc.autoTable({
         startY: 40,
         head: [['Metric Category', 'Count', 'Trend']],
-        body: [
-          ['New Registered Users', stats[0].value, stats[0].trend],
-          ['Total Documents Processed', stats[1].value, stats[1].trend],
-          ['Active System Logins', stats[2].value, stats[2].trend],
-          ['Approved Document Rights', stats[3].value, stats[3].trend],
-        ],
+        body: stats.map(s => [s.title, s.value, s.trend]),
         theme: 'striped',
-        headStyles: { fillColor: [79, 70, 229], fontStyle: 'bold' }
+        headStyles: { fillColor: [79, 70, 229] }
       });
 
-      // 2. ตารางสัดส่วนแผนก
-      doc.setFontSize(14);
-      doc.setTextColor(30);
+      doc.setFontSize(14); doc.setTextColor(30);
       doc.text("Departmental Engagement Statistics", 14, doc.lastAutoTable.finalY + 15);
       
       doc.autoTable({
@@ -192,30 +173,26 @@ export default function AnalyticalReportPage() {
         head: [['Department Name', 'Engagement Percentage']],
         body: deptData.map(d => [d.label, d.percent]),
         theme: 'grid',
-        headStyles: { fillColor: [147, 51, 234] } // Purple
+        headStyles: { fillColor: [147, 51, 234] } 
       });
 
-      // 3. รายการเอกสารล่าสุด (ขึ้นหน้าใหม่)
-      doc.addPage();
-      doc.text("Detailed Document Overview", 14, 15);
-      doc.autoTable({
-        startY: 20,
-        head: [['ID', 'Document Title', 'Department', 'Status', 'Downloads']],
-        body: docsData.map(d => [
-            d["รหัสเอกสาร"], 
-            d["ชื่อเอกสาร"], 
-            d["แผนก"], 
-            d["สถานะ"], 
-            d["ยอดดาวน์โหลด"]
-        ]),
-        styles: { fontSize: 8 },
-        headStyles: { fillColor: [15, 118, 110] } // Teal
-      });
+      if (docsData && docsData.length > 0) {
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.text(`Detailed Documents Overview (${reportPeriod})`, 14, 15);
+        doc.autoTable({
+          startY: 22,
+          head: [['ID', 'Document Title', 'Department', 'Status', 'Usage']],
+          body: docsData.map(d => [d.id || "-", d.title || "-", d.dept || "-", d.status || "-", d.downloads || "0"]),
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [15, 118, 110] }
+        });
+      }
 
-      doc.save(`PEA-Analytical-Data-${reportPeriod}.pdf`);
+      doc.save(`PEA-Analytical-${reportPeriod}.pdf`);
     } catch (error) {
       console.error("PDF Export Error:", error);
-      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF");
+      alert("เกิดข้อผิดพลาดในการสร้างไฟล์ PDF: กรุณาตรวจสอบการเชื่อมต่อ API");
     } finally {
       setLoading(false);
     }
@@ -232,13 +209,8 @@ export default function AnalyticalReportPage() {
       {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
       
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 flex flex-col transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        {/* ✅ แก้ไข: เปลี่ยนจากตัวอักษร A เป็น Logo การไฟฟ้า */}
         <div className="p-6 flex items-center gap-3 border-b border-slate-50 text-left">
-          <img 
-            src={Logo} 
-            alt="PEA Logo" 
-            className="h-12 w-auto object-contain" 
-          />
+          <img src={Logo} alt="PEA Logo" className="h-12 w-auto object-contain" />
           <div className="leading-tight text-left">
             <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight">PEA ADMIN</h1>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Chiang Mai 2 System</p>
@@ -279,16 +251,9 @@ export default function AnalyticalReportPage() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 bg-slate-100/80 px-4 py-2.5 rounded-2xl border border-slate-200 shadow-sm transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
                 <FiCalendar className="text-slate-500" size={16} />
-                <input 
-                  type="date" 
-                  value={selectedDate} 
-                  onChange={(e) => setSelectedDate(e.target.value)} 
-                  className="bg-transparent text-xs font-black outline-none border-none p-0 text-slate-700 w-28 uppercase" 
-                />
+                <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="bg-transparent text-xs font-black outline-none border-none p-0 text-slate-700 w-28 uppercase" />
                 {selectedDate && (
-                  <button onClick={() => setSelectedDate("")} className="ml-1 text-slate-400 hover:text-rose-500 transition-colors">
-                    <FiX size={14}/>
-                  </button>
+                  <button onClick={() => setSelectedDate("")} className="ml-1 text-slate-400 hover:text-rose-500 transition-colors"><FiX size={14}/></button>
                 )}
             </div>
 
@@ -314,9 +279,7 @@ export default function AnalyticalReportPage() {
 
         <div className="px-4 lg:px-10 pb-10 mt-8 space-y-8 text-left">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((s, i) => (
-              <ReportCard key={i} {...s} />
-            ))}
+            {stats.map((s, i) => ( <ReportCard key={i} {...s} /> ))}
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -347,9 +310,7 @@ export default function AnalyticalReportPage() {
                   </div>
                 </div>
                 <div className="mt-8 w-full space-y-4">
-                  {deptData.length > 0 ? deptData.map((dept, i) => (
-                    <DeptLegend key={i} {...dept} />
-                  )) : <p className="text-center text-slate-300 italic">ไม่มีข้อมูลแผนก</p>}
+                  {deptData.length > 0 ? deptData.map((dept, i) => ( <DeptLegend key={i} {...dept} /> )) : <p className="text-center text-slate-300 italic">ไม่มีข้อมูลแผนก</p>}
                 </div>
               </div>
             </div>
@@ -357,7 +318,6 @@ export default function AnalyticalReportPage() {
         </div>
       </main>
 
-      {/* ✅ เรียกใช้ AdminProfileModal แทนของเดิม */}
       {openProfileModal && (
         <AdminProfileModal 
           user={user} 
@@ -369,8 +329,6 @@ export default function AnalyticalReportPage() {
     </div>
   );
 }
-
-/* --- Helper Components (คงเดิม) --- */
 
 function ReportCard({ title, value, trend, up }) {
   return (
@@ -391,10 +349,7 @@ function Bar({ height, label, active }) {
   return (
     <div className="flex-1 flex flex-col items-center gap-3 group cursor-pointer text-left">
       <div className="w-full relative flex flex-col justify-end h-48 bg-slate-50/50 rounded-2xl overflow-hidden group-hover:bg-slate-100 transition-all border border-transparent group-hover:border-slate-200">
-        <div 
-            style={{ height: height }} 
-            className={`w-full transition-all duration-1000 ease-out shadow-lg shadow-indigo-100/50 ${active ? 'bg-gradient-to-t from-indigo-600 to-purple-500' : 'bg-slate-200 group-hover:bg-indigo-300'}`}
-        ></div>
+        <div style={{ height: height }} className={`w-full transition-all duration-1000 ease-out shadow-lg shadow-indigo-100/50 ${active ? 'bg-gradient-to-t from-indigo-600 to-purple-500' : 'bg-slate-200 group-hover:bg-indigo-300'}`}></div>
       </div>
       <span className={`text-[12px] font-black tracking-tighter ${active ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`}>{label}</span>
     </div>
@@ -414,15 +369,6 @@ function DeptLegend({ label, color, percent }) {
         </div>
         <span className="text-[13px] font-black text-slate-800 bg-slate-50 px-2.5 py-1 rounded-xl group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all">{percent}</span>
       </div>
-    </div>
-  );
-}
-
-function ProfileInput({ label, value, onChange }) {
-  return (
-    <div className="space-y-2 text-left block font-bold text-left">
-      <label className="text-[12px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
-      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold" />
     </div>
   );
 }
