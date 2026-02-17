@@ -153,8 +153,8 @@ router.post('/documents', async (req, res) => {
   try {
     const result = await pool.query(
       `INSERT INTO documents (doc_name, cat_id, file_url, file_size, require_login, fiscal_year, dept, owner, status, created_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP) 
-       RETURNING *`,
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP) 
+        RETURNING *`,
       [doc_name, cat_id, file_url, file_size, require_login, fiscal_year, dept, owner, status]
     );
     const completeDoc = await pool.query(`
@@ -533,24 +533,104 @@ router.get('/admin/stats', async (req, res) => {
   }
 });
 
-// ⭐ API สำหรับส่งออกรายการเอกสาร (Export Documents)
+// ⭐ แก้ไข: API สำหรับส่งออกรายการเอกสาร เพื่อให้รองรับการกรองตาม Period (รองรับทั้ง Excel และ PDF)
 router.get('/export/excel/documents', async (req, res) => {
   try {
+    const { start, end, period } = req.query;
+    let timeFilter = "TRUE";
+    const params = [];
+
+    if (start && end) {
+      if (start === end) {
+        timeFilter = "d.created_at::date = $1";
+        params.push(start);
+      } else {
+        timeFilter = "d.created_at BETWEEN $1 AND $2";
+        params.push(`${start} 00:00:00`, `${end} 23:59:59`);
+      }
+    } else if (period === "ไตรมาสล่าสุด") {
+      timeFilter = "d.created_at >= CURRENT_DATE - INTERVAL '3 months'";
+    } else if (period === "ประจำปี 2568") {
+      timeFilter = "EXTRACT(YEAR FROM d.created_at) = 2025";
+    } else if (period === "ประจำเดือนนี้") {
+      timeFilter = "d.created_at >= date_trunc('month', CURRENT_DATE)";
+    }
+
     const result = await pool.query(`
       SELECT 
-        d.doc_id as "รหัสเอกสาร", 
-        d.doc_name as "ชื่อเอกสาร", 
-        e.dept_name as "แผนก", 
-        d.owner as "ผู้ส่งคำขอ", 
-        d.status as "สถานะ", 
-        COALESCE(d.download_count, 0) as "ยอดดาวน์โหลด"
+        d.doc_id as id, 
+        d.doc_name as title, 
+        e.dept_name as dept, 
+        d.owner, 
+        d.status, 
+        COALESCE(d.download_count, 0) as downloads
       FROM documents d
       LEFT JOIN employees e ON d.owner = e.emp_name
+      WHERE ${timeFilter}
       ORDER BY d.created_at DESC
-    `);
+    `, params);
+
+    const formattedData = result.rows.map(row => ({
+      "รหัสเอกสาร": row.id,
+      "ชื่อเอกสาร": row.title,
+      "แผนก": row.dept,
+      "ผู้ส่งคำขอ": row.owner,
+      "สถานะ": row.status,
+      "ยอดดาวน์โหลด": row.downloads,
+      id: row.id,
+      title: row.title,
+      dept: row.dept,
+      status: row.status,
+      downloads: row.downloads
+    }));
+
+    res.json(formattedData);
+  } catch (err) {
+    console.error("Export API Error:", err.message);
+    res.status(500).json({ error: "ไม่สามารถดึงข้อมูลสำหรับส่งออกได้" });
+  }
+});
+
+// ⭐ แก้ไข: เพิ่ม Endpoint เฉพาะสำหรับ PDF กรองช่วงเวลา
+router.get('/export/pdf/documents', async (req, res) => {
+  try {
+    const { start, end, period } = req.query;
+    let timeFilter = "TRUE";
+    const params = [];
+
+    if (start && end) {
+      if (start === end) {
+        timeFilter = "d.created_at::date = $1";
+        params.push(start);
+      } else {
+        timeFilter = "d.created_at BETWEEN $1 AND $2";
+        params.push(`${start} 00:00:00`, `${end} 23:59:59`);
+      }
+    } else if (period === "ไตรมาสล่าสุด") {
+      timeFilter = "d.created_at >= CURRENT_DATE - INTERVAL '3 months'";
+    } else if (period === "ประจำปี 2568") {
+      timeFilter = "EXTRACT(YEAR FROM d.created_at) = 2025";
+    } else if (period === "ประจำเดือนนี้") {
+      timeFilter = "d.created_at >= date_trunc('month', CURRENT_DATE)";
+    }
+
+    const result = await pool.query(`
+      SELECT 
+        d.doc_id as id, 
+        d.doc_name as title, 
+        e.dept_name as dept, 
+        d.status, 
+        COALESCE(d.download_count, 0) as downloads
+      FROM documents d
+      LEFT JOIN employees e ON d.owner = e.emp_name
+      WHERE ${timeFilter}
+      ORDER BY d.created_at DESC
+    `, params);
+
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: "ไม่สามารถดึงข้อมูลสำหรับส่งออกได้" });
+    console.error("PDF Export API Error:", err.message);
+    res.status(500).json({ error: "ไม่สามารถดึงข้อมูลสำหรับ PDF ได้" });
   }
 });
 
