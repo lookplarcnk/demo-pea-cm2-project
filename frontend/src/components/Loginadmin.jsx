@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"; 
-import { FiUser, FiKey, FiMail, FiArrowLeft } from "react-icons/fi"; 
+import { FiUser, FiKey, FiMail, FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi"; // ✅ เพิ่ม FiEye, FiEyeOff
 import { useNavigate, Link } from "react-router-dom"; 
 import userStaff from "../assets/img/user-admin.jpg";
 
@@ -13,6 +13,7 @@ function Loginadmin() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // ✅ เพิ่ม State สำหรับเปิดปิดรหัสผ่าน
   const [rememberMe, setRememberMe] = useState(false); 
   const [loginError, setLoginError] = useState("");
 
@@ -62,9 +63,9 @@ function Loginadmin() {
     }
   };
 
-  /* ================= ส่วนเข้าสู่ระบบ: ปรับปรุงเทคนิคการเรียก Pop-up ================= */
+  /* ================= ส่วนเข้าสู่ระบบ (คงเดิม) ================= */
   const handleLoginSubmit = async (e) => {
-    e.preventDefault(); // ✅ ยับยั้งการ Refresh หน้า แต่ Browser จะเริ่มบันทึกฟอร์มที่นี่
+    e.preventDefault(); 
     setLoginError("");
 
     if (!email || !password) {
@@ -91,7 +92,6 @@ function Loginadmin() {
         return;
       }
 
-      // บันทึก Remember Me ภายใน
       if (rememberMe) {
         localStorage.setItem("admin_remember_email", email);
         localStorage.setItem("admin_remember_password", password);
@@ -109,15 +109,13 @@ function Loginadmin() {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
 
-      // ✅ เทคนิคสำคัญ: เปลี่ยน Focus ออกจาก Input ก่อนเปลี่ยนหน้า เพื่อกระตุ้นให้ Browser ปิด Job การป้อนข้อมูล
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
 
-      // ✅ เพิ่มดีเลย์เพื่อให้ Browser "รับรู้" การส่งค่าสำเร็จของฟอร์ม HTML ก่อนที่ React จะทำลาย Component
       setTimeout(() => {
         navigate("/AdminDashboard");
-      }, 500); // เพิ่มเป็น 500ms เพื่อความแน่นอน
+      }, 500); 
       
     } catch (err) {
       setLoginError("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ฐานข้อมูลได้");
@@ -147,7 +145,6 @@ function Loginadmin() {
           <img src={userStaff} alt="Admin" className="w-32 h-32 md:w-36 md:h-36 object-contain drop-shadow-lg rounded-full" />
         </div>
 
-        {/* ✅ เพิ่ม action และ method ปลอม เพื่อหลอกให้เบราว์เซอร์มั่นใจว่าเป็น Form มาตรฐาน */}
         <form 
           action="#" 
           method="POST" 
@@ -158,7 +155,7 @@ function Loginadmin() {
             <FiUser className="text-gray-500 mr-2" />
             <input
               type="email"
-              name="username" // ✅ เปลี่ยนเป็น username เพื่อความเข้ากันได้สูงกับ Password Manager
+              name="username" 
               placeholder="Email"
               className="w-full bg-transparent outline-none text-sm text-left"
               value={email}
@@ -171,8 +168,8 @@ function Loginadmin() {
           <div className={`flex items-center bg-white/90 border rounded-lg px-3 py-2 shadow-sm transition ${loginError && email && !password ? "border-red-400" : "border-gray-300 focus-within:border-[#6D28D9]"}`}>
             <FiKey className="text-gray-500 mr-2" />
             <input
-              type="password"
-              name="password" // ✅ name ต้องมีเสมอ
+              type={showPassword ? "text" : "password"} // ✅ เปลี่ยน type ตาม State
+              name="password" 
               placeholder="Password"
               className="w-full bg-transparent outline-none text-sm text-left"
               value={password}
@@ -180,6 +177,14 @@ function Loginadmin() {
               autoComplete="current-password" 
               required
             />
+            {/* ✅ ปุ่มเปิดปิดรหัสผ่าน */}
+            <button 
+              type="button" 
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-gray-400 hover:text-[#6D28D9] focus:outline-none ml-2"
+            >
+              {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+            </button>
           </div>
 
           {loginError && <p className="mt-2 text-xs md:text-sm text-center text-red-600 bg-red-50 border border-red-200 rounded-md py-2 px-3">{loginError}</p>}
@@ -206,23 +211,22 @@ function Loginadmin() {
         </form>
       </div>
       
-      {/* Reset Modal (คงเดิม) */}
       {showResetModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative text-left">
               <button onClick={closeResetModal} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
-              <h2 className="text-lg md:text-xl font-semibold text-[#111827] mb-1">ลืมรหัสผ่าน</h2>
+              <h2 className="text-lg md:text-xl font-semibold text-[#111827] mb-1 text-left">ลืมรหัสผ่าน</h2>
               <form onSubmit={handleResetSubmit} className="space-y-4 text-left">
                 <div className="text-left">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">อีเมล (Email)</label>
-                  <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 bg-white focus-within:border-[#6366F1] transition">
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5 text-left">อีเมล (Email)</label>
+                  <div className="flex items-center border border-gray-300 rounded-lg px-3 py-2 bg-white focus-within:border-[#6366F1] transition text-left">
                     <FiMail className="text-gray-500 mr-2" />
                     <input type="email" className="w-full outline-none text-sm bg-transparent" placeholder="you@example.com" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} required />
                   </div>
                 </div>
-                <div className="flex justify-end gap-2 pt-1">
-                  <button type="button" onClick={closeResetModal} className="px-4 py-2 rounded-full text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-100">ยกเลิก</button>
-                  <button type="submit" disabled={sending || !resetEmail} className={`px-5 py-2 rounded-full text-sm font-semibold text-white shadow-md ${sending || !resetEmail ? "bg-gray-400" : "bg-[#2563EB] hover:bg-[#1D4ED8]"}`}>
+                <div className="flex justify-end gap-2 pt-1 text-left">
+                  <button type="button" onClick={closeResetModal} className="px-4 py-2 rounded-full text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-100 text-center">ยกเลิก</button>
+                  <button type="submit" disabled={sending || !resetEmail} className={`px-5 py-2 rounded-full text-sm font-semibold text-white shadow-md ${sending || !resetEmail ? "bg-gray-400" : "bg-[#2563EB] hover:bg-[#1D4ED8]"} text-center`}>
                     {sending ? "กำลังส่ง..." : "ถัดไป"}
                   </button>
                 </div>

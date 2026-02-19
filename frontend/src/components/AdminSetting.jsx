@@ -50,7 +50,7 @@ export default function SystemSettingsPage() {
         position: 'top-right',
         style: {
           borderRadius: '15px',
-          background: '#333',
+          background: '#74045F', // ✅ เปลี่ยนเป็นสีม่วง PEA
           color: '#fff',
           fontFamily: 'inherit',
           fontWeight: 'bold'
@@ -75,12 +75,12 @@ export default function SystemSettingsPage() {
   };
 
   const theme = {
-    bg: "bg-[#f8f9ff]",
-    card: "bg-white border-slate-100",
+    bg: "bg-[#fcfaff]", // ✅ ม่วงขาวนวล
+    card: "bg-white border-purple-50",
     textMain: "text-slate-700",
     textSub: "text-slate-500",
-    sidebar: "bg-white border-slate-100",
-    header: "bg-white/50 border-slate-100",
+    sidebar: "bg-white border-purple-50",
+    header: "bg-white/70 border-purple-50",
     input: "bg-slate-50 text-slate-700",
   };
 
@@ -92,7 +92,7 @@ export default function SystemSettingsPage() {
       {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
 
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 ${theme.sidebar} border-r flex flex-col transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className={`p-6 flex items-center gap-3 border-b border-slate-50 text-left`}>
+        <div className={`p-6 flex items-center gap-3 border-b border-purple-50 text-left`}>
           <img src={Logo} alt="PEA Logo" className="h-12 w-auto object-contain" />
           <div className="leading-tight text-left">
             <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight">PEA ADMIN</h1>
@@ -107,7 +107,7 @@ export default function SystemSettingsPage() {
           <Link to="/UserManage"><SidebarItem icon={<FiUsers />} label="จัดการผู้ใช้งาน" /></Link>
           <Link to="/AnalysisReport"><SidebarItem icon={<FiTrendingUp />} label="รายงานเชิงวิเคราะห์" /></Link>
         </nav>
-        <div className={`p-6 border-t border-slate-50 space-y-2 font-bold text-left`}>
+        <div className={`p-6 border-t border-purple-50 space-y-2 font-bold text-left`}>
           <Link to="/AdminSetting"><SidebarItem icon={<FiSettings />} label="ตั้งค่าระบบ" active /></Link>
           <div onClick={() => setOpenLogoutModal(true)} className="cursor-pointer">
             <SidebarItem icon={<FiLogOut />} label="ออกจากระบบ" danger />
@@ -118,8 +118,8 @@ export default function SystemSettingsPage() {
       <main className="flex-1 min-w-0 overflow-y-auto">
         <div className={`backdrop-blur-md px-4 lg:px-10 py-6 border-b ${theme.header} sticky top-0 z-30 font-bold flex justify-between items-center`}>
           <div className="flex items-center gap-3 text-left">
-            <button onClick={() => setIsSidebarOpen(true)} className={`p-2.5 bg-white border-slate-200 rounded-xl shadow-sm border lg:hidden text-slate-600 flex items-center justify-center`}><FiMenu size={20} /></button>
-            <h2 className={`text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight`}>ตั้งค่าระบบ</h2>
+            <button onClick={() => setIsSidebarOpen(true)} className={`p-2.5 bg-white border-purple-100 rounded-xl shadow-sm border lg:hidden text-[#74045F] flex items-center justify-center`}><FiMenu size={20} /></button>
+            <h2 className={`text-2xl lg:text-3xl font-bold text-[#74045F] tracking-tight`}>ตั้งค่าระบบ</h2>
           </div>
           <div className="flex items-center gap-4">
             <button onClick={() => setOpenProfileModal(true)} className="w-11 h-11 rounded-xl overflow-hidden border-2 border-white shadow-md active:scale-95 transition-transform">
@@ -128,11 +128,11 @@ export default function SystemSettingsPage() {
           </div>
         </div>
 
-        <div className="px-4 lg:px-10 pb-10 mt-8 space-y-8 max-w-5xl mx-auto text-left text-left">
+        <div className="px-4 lg:px-10 pb-10 mt-8 space-y-8 max-w-5xl mx-auto text-left">
           <section className="space-y-4 text-left">
             <div className="flex items-center gap-3 mb-6 text-left">
-              <div className={`w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center`}><FiGlobe size={20} /></div>
-              <h3 className={`text-xl font-black text-slate-800`}>การตั้งค่าทั่วไป</h3>
+              <div className={`w-10 h-10 bg-purple-50 text-[#74045F] rounded-xl flex items-center justify-center`}><FiGlobe size={20} /></div>
+              <h3 className={`text-xl font-black text-[#74045F]`}>การตั้งค่าทั่วไป</h3>
             </div>
             <div className="grid gap-4 text-left">
               <SettingToggleItem 
@@ -175,7 +175,7 @@ export default function SystemSettingsPage() {
             </div>
             <div className={`${theme.card} p-8 rounded-[2.5rem] border shadow-sm space-y-6 text-left`}>
                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-left">
-                  <div className="text-left text-left">
+                  <div className="text-left">
                     <p className={`font-black text-slate-800 text-lg`}>โหมดปิดปรับปรุงระบบ</p>
                     <p className={`text-sm ${theme.textSub} font-bold`}>จำกัดการเข้าถึงของผู้ใช้งานทั่วไปชั่วคราวเพื่ออัปเดตระบบ</p>
                   </div>
@@ -186,15 +186,15 @@ export default function SystemSettingsPage() {
                     {settings.maintenanceMode ? 'เปิดใช้งานอยู่' : 'ปิดใช้งาน'}
                   </button>
                </div>
-               <hr className="border-slate-50" />
+               <hr className="border-purple-50" />
                <div className="flex gap-4 text-left">
                   <button 
                     onClick={handleSaveSettings}
-                    className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95 text-sm uppercase tracking-widest flex items-center justify-center gap-2"
+                    className="bg-[#74045F] text-white px-8 py-3 rounded-2xl font-black shadow-lg shadow-purple-100 hover:bg-[#5a034a] transition-all active:scale-95 text-sm uppercase tracking-widest flex items-center justify-center gap-2"
                   >
                     <FiCheck size={18}/> บันทึกการตั้งค่า
                   </button>
-                  <button className="bg-white border border-slate-200 text-slate-500 px-8 py-3 rounded-2xl font-black hover:bg-slate-50 transition-all active:scale-95 text-sm uppercase tracking-widest">
+                  <button className="bg-white border border-purple-100 text-[#74045F] px-8 py-3 rounded-2xl font-black hover:bg-purple-50 transition-all active:scale-95 text-sm uppercase tracking-widest">
                     คืนค่าเริ่มต้น
                   </button>
                </div>
@@ -220,23 +220,23 @@ export default function SystemSettingsPage() {
   );
 }
 
-/* --- Sub Components (คงเดิม) --- */
+/* --- Sub Components --- */
 
 function SettingToggleItem({ icon, title, desc, active, onToggle }) {
   return (
-    <div className={`bg-white border-slate-100 hover:border-indigo-100 p-6 rounded-[2rem] border shadow-sm flex items-center justify-between group transition-all text-left`}>
-      <div className="flex items-center gap-5 text-left text-left">
-        <div className={`w-12 h-12 bg-slate-50 text-slate-400 rounded-2xl flex items-center justify-center group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all shadow-sm`}>
+    <div className={`bg-white border-purple-50 hover:border-[#74045F]/30 p-6 rounded-[2rem] border shadow-sm flex items-center justify-between group transition-all text-left`}>
+      <div className="flex items-center gap-5 text-left">
+        <div className={`w-12 h-12 bg-purple-50 text-purple-300 rounded-2xl flex items-center justify-center group-hover:bg-purple-100 group-hover:text-[#74045F] transition-all shadow-sm`}>
           {icon}
         </div>
-        <div className="text-left text-left">
+        <div className="text-left">
           <p className={`font-black text-slate-800 text-lg leading-tight mb-1`}>{title}</p>
           <p className={`text-sm text-slate-400 font-bold max-w-md`}>{desc}</p>
         </div>
       </div>
       <button 
         onClick={onToggle}
-        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${active ? 'bg-indigo-600' : 'bg-slate-200'}`}
+        className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${active ? 'bg-[#74045F]' : 'bg-slate-200'}`}
       >
         <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${active ? 'translate-x-6' : 'translate-x-1'}`} />
       </button>
@@ -246,8 +246,8 @@ function SettingToggleItem({ icon, title, desc, active, onToggle }) {
 
 function SidebarItem({ icon, label, active, danger }) {
   return (
-    <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left ${active ? "bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100" : "text-slate-400 hover:bg-slate-50 hover:text-slate-700"} ${danger ? "text-rose-500 mt-auto text-left" : ""}`}>
-      <span className={`${active ? "text-indigo-600" : "text-slate-300"} flex items-center justify-center text-left text-left`}>{icon}</span>{label}
+    <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left ${active ? "bg-purple-50 text-[#74045F] shadow-sm shadow-purple-100" : "text-slate-400 hover:bg-purple-50/50 hover:text-[#74045F]"} ${danger ? "text-rose-500 mt-auto" : ""}`}>
+      <span className={`${active ? "text-[#74045F]" : "text-purple-200"} flex items-center justify-center text-lg`}>{icon}</span>{label}
     </div>
   );
 }

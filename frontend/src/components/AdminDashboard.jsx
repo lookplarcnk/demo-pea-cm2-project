@@ -78,7 +78,8 @@ export default function AdminOverviewDashboard() {
           return acc;
         }, {});
 
-        const colors = ["bg-indigo-500", "bg-purple-500", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500"];
+        // ✅ ปรับโทนสี Progress Bar เป็นเฉดม่วงการไฟฟ้า
+        const colors = ["bg-[#74045F]", "bg-purple-600", "bg-purple-500", "bg-fuchsia-600", "bg-purple-400", "bg-fuchsia-400"];
         
         const formattedDeptStats = Object.keys(deptCount).map((key, index) => ({
           label: key,
@@ -117,7 +118,6 @@ export default function AdminOverviewDashboard() {
     } catch (err) {
       console.error("Announcement Error:", err);
     } finally {
-      setAnnouncement(false);
       setIsSending(false);
     }
   };
@@ -138,15 +138,15 @@ export default function AdminOverviewDashboard() {
   const currentItems = filteredActivities.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const theme = {
-    bg: "bg-[#f8f9ff]",
-    card: "bg-white border-slate-100",
+    bg: "bg-[#fcfaff]", // ✅ ปรับพื้นหลังเป็นม่วงขาวนวล
+    card: "bg-white border-purple-50",
     textMain: "text-slate-700",
     textSub: "text-slate-500",
-    sidebar: "bg-white border-slate-100",
-    header: "bg-white/50 border-slate-100",
-    input: "bg-white border-slate-200",
-    tableRow: "hover:bg-slate-50/50",
-    divider: "border-slate-50",
+    sidebar: "bg-white border-purple-50",
+    header: "bg-white/70 border-purple-50",
+    input: "bg-slate-50 border-purple-100",
+    tableRow: "hover:bg-purple-50/50",
+    divider: "border-purple-50",
   };
 
   return (
@@ -202,13 +202,13 @@ export default function AdminOverviewDashboard() {
         <div className={`backdrop-blur-md px-4 lg:px-10 py-6 border-b ${theme.header} sticky top-0 z-30 font-bold`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 lg:hidden text-slate-600 flex items-center justify-center"><FiMenu size={20} /></button>
-              <h2 className="text-xl lg:text-2xl font-bold text-slate-800 tracking-tight text-left">หน้าสรุปผล (Overview)</h2>
+              <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100 lg:hidden text-[#74045F] flex items-center justify-center"><FiMenu size={20} /></button>
+              <h2 className="text-xl lg:text-2xl font-bold text-[#74045F] tracking-tight text-left">หน้าสรุปผล (Overview)</h2>
             </div>
             
             <div className="flex items-center gap-4">
               <button onClick={() => setOpenProfileModal(true)} className="flex-shrink-0 active:scale-95 transition-transform flex items-center justify-center">
-                <img src={user.avatar} className="w-11 h-11 rounded-xl object-cover border-2 border-white shadow-md hover:border-indigo-400 transition-all" alt="profile" />
+                <img src={user.avatar} className="w-11 h-11 rounded-xl object-cover border-2 border-white shadow-md hover:border-[#74045F] transition-all" alt="profile" />
               </button>
             </div>
           </div>
@@ -216,25 +216,25 @@ export default function AdminOverviewDashboard() {
 
         <div className="px-4 lg:px-10 pb-10 mt-8 text-left space-y-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 font-bold text-left">
-            <SummaryCard title="เอกสารทั้งหมดในระบบ" value={stats.totalDocs} icon={<FiBox />} color="blue" />
-            <SummaryCard title="เอกสารอัปโหลดเดือนนี้" value={stats.docsThisMonth} icon={<FiClock />} color="amber" />
+            <SummaryCard title="เอกสารทั้งหมดในระบบ" value={stats.totalDocs} icon={<FiBox />} color="purple" />
+            <SummaryCard title="เอกสารอัปโหลดเดือนนี้" value={stats.docsThisMonth} icon={<FiClock />} color="purple" />
             <SummaryCard title="ผู้ใช้งานทั้งหมด" value={stats.totalUsers} icon={<FiUsers />} color="purple" />
-            <SummaryCard title="ผู้ใช้งานใหม่เดือนนี้" value={stats.newUsersThisMonth} icon={<FiUserPlus />} color="rose" />
+            <SummaryCard title="ผู้ใช้งานใหม่เดือนนี้" value={stats.newUsersThisMonth} icon={<FiUserPlus />} color="purple" />
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
             <div className="xl:col-span-2 space-y-8">
-                <div className={`${theme.card} rounded-[2.5rem] shadow-sm border overflow-hidden font-bold`}>
-                    <div className={`p-6 flex justify-between items-center border-b ${theme.divider} bg-slate-50/30 text-left`}>
-                        <h3 className="font-bold text-slate-800 text-base uppercase tracking-tight text-left">กิจกรรมล่าสุดในระบบ</h3>
+                <div className={`${theme.card} rounded-[2.5rem] shadow-sm border border-purple-100 overflow-hidden font-bold`}>
+                    <div className={`p-6 flex justify-between items-center border-b ${theme.divider} bg-purple-50/30 text-left`}>
+                        <h3 className="font-bold text-[#74045F] text-base uppercase tracking-tight text-left">กิจกรรมล่าสุดในระบบ</h3>
                         <div className="relative group font-bold">
-                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                            <input type="text" placeholder="ค้นหา..." className={`pl-10 pr-4 py-2.5 rounded-2xl ${theme.input} border focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all w-40 focus:w-56 font-bold text-xs`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400" />
+                            <input type="text" placeholder="ค้นหา..." className={`pl-10 pr-4 py-2.5 rounded-2xl ${theme.input} border focus:ring-4 focus:ring-purple-500/10 outline-none transition-all w-40 focus:w-56 font-bold text-xs`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                         </div>
                     </div>
                     <div className="overflow-x-auto text-left">
                         <table className="w-full min-w-[600px]">
-                            <thead className="bg-transparent text-slate-400 text-[11px] uppercase tracking-widest font-black border-b border-slate-50">
+                            <thead className="bg-transparent text-slate-400 text-[11px] uppercase tracking-widest font-black border-b border-purple-50">
                                 <tr>
                                     <th className="px-6 py-4 text-left">รายการ</th>
                                     <th className="px-6 py-4 text-left">ผู้ดำเนินการ</th>
@@ -247,7 +247,7 @@ export default function AdminOverviewDashboard() {
                                     <tr key={act.id} className={`${theme.tableRow} transition-all font-bold`}>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3 text-left">
-                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base font-bold bg-blue-50 text-blue-500`}><FiActivity /></div>
+                                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base font-bold bg-purple-50 text-[#74045F]`}><FiActivity /></div>
                                                 <span className="text-slate-700 line-clamp-1 font-black text-sm text-left">{act.name}</span>
                                             </div>
                                         </td>
@@ -269,21 +269,21 @@ export default function AdminOverviewDashboard() {
 
                 <div className={`${theme.card} rounded-[2.5rem] p-8 border shadow-sm font-bold`}>
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-rose-50 text-rose-500 rounded-xl flex items-center justify-center"><FiAlertCircle size={20}/></div>
-                        <h3 className="font-black text-slate-800 text-base uppercase tracking-tight">ประกาศแจ้งเตือนระบบ</h3>
+                        <div className="w-10 h-10 bg-purple-50 text-[#74045F] rounded-xl flex items-center justify-center"><FiAlertCircle size={20}/></div>
+                        <h3 className="font-black text-[#74045F] text-base uppercase tracking-tight">ประกาศแจ้งเตือนระบบ</h3>
                     </div>
                     <div className="flex gap-4 items-start">
                         <textarea 
                           value={announcement}
                           onChange={(e) => setAnnouncement(e.target.value)}
                           placeholder="พิมพ์ประกาศแจ้งเตือน..." 
-                          className="flex-1 bg-slate-50 text-slate-700 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-rose-200 outline-none h-24 resize-none"
+                          className="flex-1 bg-slate-50 text-slate-700 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-purple-200 outline-none h-24 resize-none"
                         ></textarea>
                         
                         <button 
                           onClick={handleSendAnnouncement}
                           disabled={isSending}
-                          className="bg-rose-500 hover:bg-rose-600 text-white px-6 py-8 rounded-2xl font-black transition-all flex flex-col items-center justify-center gap-2 active:scale-95 shadow-lg shadow-rose-100 disabled:bg-slate-300"
+                          className="bg-[#74045F] hover:bg-[#5a034a] text-white px-6 py-8 rounded-2xl font-black transition-all flex flex-col items-center justify-center gap-2 active:scale-95 shadow-lg shadow-purple-100 disabled:bg-slate-300"
                         >
                             <FiMessageSquare size={20} />
                             <span className="text-[10px] uppercase tracking-widest">{isSending ? '...' : 'ส่ง'}</span>
@@ -293,9 +293,9 @@ export default function AdminOverviewDashboard() {
             </div>
 
             <div className="space-y-8 font-bold text-left">
-                <div className={`${theme.card} rounded-[2.5rem] shadow-sm border p-8 space-y-8`}>
+                <div className={`${theme.card} rounded-[2.5rem] shadow-sm border border-purple-100 p-8 space-y-8`}>
                   <h3 className="font-black text-slate-800 text-base uppercase flex items-center gap-2 tracking-tight text-left">
-                    <FiDatabase className="text-indigo-500" /> สัดส่วนเอกสารจริงตามรายแผนก
+                    <FiDatabase className="text-[#74045F]" /> สัดส่วนเอกสารจริงตามรายแผนก
                   </h3>
                   <div className="space-y-5">
                     {deptStats.length > 0 ? (
@@ -308,18 +308,18 @@ export default function AdminOverviewDashboard() {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[2.5rem] p-8 text-white shadow-xl shadow-indigo-100 space-y-6">
+                <div className="bg-gradient-to-br from-[#74045F] to-purple-800 rounded-[2.5rem] p-8 text-white shadow-xl shadow-purple-200 space-y-6">
                     <div className="flex items-center gap-3">
-                        <FiTrendingUp size={24} className="text-indigo-200" />
+                        <FiTrendingUp size={24} className="text-purple-200" />
                         <h3 className="font-black text-base uppercase tracking-tight">System Insight</h3>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-md">
-                            <p className="text-[10px] font-black uppercase text-indigo-100">เฉลี่ยเวลา</p>
+                            <p className="text-[10px] font-black uppercase text-purple-100">เฉลี่ยเวลา</p>
                             <p className="text-xl font-black">1.5 วัน</p>
                         </div>
                         <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-md">
-                            <p className="text-[10px] font-black uppercase text-indigo-100">Uptime</p>
+                            <p className="text-[10px] font-black uppercase text-purple-100">Uptime</p>
                             <p className="text-xl font-black">99.9%</p>
                         </div>
                     </div>
@@ -368,7 +368,7 @@ function DeptProgress({ label, percent, color }) {
       <div className="space-y-1.5 text-left">
           <div className="flex justify-between text-[10px] font-black uppercase tracking-tight">
               <span className="text-slate-500 truncate max-w-[150px]">{label}</span>
-              <span className="text-indigo-600 font-black">{percent}%</span>
+              <span className="text-[#74045F] font-black">{percent}%</span>
           </div>
           <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
               <div 
@@ -382,14 +382,14 @@ function DeptProgress({ label, percent, color }) {
 
 function SummaryCard({ title, value, icon, color }) {
   const colors = { 
-    purple: "bg-purple-50 text-purple-600", 
+    purple: "bg-purple-50 text-[#74045F]", 
     blue: "bg-blue-50 text-blue-600", 
     amber: "bg-amber-50 text-amber-600", 
     rose: "bg-rose-50 text-rose-600" 
   };
   
   return (
-    <div className="bg-white border-slate-100 rounded-[2rem] p-6 flex items-center gap-4 border transition-all hover:shadow-xl group text-left">
+    <div className="bg-white border-purple-50 rounded-[2rem] p-6 flex items-center gap-4 border transition-all hover:shadow-xl group text-left">
       <div className={`p-4 rounded-[1.2rem] text-2xl group-hover:scale-110 transition-transform ${colors[color]} flex items-center justify-center text-left`}>{icon}</div>
       <div className="text-left font-bold">
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-0.5 text-left leading-none">{title}</p>
@@ -407,19 +407,19 @@ function ProfileInput({ label, value, onChange }) {
         type="text" 
         value={value} 
         onChange={(e) => onChange(e.target.value)} 
-        className="w-full bg-slate-50 text-slate-700 border-none rounded-xl px-4 py-3 text-lg transition-all outline-none font-bold text-left focus:ring-4 focus:ring-indigo-500/10" 
+        className="w-full bg-slate-50 text-slate-700 border-none rounded-xl px-4 py-3 text-lg transition-all outline-none font-bold text-left focus:ring-4 focus:ring-purple-500/10" 
       />
     </div>
   );
 }
 
 function SidebarItem({ icon, label, active, danger }) {
-  const activeClass = "bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100 text-left";
-  const hoverClass = "text-slate-400 hover:bg-slate-50 hover:text-slate-700 text-left";
+  const activeClass = "bg-purple-50 text-[#74045F] shadow-sm shadow-purple-100 text-left";
+  const hoverClass = "text-slate-400 hover:bg-purple-50/50 hover:text-[#74045F] text-left";
 
   return (
     <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left ${active ? activeClass : hoverClass} ${danger ? "text-rose-500 mt-auto text-left" : ""}`}>
-      <span className={`${active ? "text-indigo-600 text-left" : "text-slate-300 text-left"} flex items-center justify-center text-left text-lg`}>{icon}</span>{label}
+      <span className={`${active ? "text-[#74045F] text-left" : "text-slate-300 text-left"} flex items-center justify-center text-left text-lg`}>{icon}</span>{label}
     </div>
   );
 }

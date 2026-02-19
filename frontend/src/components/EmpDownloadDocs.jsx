@@ -1,12 +1,13 @@
 import React, { useState, useRef, useMemo, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom"; 
 import axios from "axios"; 
+// ✅ 1. นำเข้า react-hot-toast สำหรับแจ้งเตือนแบบโมเดิร์น
+import toast, { Toaster } from 'react-hot-toast';
 import {
-  FiFileText, FiClock, FiDownload, FiUser, FiLogOut, FiSettings,
-  FiSearch, FiX, FiMenu, FiCheckCircle, FiInfo, FiFile, FiCamera, FiCheck, FiFilter, FiBriefcase, FiTrendingUp, FiLayers, FiChevronLeft, FiChevronRight
+  FiFileText, FiClock, FiDownload, FiUser, FiLogOut, FiSettings, FiSend,FiSearch, FiX, FiMenu, FiCheckCircle, FiInfo, FiFile, FiCamera, FiCheck, FiFilter, FiBriefcase, FiTrendingUp, FiLayers, FiChevronLeft, FiChevronRight
 } from "react-icons/fi";
 
-// ✅ 1. Import Logo การไฟฟ้า และคอมโพเนนต์โปรไฟล์
+// ✅ 2. Import Logo การไฟฟ้า และคอมโพเนนต์โปรไฟล์
 import Logo from "../assets/img/logo-pea.png"; 
 import EmployeeProfileModal from "./EmployeeProfileModal"; 
 
@@ -21,7 +22,7 @@ function LogoutModal({ isOpen, onClose, onConfirm }) {
         <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-rose-100">
           <FiLogOut size={40} />
         </div>
-        <div className="text-center space-y-2 mb-10">
+        <div className="text-center space-y-2 mb-10 text-center">
           <h3 className="text-2xl font-black text-slate-800 tracking-tight">ยืนยันการออกจากระบบ?</h3>
           <p className="text-slate-400 font-bold text-sm">คุณต้องการออกจากเซสชันการทำงานปัจจุบันหรือไม่</p>
         </div>
@@ -160,34 +161,33 @@ export default function EmployeeDownloadCenter() {
   const currentItems = allFilteredFiles.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9ff] font-sans text-slate-700 overflow-x-hidden text-left font-medium">
+    <div className="flex min-h-screen bg-[#fcfaff] font-sans text-slate-700 overflow-x-hidden text-left font-medium">
       {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
 
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 flex flex-col transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="p-6 flex items-center gap-3 border-b border-slate-50 text-left">
-          {/* ✅ แก้ไข: เปลี่ยนจากตัวอักษร P เป็น Logo การไฟฟ้า */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-purple-50 flex flex-col transform transition-transform duration-300 lg:relative lg:translate-x-0 theme-sidebar`}>
+        <div className="p-6 flex items-center gap-3 border-b border-purple-50 text-left">
           <img src={Logo} alt="PEA Logo" className="h-12 w-auto object-contain" />
           <div className="leading-tight text-left">
-            <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight">PEA CM2</h1>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Employee System</p>
+            <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight text-left">PEA CM2</h1>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none text-left">Employee System</p>
           </div>
         </div>
         <nav className="flex-1 px-4 py-6 space-y-2 font-bold text-left">
-          <Link to="/EmployeeDashboard" className="block outline-none">
+          <Link to="/EmployeeDashboard" className="block no-underline outline-none text-left">
             <SidebarItem icon={<FiFileText />} label="จัดการเอกสาร" />
           </Link>
-          <Link to="/EmpDownloadDocs" className="block outline-none">
+          <Link to="/EmpDownloadCenter" className="block no-underline outline-none text-left">
             <SidebarItem icon={<FiDownload />} label="ดาวน์โหลดเอกสาร" active />
           </Link>
-          <Link to="/EmpUseHistory" className="block outline-none">
+          <Link to="/EmpUseHistory" className="block no-underline outline-none text-left">
             <SidebarItem icon={<FiCheckCircle />} label="พิจารณาเอกสาร" />
           </Link>
-          <Link to="/SubmitDocsApprov" className="block outline-none">
-            <SidebarItem icon={<FiUser />} label="ส่งเอกสารให้พิจารณา" />
+          <Link to="/SubmitDocsApprov" className="block no-underline outline-none text-left">
+            <SidebarItem icon={<FiSend />} label="ส่งเอกสารให้พิจารณา" />
           </Link>
         </nav>
-        <div className="p-6 border-t border-slate-50 space-y-2">
-          <Link to="/EmpSetting">
+        <div className="p-6 border-t border-purple-50 space-y-2 font-bold text-left">
+          <Link to="/EmpSetting" className="block no-underline outline-none text-left">
              <SidebarItem icon={<FiSettings />} label="ตั้งค่าระบบ" />
           </Link>
           <SidebarItem icon={<FiLogOut />} label="ออกจากระบบ" danger onClick={() => setIsLogoutModalOpen(true)} />
@@ -195,49 +195,49 @@ export default function EmployeeDownloadCenter() {
       </aside>
 
       <main className="flex-1 min-w-0 overflow-y-auto">
-        <div className="bg-white/50 backdrop-blur-md px-4 lg:px-10 py-6 border-b border-slate-100 sticky top-0 z-30 font-bold">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 lg:hidden text-slate-600"><FiMenu size={20} /></button>
-              <h2 className="text-2xl lg:text-3xl font-bold text-slate-800 tracking-tight text-left">ดาวน์โหลดเอกสาร</h2>
+        <div className="bg-white/70 backdrop-blur-md px-4 lg:px-10 py-6 border-b border-purple-50 sticky top-0 z-30 font-bold">
+          <div className="flex items-center justify-between text-left">
+            <div className="flex items-center gap-3 text-left text-left">
+              <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100 lg:hidden text-[#74045F] flex items-center justify-center text-center"><FiMenu size={20} /></button>
+              <h2 className="text-2xl lg:text-3xl font-bold text-[#74045F] tracking-tight text-left">ดาวน์โหลดเอกสาร</h2>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
+            <div className="flex items-center gap-3 text-left">
+              <div className="text-right hidden sm:block text-left text-left">
                 <p className="text-sm font-black text-slate-800 leading-none">{user.name}</p>
-                <p className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mt-1">{user.department}</p>
+                <p className="text-[10px] font-bold text-[#74045F] uppercase tracking-widest mt-1">{user.department}</p>
               </div>
-              <button onClick={() => setOpenProfileModal(true)} className="flex-shrink-0 active:scale-95 transition-transform">
-                <img src={user.avatar || "https://i.pravatar.cc/150?u=staff"} className="w-11 h-11 rounded-xl object-cover border-2 border-white shadow-md hover:border-purple-400 transition-all" alt="profile" />
+              <button onClick={() => setOpenProfileModal(true)} className="flex-shrink-0 active:scale-95 transition-transform flex items-center justify-center text-center">
+                <img src={user.avatar || "https://i.pravatar.cc/150?u=staff"} className="w-11 h-11 rounded-xl object-cover border-2 border-white shadow-md hover:border-[#74045F] transition-all text-left" alt="profile" />
               </button>
             </div>
           </div>
         </div>
 
         <div className="px-4 lg:px-10 pb-10 mt-8 text-left">
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-5 mb-8 items-end bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm transition-all text-left">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-5 mb-8 items-end bg-white p-6 rounded-[2.5rem] border border-purple-50 shadow-sm transition-all text-left">
             <div className="space-y-2.5 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">เลือกแผนก</label>
+              <label className="text-xs font-bold text-[#74045F]/60 uppercase tracking-wider ml-1">เลือกแผนก</label>
               <div className="relative">
-                <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <select value={selectedDept} onChange={(e) => {setSelectedDept(e.target.value); setCurrentPage(1);}} className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-semibold text-slate-700 focus:ring-2 focus:ring-purple-500/20 outline-none appearance-none cursor-pointer">
+                <FiBriefcase className="absolute left-4 top-1/2 -translate-y-1/2 text-[#74045F]/40" size={18} />
+                <select value={selectedDept} onChange={(e) => {setSelectedDept(e.target.value); setCurrentPage(1);}} className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-semibold text-slate-700 focus:ring-2 focus:ring-purple-100 outline-none appearance-none cursor-pointer text-left">
                   {departments.map(dept => <option key={dept} value={dept}>{dept}</option>)}
                 </select>
               </div>
             </div>
             <div className="space-y-2.5 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">หมวดหมู่เอกสาร</label>
+              <label className="text-xs font-bold text-[#74045F]/60 uppercase tracking-wider ml-1">หมวดหมู่เอกสาร</label>
               <div className="relative">
-                <FiLayers className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <select value={activeTab} onChange={(e) => {setActiveTab(e.target.value); setCurrentPage(1);}} className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-semibold text-slate-700 focus:ring-2 focus:ring-purple-500/20 outline-none appearance-none cursor-pointer">
+                <FiLayers className="absolute left-4 top-1/2 -translate-y-1/2 text-[#74045F]/40" size={18} />
+                <select value={activeTab} onChange={(e) => {setActiveTab(e.target.value); setCurrentPage(1);}} className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-semibold text-slate-700 focus:ring-2 focus:ring-purple-100 outline-none appearance-none cursor-pointer text-left">
                   {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
               </div>
             </div>
             <div className="space-y-2.5 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">เรียงตาม</label>
+              <label className="text-xs font-bold text-[#74045F]/60 uppercase tracking-wider ml-1">เรียงตาม</label>
               <div className="relative">
-                <FiFilter className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-semibold text-slate-700 focus:ring-2 focus:ring-purple-500/20 outline-none appearance-none cursor-pointer">
+                <FiFilter className="absolute left-4 top-1/2 -translate-y-1/2 text-[#74045F]/40" size={18} />
+                <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-semibold text-slate-700 focus:ring-2 focus:ring-purple-100 outline-none appearance-none cursor-pointer text-left">
                   <option value="newest">ใหม่ล่าสุด</option>
                   <option value="oldest">เก่าที่สุด</option>
                   <option value="az">ชื่อ (ก - ฮ)</option>
@@ -245,33 +245,33 @@ export default function EmployeeDownloadCenter() {
               </div>
             </div>
             <div className="space-y-2.5 text-left">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider ml-1">ค้นหาเอกสาร</label>
-              <div className="relative group flex gap-2">
+              <label className="text-xs font-bold text-[#74045F]/60 uppercase tracking-wider ml-1">ค้นหาเอกสาร</label>
+              <div className="relative group flex gap-2 text-left">
                 <div className="relative flex-1">
-                  <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                  <input type="text" placeholder="ระบุชื่อไฟล์..." className="w-full pl-12 pr-6 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-semibold text-slate-700 focus:ring-2 focus:ring-purple-500/20 outline-none transition-all" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={handleKeyDown} />
+                  <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-300" size={18} />
+                  <input type="text" placeholder="ระบุชื่อไฟล์..." className="w-full pl-12 pr-6 py-3.5 bg-slate-50 border-none rounded-2xl text-base font-semibold text-slate-700 focus:ring-2 focus:ring-purple-100 outline-none transition-all text-left" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onKeyDown={handleKeyDown} />
                 </div>
-                <button onClick={handleSearchClick} className="bg-purple-600 hover:bg-purple-700 text-white px-6 rounded-2xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center">
+                <button onClick={handleSearchClick} className="bg-[#74045F] hover:bg-[#5a034a] text-white px-6 rounded-2xl font-bold transition-all shadow-lg active:scale-95 flex items-center justify-center text-center">
                   <FiSearch size={20} />
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden font-bold">
-            <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/30 text-left">
-                <h3 className="font-bold text-slate-800 text-lg">รายการเอกสารจากเพื่อนพนักงานและส่วนกลาง</h3>
+          <div className="bg-white rounded-[2.5rem] shadow-sm border border-purple-50 overflow-hidden font-bold">
+            <div className="px-8 py-6 border-b border-purple-50 flex items-center justify-between bg-purple-50/20 text-left">
+                <h3 className="font-bold text-[#74045F] text-lg text-left">รายการเอกสารจากเพื่อนพนักงานและส่วนกลาง</h3>
                 {submittedSearch && (
-                  <button onClick={() => {setSearchQuery(""); setSubmittedSearch("");}} className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1.5 transition-colors"><FiX /> ล้างการค้นหา</button>
+                  <button onClick={() => {setSearchQuery(""); setSubmittedSearch("");}} className="text-xs font-bold text-rose-500 hover:text-rose-600 flex items-center gap-1.5 transition-colors text-center"><FiX /> ล้างการค้นหา</button>
                 )}
             </div>
 
             <div className="overflow-x-auto text-left">
               {isLoading ? (
-                <div className="p-20 text-center text-slate-400 font-bold">กำลังโหลดข้อมูลเอกสาร...</div>
+                <div className="p-20 text-center text-purple-200 font-bold italic">กำลังโหลดข้อมูลเอกสาร...</div>
               ) : (
                 <table className="w-full text-left border-collapse font-bold">
-                  <thead className="bg-white border-b border-slate-100 text-slate-500 text-[13px] uppercase font-bold tracking-wider">
+                  <thead className="bg-white border-b border-purple-50 text-[#74045F]/40 text-[13px] uppercase font-bold tracking-wider text-left">
                     <tr>
                       <th className="px-6 py-5 text-center w-16">#</th>
                       <th className="px-4 py-5 text-left">ชื่อเอกสาร</th>
@@ -282,20 +282,20 @@ export default function EmployeeDownloadCenter() {
                       <th className="px-8 py-5 text-right">ดาวน์โหลด</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-50 font-bold">
+                  <tbody className="divide-y divide-purple-50 font-bold text-left">
                     {currentItems.map((file, index) => (
-                      <tr key={file.doc_id} className="hover:bg-slate-50/50 transition-colors group font-semibold text-sm lg:text-base">
-                        <td className="px-6 py-5 text-center font-bold text-slate-300">{indexOfFirstItem + index + 1}</td>
-                        <td className="px-4 py-5 text-slate-700">
+                      <tr key={file.doc_id} className="hover:bg-purple-50/20 transition-colors group font-semibold text-sm lg:text-base text-left">
+                        <td className="px-6 py-5 text-center font-bold text-purple-200 text-center">{indexOfFirstItem + index + 1}</td>
+                        <td className="px-4 py-5 text-slate-700 text-left">
                           <div className="flex items-center gap-4 text-left">
-                            <div className="w-10 h-10 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform"><FiFile size={20} /></div>
-                            <span className="line-clamp-1">{file.doc_name}</span>
+                            <div className="w-10 h-10 bg-purple-50 text-[#74045F] rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform text-center"><FiFile size={20} /></div>
+                            <span className="line-clamp-1 text-left">{file.doc_name}</span>
                           </div>
                         </td>
                         <td className="px-6 py-5 hidden md:table-cell text-sm text-slate-500 font-medium text-left">{file.owner === "Admin Ratchaneekorn" ? "PEA Admin" : file.owner}</td>
                         <td className="px-6 py-5 hidden md:table-cell text-sm text-slate-500 italic font-medium text-left">{file.dept}</td>
-                        <td className="px-6 py-5 text-center text-sm font-bold text-slate-500 font-mono">{file.file_size}</td>
-                        <td className="px-6 py-5 text-center text-sm text-slate-700 font-bold">{new Date(file.created_at).toLocaleDateString('th-TH')}</td>
+                        <td className="px-6 py-5 text-center text-sm font-bold text-purple-400 font-mono text-center">{file.file_size}</td>
+                        <td className="px-6 py-5 text-center text-sm text-slate-700 font-bold text-center">{new Date(file.created_at).toLocaleDateString('th-TH')}</td>
                         <td className="px-8 py-5 text-right">
                           <DownloadButton fileUrl={file.file_url} />
                         </td>
@@ -311,16 +311,18 @@ export default function EmployeeDownloadCenter() {
               )}
             </div>
 
-            <div className="px-8 py-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-50/10 font-bold">
-              <div className="text-slate-400 text-sm font-bold">
-                Showing <span className="font-bold text-slate-700">{totalEntries === 0 ? 0 : indexOfFirstItem + 1} to {Math.min(indexOfLastItem, totalEntries)}</span> of <span className="font-bold text-slate-700">{totalEntries}</span> entries
+            <div className="px-8 py-6 border-t border-purple-50 flex flex-col sm:flex-row items-center justify-between gap-4 bg-purple-50/10 font-bold">
+              <div className="text-slate-400 text-sm font-bold text-left">
+                Showing <span className="font-bold text-[#74045F]">{totalEntries === 0 ? 0 : indexOfFirstItem + 1} to {Math.min(indexOfLastItem, totalEntries)}</span> of <span className="font-bold text-[#74045F]">{totalEntries}</span> entries
               </div>
-              <div className="flex items-center gap-1 font-bold">
-                <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} className={`p-2 rounded-lg transition-all ${currentPage === 1 ? "text-slate-200 cursor-not-allowed" : "text-slate-400 hover:bg-slate-100"}`}><FiChevronLeft size={20} /></button>
-                {[...Array(totalPages)].map((_, i) => (
-                  <button key={i + 1} onClick={() => setCurrentPage(i + 1)} className={`min-w-[36px] h-9 px-2 rounded-lg font-bold text-sm transition-all ${currentPage === i + 1 ? "bg-purple-600 text-white shadow-lg" : "text-slate-400 hover:bg-slate-100"}`}>{i + 1}</button>
-                ))}
-                <button disabled={currentPage === totalPages || totalEntries === 0} onClick={() => setCurrentPage(prev => prev + 1)} className={`p-2 rounded-lg transition-all ${currentPage === totalPages || totalEntries === 0 ? "text-slate-200 cursor-not-allowed" : "text-slate-400 hover:bg-slate-100"}`}><FiChevronRight size={20} /></button>
+              <div className="flex items-center gap-1 font-bold text-center text-center">
+                <button disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)} className={`p-2 rounded-lg transition-all text-center ${currentPage === 1 ? "text-purple-100 cursor-not-allowed" : "text-[#74045F] hover:bg-purple-50"}`}><FiChevronLeft size={20} /></button>
+                <div className="flex items-center gap-1 text-center">
+                  {[...Array(totalPages)].map((_, i) => (
+                    <button key={i + 1} onClick={() => setCurrentPage(i + 1)} className={`min-w-[36px] h-9 px-2 rounded-lg font-bold text-sm transition-all text-center ${currentPage === i + 1 ? "bg-[#74045F] text-white shadow-lg shadow-purple-100" : "text-slate-400 hover:bg-purple-50"}`}>{i + 1}</button>
+                  ))}
+                </div>
+                <button disabled={currentPage === totalPages || totalEntries === 0} onClick={() => setCurrentPage(prev => prev + 1)} className={`p-2 rounded-lg transition-all text-center ${currentPage === totalPages || totalEntries === 0 ? "text-purple-100 cursor-not-allowed" : "text-[#74045F] hover:bg-purple-50"}`}><FiChevronRight size={20} /></button>
               </div>
             </div>
           </div>
@@ -349,12 +351,12 @@ function SidebarItem({ icon, label, active, danger, onClick }) {
       onClick={onClick}
       className={`flex items-center gap-3 px-5 py-3 rounded-2xl cursor-pointer text-sm font-black transition-all text-left ${
         active 
-          ? "bg-purple-50 text-purple-700 shadow-sm shadow-purple-100 font-black" 
-          : "text-slate-400 hover:bg-slate-50 hover:text-slate-700 font-black"
-      } ${danger ? "text-rose-500 hover:bg-rose-50 mt-auto font-black" : ""}`}
+          ? "bg-purple-50 text-[#74045F] shadow-sm shadow-purple-100 font-black" 
+          : "text-slate-400 hover:bg-purple-50/50 hover:text-[#74045F] font-black"
+      } ${danger ? "text-rose-500 hover:bg-rose-50 mt-auto font-black text-center" : ""}`}
     >
-      <span className={active ? "text-purple-600 text-lg" : "text-slate-300 text-lg"}>{icon}</span>
-      <span className="text-[14px]">{label}</span>
+      <span className={active ? "text-[#74045F] text-lg text-center" : "text-purple-200 text-lg text-center"}>{icon}</span>
+      <span className="text-[14px] text-left">{label}</span>
     </div>
   );
 }
@@ -369,21 +371,21 @@ function DownloadButton({ fileUrl }) {
       setTimeout(() => setStatus("idle"), 2000); 
     }, 800);
   };
-  if (status === "loading") return <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center ml-auto transition-all"><div className="w-4 h-4 border-2 border-slate-300 border-t-purple-600 rounded-full animate-spin" /></div>;
-  if (status === "success") return <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center ml-auto animate-in zoom-in"><FiCheckCircle size={20} /></div>;
-  return <button onClick={handleDownload} className="p-3 bg-purple-50 text-purple-600 rounded-xl hover:bg-purple-600 hover:text-white transition-all ml-auto block shadow-sm active:scale-90"><FiDownload size={18} strokeWidth={2.5} /></button>;
+  if (status === "loading") return <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center ml-auto transition-all text-center"><div className="w-4 h-4 border-2 border-slate-300 border-t-[#74045F] rounded-full animate-spin" /></div>;
+  if (status === "success") return <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center ml-auto animate-in zoom-in text-center"><FiCheckCircle size={20} /></div>;
+  return <button onClick={handleDownload} className="p-3 bg-purple-50 text-[#74045F] rounded-xl hover:bg-[#74045F] hover:text-white transition-all ml-auto block shadow-sm active:scale-90 text-center"><FiDownload size={18} strokeWidth={2.5} /></button>;
 }
 
 // ✅ 3. คงรักษาฟังก์ชัน ProfileInput ไว้ในไฟล์เดิมตามคำสั่ง
 function ProfileInput({ label, value, onChange }) {
   return (
     <div className="space-y-2 text-left block font-bold">
-      <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 font-bold">{label}</label>
+      <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1 font-bold text-left">{label}</label>
       <input 
         type="text" 
         value={value} 
         onChange={(e) => onChange(e.target.value)} 
-        className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-sm focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold" 
+        className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-sm focus:ring-4 focus:ring-purple-100 transition-all outline-none font-bold text-left" 
       />
     </div>
   );

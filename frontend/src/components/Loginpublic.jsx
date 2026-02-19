@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"; 
-import { FiUser, FiKey, FiMail, FiArrowLeft, FiX } from "react-icons/fi"; 
+import { FiUser, FiKey, FiMail, FiArrowLeft, FiX, FiEye, FiEyeOff } from "react-icons/fi"; // ✅ เพิ่ม FiEye, FiEyeOff
 import userPublic from "../assets/img/user-public.png";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -14,6 +14,7 @@ function Loginpublic() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // ✅ เพิ่ม State สำหรับเปิดปิดการแสดงรหัสผ่าน
   const [rememberMe, setRememberMe] = useState(false); 
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -186,7 +187,7 @@ function Loginpublic() {
           <div className={`flex items-center bg-white/90 border rounded-lg px-3 py-2 shadow-sm transition ${loginError && email && !password ? "border-red-400 focus-within:border-red-500" : "border-gray-300 focus-within:border-[#6D28D9]"} text-left`}>
             <FiKey className="text-gray-500 mr-2" />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"} // ✅ เปลี่ยน type ตาม State
               name="password" // ✅ จำเป็นเพื่อให้ Password Manager จำฟิลด์ได้
               placeholder="Password"
               className="w-full bg-transparent outline-none text-sm text-left"
@@ -195,6 +196,14 @@ function Loginpublic() {
               autoComplete="current-password" // ✅ บอกเบราว์เซอร์ว่านี่คือรหัสผ่าน
               required
             />
+            {/* ✅ ปุ่มเปิดปิดการแสดงรหัสผ่าน */}
+            <button 
+              type="button" 
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-gray-400 hover:text-[#6D28D9] focus:outline-none ml-2"
+            >
+              {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+            </button>
           </div>
 
           <div className="flex items-center justify-between text-xs md:text-sm mt-2 text-left">

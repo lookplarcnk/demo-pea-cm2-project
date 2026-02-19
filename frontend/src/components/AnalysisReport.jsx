@@ -6,8 +6,8 @@ import AdminProfileModal from "./AdminProfileModal";
 import Logo from "../assets/img/logo-pea.png"; // ✅ นำเข้า Logo
 import {
   FiPieChart, FiFileText, FiUsers, FiTrendingUp, FiSettings, FiLogOut,
-  FiMenu, FiCalendar, FiArrowUpRight, FiArrowDownRight, FiDownload, FiChevronDown, FiX, FiCamera, FiCheck, FiRefreshCw,
-  FiCheckCircle, FiSend // ✅ เพิ่มการนำเข้าไอคอนที่ขาดไปตรงนี้
+  FiMenu, FiCalendar, FiArrowUpRight, FiArrowDownRight, FiDownload, FiX, FiCamera, FiCheck, FiRefreshCw,
+  FiCheckCircle, FiSend, FiChevronDown
 } from "react-icons/fi";
 import jsPDF from "jspdf";
 import "jspdf-autotable"; 
@@ -52,6 +52,7 @@ export default function AnalyticalReportPage() {
   // ✅ ฟังก์ชันดึงข้อมูลจาก Database
   const fetchAnalytics = useCallback(async () => {
     try {
+      setLoading(true);
       let queryParams = `period=${reportPeriod}`;
       if (selectedDate) {
         queryParams += `&start=${selectedDate}&end=${selectedDate}`;
@@ -151,7 +152,7 @@ export default function AnalyticalReportPage() {
 
       const doc = new jsPDF();
       doc.setFontSize(20);
-      doc.setTextColor(79, 70, 229); 
+      doc.setTextColor(116, 4, 95); // #74045F
       doc.text("Analytical Report - PEA CM2", 14, 20);
       doc.setFontSize(10); doc.setTextColor(100);
       doc.text(`Report Period: ${reportPeriod}`, 14, 28);
@@ -162,7 +163,7 @@ export default function AnalyticalReportPage() {
         head: [['Metric Category', 'Count', 'Trend']],
         body: stats.map(s => [s.title, s.value, s.trend]),
         theme: 'striped',
-        headStyles: { fillColor: [79, 70, 229] }
+        headStyles: { fillColor: [116, 4, 95] }
       });
 
       doc.setFontSize(14); doc.setTextColor(30);
@@ -205,26 +206,26 @@ export default function AnalyticalReportPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9ff] font-sans text-slate-700 overflow-x-hidden text-left font-medium">
+    <div className="flex min-h-screen bg-[#fcfaff] font-sans text-slate-700 overflow-x-hidden text-left font-medium">
       {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
       
-      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-100 flex flex-col transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="p-6 flex items-center gap-3 border-b border-slate-50 text-left">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-purple-50 flex flex-col transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        <div className="p-6 flex items-center gap-3 border-b border-purple-50 text-left">
           <img src={Logo} alt="PEA Logo" className="h-12 w-auto object-contain" />
-          <div className="leading-tight text-left">
-            <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight">PEA ADMIN</h1>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Chiang Mai 2 System</p>
+          <div className="leading-tight text-left text-left">
+            <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight text-left">PEA ADMIN</h1>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none text-left">Chiang Mai 2 System</p>
           </div>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-2 font-bold text-left">
+        <nav className="flex-1 px-4 py-6 space-y-2 font-bold text-left text-left">
           <Link to="/AdminDashboard"><SidebarItem icon={<FiPieChart />} label="หน้าสรุปผล (Overview)" /></Link>
           <Link to="/ManageDocs"><SidebarItem icon={<FiFileText />} label="จัดการเอกสารทั้งหมด" /></Link>
           <Link to="/AdminApprovalCenter"><SidebarItem icon={<FiCheckCircle />} label="พิจารณาเอกสาร" /></Link> 
           <Link to="/AdminSubmitApproval"><SidebarItem icon={<FiSend />} label="ส่งเอกสารให้พิจารณา" /></Link> 
           <Link to="/UserManage"><SidebarItem icon={<FiUsers />} label="จัดการผู้ใช้งาน" /></Link>
-          <Link to="/AnalysisReport"><SidebarItem icon={<FiTrendingUp />} label="รายงานเชิงวิเคราะห์" active /></Link>
+          <SidebarItem icon={<FiTrendingUp />} label="รายงานเชิงวิเคราะห์" active />
         </nav>
-        <div className="p-6 border-t border-slate-50 space-y-2 font-bold text-left">
+        <div className="p-6 border-t border-purple-50 space-y-2 font-bold text-left text-left text-left">
           <Link to="/AdminSetting"><SidebarItem icon={<FiSettings />} label="ตั้งค่าระบบ" /></Link>
           <div onClick={() => setOpenLogoutModal(true)} className="cursor-pointer">
             <SidebarItem icon={<FiLogOut />} label="ออกจากระบบ" danger />
@@ -233,84 +234,89 @@ export default function AnalyticalReportPage() {
       </aside>
 
       <main className="flex-1 min-w-0 overflow-y-auto text-left">
-        <div className="bg-white/50 backdrop-blur-md px-4 lg:px-10 py-6 border-b border-slate-100 sticky top-0 z-30 font-bold flex justify-between items-center">
+        <div className="bg-white/70 backdrop-blur-md px-4 lg:px-10 py-6 border-b border-purple-50 sticky top-0 z-30 font-bold flex flex-col gap-4 md:flex-row md:items-center md:justify-between text-left">
           <div className="flex items-center gap-3 text-left">
-            <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-slate-200 lg:hidden text-slate-600 flex items-center justify-center"><FiMenu size={20} /></button>
+            <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100 lg:hidden text-[#74045F] flex items-center justify-center text-center"><FiMenu size={20} /></button>
             <div className="flex flex-col text-left">
-                <h2 className="text-xl lg:text-2xl font-black text-slate-800 tracking-tight">รายงานเชิงวิเคราะห์</h2>
-                <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-bold uppercase tracking-widest">
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <h2 className="text-xl lg:text-2xl font-black text-[#74045F] tracking-tight">รายงานเชิงวิเคราะห์</h2>
+                <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-bold uppercase tracking-widest text-left">
+                    <span className="relative flex h-2 w-2 text-left">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 text-left"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 text-left"></span>
                     </span>
                     Live Dashboard
                 </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 bg-slate-100/80 px-4 py-2.5 rounded-2xl border border-slate-200 shadow-sm transition-all focus-within:ring-2 focus-within:ring-indigo-500/20">
-                <FiCalendar className="text-slate-500" size={16} />
-                <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="bg-transparent text-xs font-black outline-none border-none p-0 text-slate-700 w-28 uppercase" />
-                {selectedDate && (
-                  <button onClick={() => setSelectedDate("")} className="ml-1 text-slate-400 hover:text-rose-500 transition-colors"><FiX size={14}/></button>
-                )}
-            </div>
+          <div className="flex flex-wrap items-center gap-3 text-left">
+            {/* ✅ ส่วน Responsive สำหรับปุ่มและตัวเลือกวันที่ */}
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto text-left">
+              <div className="flex items-center gap-2 bg-purple-50/50 px-4 py-2.5 rounded-2xl border border-purple-100 shadow-sm transition-all focus-within:ring-2 focus-within:ring-purple-200 flex-1 sm:flex-none">
+                  <FiCalendar className="text-[#74045F]" size={16} />
+                  <input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="bg-transparent text-xs font-black outline-none border-none p-0 text-[#74045F] w-full sm:w-28 uppercase text-left" />
+                  {selectedDate && (
+                    <button onClick={() => setSelectedDate("")} className="ml-1 text-[#74045F]/50 hover:text-rose-500 transition-colors text-left"><FiX size={14}/></button>
+                  )}
+              </div>
 
-            <div className="flex gap-2">
-                <button onClick={downloadExcel} className="hidden md:flex items-center gap-2 bg-emerald-50 text-emerald-600 border border-emerald-100 px-4 py-2.5 rounded-xl text-sm font-black shadow-sm hover:bg-emerald-600 hover:text-white transition-all uppercase tracking-widest"><FiFileText size={14} /> EXCEL</button>
-                <button onClick={downloadPDF} className="hidden md:flex items-center gap-2 bg-white border border-slate-200 px-4 py-2.5 rounded-xl text-sm font-black shadow-sm hover:bg-slate-50 transition-all uppercase tracking-widest"><FiDownload size={14} /> PDF</button>
+              <div className="flex gap-2 flex-1 sm:flex-none text-left">
+                  <button onClick={downloadExcel} className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-emerald-50 text-emerald-600 border border-emerald-100 px-4 py-2.5 rounded-xl text-sm font-black shadow-sm hover:bg-emerald-600 hover:text-white transition-all uppercase tracking-widest text-left"><FiFileText size={14} /> EXCEL</button>
+                  <button onClick={downloadPDF} className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-white border border-purple-100 px-4 py-2.5 rounded-xl text-sm font-black shadow-sm hover:bg-purple-50 text-[#74045F] transition-all uppercase tracking-widest text-left"><FiDownload size={14} /> PDF</button>
+              </div>
             </div>
             
-            <div className="relative group">
-               <select className="appearance-none bg-indigo-600 text-white pl-4 pr-10 py-2.5 rounded-xl text-sm font-black outline-none cursor-pointer shadow-lg transition-all hover:bg-indigo-700 uppercase tracking-widest" value={reportPeriod} onChange={(e) => setReportPeriod(e.target.value)}>
-                  <option>ประจำเดือนนี้</option>
-                  <option>ไตรมาสล่าสุด</option>
-                  <option>ประจำปี 2568</option>
-               </select>
-               <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-white pointer-events-none" size={14} />
-            </div>
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-between text-left">
+              <div className="relative group flex-1 sm:flex-none text-left">
+                 <select className="appearance-none w-full bg-[#74045F] text-white pl-4 pr-10 py-2.5 rounded-xl text-sm font-black outline-none cursor-pointer shadow-lg transition-all hover:bg-[#5a034a] uppercase tracking-widest text-left" value={reportPeriod} onChange={(e) => setReportPeriod(e.target.value)}>
+                    <option>ประจำเดือนนี้</option>
+                    <option>ไตรมาสล่าสุด</option>
+                    <option>ประจำปี 2568</option>
+                 </select>
+                 <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-white pointer-events-none text-left" size={14} />
+              </div>
 
-            <button onClick={() => setOpenProfileModal(true)} className="w-11 h-11 rounded-xl overflow-hidden border-2 border-white shadow-md active:scale-95 transition-transform shrink-0">
-              <img src={user.avatar} className="w-full h-full object-cover" alt="profile" />
-            </button>
+              <button onClick={() => setOpenProfileModal(true)} className="w-11 h-11 rounded-xl overflow-hidden border-2 border-white shadow-md active:scale-95 transition-transform shrink-0 text-left">
+                <img src={user.avatar} className="w-full h-full object-cover text-left" alt="profile" />
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="px-4 lg:px-10 pb-10 mt-8 space-y-8 text-left">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="px-4 lg:px-10 pb-10 mt-8 space-y-8 text-left text-left text-left">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
             {stats.map((s, i) => ( <ReportCard key={i} {...s} /> ))}
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-            <div className="xl:col-span-2 bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm flex flex-col h-[450px]">
-              <div className="flex justify-between items-center mb-8">
-                <div className="text-left">
-                  <h3 className="text-lg font-black text-slate-800 uppercase tracking-wider">แนวโน้มการเข้าใช้งาน</h3>
-                  <p className="text-sm text-slate-400 font-bold">ข้อมูลสถิติรายวันเปรียบเทียบความหนาแน่น</p>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 text-left text-left">
+            <div className="xl:col-span-2 bg-white rounded-[2.5rem] p-8 border border-purple-50 shadow-sm flex flex-col h-[450px] text-left">
+              <div className="flex justify-between items-center mb-8 text-left text-left">
+                <div className="text-left text-left">
+                  <h3 className="text-lg font-black text-[#74045F] uppercase tracking-wider text-left">แนวโน้มการเข้าใช้งาน</h3>
+                  <p className="text-sm text-slate-400 font-bold text-left">ข้อมูลสถิติรายวันเปรียบเทียบความหนาแน่น</p>
                 </div>
-                <button onClick={fetchAnalytics} className="p-2 text-slate-300 hover:text-indigo-600 transition-all active:rotate-180"><FiRefreshCw size={20}/></button>
+                <button onClick={fetchAnalytics} className="p-2 text-[#74045F]/30 hover:text-[#74045F] transition-all active:rotate-180 text-left"><FiRefreshCw size={20}/></button>
               </div>
-              <div className="flex-1 flex items-end justify-between gap-4 px-4 pb-4">
+              <div className="flex-1 flex items-end justify-between gap-2 sm:gap-4 px-2 sm:px-4 pb-4 text-left">
                 {usageData.length > 0 ? usageData.map((d, i) => (
                   <Bar key={i} height={d.height} label={d.label} active={d.active} />
                 )) : <p className="w-full text-center text-slate-300 italic">กำลังเชื่อมต่อข้อมูล...</p>}
               </div>
             </div>
 
-            <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm flex flex-col h-[450px]">
-              <h3 className="text-lg font-black text-slate-800 mb-1 uppercase tracking-wider text-left">สัดส่วนผู้ใช้งาน</h3>
+            <div className="bg-white rounded-[2.5rem] p-8 border border-purple-50 shadow-sm flex flex-col h-[450px] text-left">
+              <h3 className="text-lg font-black text-[#74045F] mb-1 uppercase tracking-wider text-left">สัดส่วนผู้ใช้งาน</h3>
               <p className="text-sm text-slate-400 font-bold mb-8 text-left">แยกตามความเคลื่อนไหวรายแผนก</p>
-              <div className="flex-1 flex flex-col items-center justify-center relative">
-                <div className="w-48 h-48 rounded-full border-[20px] border-slate-50 relative flex items-center justify-center shadow-lg">
-                  <div className="absolute inset-[-20px] rounded-full border-[20px] border-transparent border-t-indigo-500 border-r-purple-500 rotate-45 transition-transform duration-1000"></div>
-                  <div className="text-center">
-                    <p className="text-3xl font-black text-slate-800">100%</p>
-                    <p className="text-[11px] text-slate-400 font-black uppercase tracking-tighter">Engagement</p>
+              <div className="flex-1 flex flex-col items-center justify-center relative text-left">
+                <div className="w-48 h-48 rounded-full border-[20px] border-purple-50/20 relative flex items-center justify-center shadow-lg text-left">
+                  <div className="absolute inset-[-20px] rounded-full border-[20px] border-transparent border-t-[#74045F] border-r-[#9333EA] rotate-45 transition-transform duration-1000 text-left"></div>
+                  <div className="text-center text-left">
+                    <p className="text-3xl font-black text-[#74045F] text-left">100%</p>
+                    <p className="text-[11px] text-slate-400 font-black uppercase tracking-tighter text-left">Engagement</p>
                   </div>
                 </div>
-                <div className="mt-8 w-full space-y-4">
-                  {deptData.length > 0 ? deptData.map((dept, i) => ( <DeptLegend key={i} {...dept} /> )) : <p className="text-center text-slate-300 italic">ไม่มีข้อมูลแผนก</p>}
+                <div className="mt-8 w-full space-y-4 text-left">
+                  {deptData.length > 0 ? deptData.map((dept, i) => ( <DeptLegend key={i} {...dept} /> )) : <p className="text-center text-slate-300 italic text-left">ไม่มีข้อมูลแผนก</p>}
                 </div>
               </div>
             </div>
@@ -332,11 +338,11 @@ export default function AnalyticalReportPage() {
 
 function ReportCard({ title, value, trend, up }) {
   return (
-    <div className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-left">
-      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 group-hover:text-indigo-500 transition-colors">{title}</p>
-      <div className="flex items-end justify-between">
-        <h4 className="text-3xl font-black text-slate-800 tracking-tight leading-none group-hover:scale-105 transition-transform origin-left">{value}</h4>
-        <div className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-black ${up ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'}`}>
+    <div className="bg-white p-6 rounded-[2rem] border border-purple-50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-left text-left">
+      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 group-hover:text-[#74045F] transition-colors text-left">{title}</p>
+      <div className="flex items-end justify-between text-left">
+        <h4 className="text-3xl font-black text-[#74045F] tracking-tight leading-none group-hover:scale-105 transition-transform origin-left text-left">{value}</h4>
+        <div className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[10px] font-black ${up ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'} text-left`}>
           {up ? <FiArrowUpRight size={12}/> : <FiArrowDownRight size={12}/>}
           {trend}
         </div>
@@ -347,27 +353,37 @@ function ReportCard({ title, value, trend, up }) {
 
 function Bar({ height, label, active }) {
   return (
-    <div className="flex-1 flex flex-col items-center gap-3 group cursor-pointer text-left">
-      <div className="w-full relative flex flex-col justify-end h-48 bg-slate-50/50 rounded-2xl overflow-hidden group-hover:bg-slate-100 transition-all border border-transparent group-hover:border-slate-200">
-        <div style={{ height: height }} className={`w-full transition-all duration-1000 ease-out shadow-lg shadow-indigo-100/50 ${active ? 'bg-gradient-to-t from-indigo-600 to-purple-500' : 'bg-slate-200 group-hover:bg-indigo-300'}`}></div>
+    <div className="flex-1 flex flex-col items-center gap-3 group cursor-pointer text-left text-left">
+      <div className="w-full relative flex flex-col justify-end h-48 bg-purple-50/30 rounded-2xl overflow-hidden group-hover:bg-purple-50 transition-all border border-transparent group-hover:border-purple-100 text-left">
+        <div style={{ height: height }} className={`w-full transition-all duration-1000 ease-out shadow-lg shadow-purple-100/50 ${active ? 'bg-gradient-to-t from-[#74045F] to-[#9333EA]' : 'bg-purple-100 group-hover:bg-purple-300'} text-left`}></div>
       </div>
-      <span className={`text-[12px] font-black tracking-tighter ${active ? 'text-indigo-600' : 'text-slate-400 group-hover:text-slate-600'}`}>{label}</span>
+      <span className={`text-[10px] sm:text-[12px] font-black tracking-tighter ${active ? 'text-[#74045F]' : 'text-purple-200 group-hover:text-[#74045F]'} text-left`}>{label}</span>
     </div>
   );
 }
 
 function DeptLegend({ label, color, percent }) {
+  const peaColors = {
+    "bg-indigo-500": "bg-[#74045F]",
+    "bg-purple-500": "bg-[#9333EA]",
+    "bg-blue-500": "bg-[#A855F7]",
+    "bg-emerald-500": "bg-emerald-500",
+    "bg-amber-500": "bg-amber-500",
+    "bg-rose-500": "bg-rose-500"
+  };
+  const finalColor = peaColors[color] || color;
+
   return (
-    <div className="flex items-center justify-between w-full px-5 group text-left">
-      <div className="flex items-center gap-3">
-        <div className={`w-4 h-4 rounded-lg shadow-sm group-hover:scale-125 transition-transform duration-300 ${color}`}></div>
-        <span className="text-[13px] font-bold text-slate-600 group-hover:text-slate-800 transition-colors">{label}</span>
+    <div className="flex items-center justify-between w-full px-2 sm:px-5 group text-left text-left">
+      <div className="flex items-center gap-3 text-left text-left">
+        <div className={`w-4 h-4 rounded-lg shadow-sm group-hover:scale-125 transition-transform duration-300 ${finalColor} text-left`}></div>
+        <span className="text-[11px] sm:text-[13px] font-bold text-slate-600 group-hover:text-[#74045F] transition-colors text-left">{label}</span>
       </div>
-      <div className="flex items-center gap-2">
-        <div className="w-16 h-1.5 bg-slate-50 rounded-full overflow-hidden hidden sm:block">
-            <div style={{ width: percent }} className={`h-full opacity-30 ${color}`}></div>
+      <div className="flex items-center gap-2 text-right text-left">
+        <div className="w-12 sm:w-16 h-1.5 bg-purple-50 rounded-full overflow-hidden hidden sm:block text-left">
+            <div style={{ width: percent }} className={`h-full opacity-30 ${finalColor} text-left`}></div>
         </div>
-        <span className="text-[13px] font-black text-slate-800 bg-slate-50 px-2.5 py-1 rounded-xl group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all">{percent}</span>
+        <span className="text-[11px] sm:text-[13px] font-black text-[#74045F] bg-purple-50 px-2.5 py-1 rounded-xl group-hover:bg-[#74045F] group-hover:text-white transition-all text-left">{percent}</span>
       </div>
     </div>
   );
@@ -375,8 +391,8 @@ function DeptLegend({ label, color, percent }) {
 
 function SidebarItem({ icon, label, active, danger }) {
   return (
-    <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left ${active ? "bg-indigo-50 text-indigo-700 shadow-sm shadow-indigo-100" : "text-slate-400 hover:bg-slate-50 hover:text-slate-700"} ${danger ? "text-rose-500 mt-auto" : ""}`}>
-      <span className={`${active ? "text-indigo-600" : "text-slate-300"} flex items-center justify-center text-lg`}>{icon}</span>{label}
+    <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left text-left ${active ? "bg-purple-50 text-[#74045F] shadow-sm shadow-purple-100" : "text-slate-400 hover:bg-purple-50 hover:text-[#74045F]"} ${danger ? "text-rose-500 mt-auto" : ""} text-left`}>
+      <span className={`${active ? "text-[#74045F]" : "text-purple-200"} flex items-center justify-center text-lg text-left`}>{icon}</span>{label}
     </div>
   );
 }

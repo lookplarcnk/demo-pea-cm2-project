@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"; 
-import { FiUser, FiKey, FiMail, FiArrowLeft } from "react-icons/fi"; 
+import { FiUser, FiKey, FiMail, FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi"; // ✅ เพิ่ม FiEye, FiEyeOff
 import { useNavigate, Link } from "react-router-dom"; 
 import userStaff from "../assets/img/user-staff.png";
 
@@ -12,10 +12,12 @@ function Loginemployee() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // ✅ เพิ่ม State สำหรับเปิดปิดรหัสผ่าน
   const [rememberMe, setRememberMe] = useState(false); 
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false); 
 
+  // ✅ 1. ดึงข้อมูลที่จำไว้มาแสดงผลทันทีที่เปิดหน้า (ใช้คีย์เฉพาะของพนักงาน)
   useEffect(() => {
     const savedEmail = localStorage.getItem("emp_remember_email");
     const savedPassword = localStorage.getItem("emp_remember_password");
@@ -185,7 +187,7 @@ function Loginemployee() {
           <div className={`flex items-center bg-white/90 border rounded-lg px-3 py-2 shadow-sm transition ${loginError && email && !password ? "border-red-400" : "border-gray-300 focus-within:border-[#6D28D9]"} text-left`}>
             <FiKey className="text-gray-500 mr-2" />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"} // ✅ เปลี่ยน type ตาม State
               name="password" // ✅ ต้องมี name เสมอ
               placeholder="Password"
               className="w-full bg-transparent outline-none text-sm text-left"
@@ -194,6 +196,14 @@ function Loginemployee() {
               autoComplete="current-password" // ✅ ระบุรหัสผ่านปัจจุบัน
               required
             />
+            {/* ✅ ปุ่มเปิดปิดรหัสผ่าน */}
+            <button 
+              type="button" 
+              onClick={() => setShowPassword(!showPassword)}
+              className="text-gray-400 hover:text-[#6D28D9] focus:outline-none ml-2"
+            >
+              {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+            </button>
           </div>
 
           <div className="flex items-center justify-between text-xs md:text-sm mt-2 text-left">
