@@ -64,7 +64,7 @@ function Loginemployee() {
     }
   };
 
-  /* ================= ส่วนเข้าสู่ระบบ: ปรับปรุงเพื่อให้ Browser เด้ง Pop-up บันทึกรหัส ================= */
+  /* ================= ส่วนเข้าสู่ระบบ: ปรับปรุงเพื่อแยกประเภทผู้ใช้และป้องกันการโผล่หน้าบุคคลทั่วไป ================= */
   const handleLoginSubmit = async (e) => {
     e.preventDefault(); // ✅ ยับยั้งการ Refresh แต่ Browser จะเริ่มบันทึกฟอร์มจากจุดนี้
     setLoginError("");
@@ -104,6 +104,10 @@ function Loginemployee() {
           localStorage.removeItem("emp_remember_password");
         }
 
+        // ✅ ล้างข้อมูลของบุคคลทั่วไปออกก่อน เพื่อป้องกันความสับสนของสถานะล็อกอิน
+        localStorage.removeItem("public_token");
+        localStorage.removeItem("public_user");
+
         localStorage.setItem("token", data.token || "temp-token");
         const fullName = userData.emp_name || userData.name || "พนักงานทั่วไป";
         const nameParts = fullName.split(" ");
@@ -118,7 +122,8 @@ function Loginemployee() {
           dept: userData.dept_name || userData.emp_dept || userData.dept || "ทั่วไป",  
           email: userData.emp_email || userData.email, 
           avatar: userData.avatar && userData.avatar !== "null" ? userData.avatar : userStaff, 
-          role: userData.role || "Officer" 
+          role: userData.role || "Officer",
+          userType: "employee" // ✅ ระบุสถานะว่าเป็นพนักงานอย่างชัดเจน
         }));
 
         localStorage.removeItem("pea-admin-user");
@@ -130,8 +135,9 @@ function Loginemployee() {
         }
 
         setTimeout(() => {
-          navigate("/EmployeeDashboard");
-        }, 500); // หน่วงเวลา 500ms เพื่อให้ Browser ตรวจจับฟอร์มสำเร็จ
+          // ✅ บังคับ Redirect ไปยังหน้า Dashboard ของพนักงานเท่านั้น
+          navigate("/EmployeeDashboard", { replace: true });
+        }, 500); 
 
       } else {
         setLoginError("เซิร์ฟเวอร์ตอบกลับสำเร็จ แต่ไม่พบข้อมูลพนักงาน");

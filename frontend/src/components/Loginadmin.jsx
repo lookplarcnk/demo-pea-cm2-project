@@ -63,7 +63,7 @@ function Loginadmin() {
     }
   };
 
-  /* ================= ส่วนเข้าสู่ระบบ (คงเดิม) ================= */
+  /* ================= ส่วนเข้าสู่ระบบ: ปรับปรุงเพื่อแยกประเภทผู้ใช้และป้องกันการโผล่หน้าบุคคลทั่วไป ================= */
   const handleLoginSubmit = async (e) => {
     e.preventDefault(); 
     setLoginError("");
@@ -92,6 +92,7 @@ function Loginadmin() {
         return;
       }
 
+      // จัดการส่วน Remember Me สำหรับ Admin
       if (rememberMe) {
         localStorage.setItem("admin_remember_email", email);
         localStorage.setItem("admin_remember_password", password);
@@ -100,21 +101,26 @@ function Loginadmin() {
         localStorage.removeItem("admin_remember_password");
       }
 
+      // ✅ ล้างข้อมูลของพนักงานและบุคคลทั่วไปออกทันที เพื่อป้องกันสิทธิ์การใช้งานทับซ้อนกัน
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      localStorage.removeItem("public_user");
+      localStorage.removeItem("public_token");
+
       localStorage.setItem("pea-admin-token", data.token);
       localStorage.setItem("pea-admin-user", JSON.stringify({
         ...data.user,
-        avatar: userStaff, 
+        avatar: userStaff,
+        userType: "admin" // ✅ ระบุประเภทชัดเจนว่าเป็นแอดมิน
       }));
-
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
 
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
 
       setTimeout(() => {
-        navigate("/AdminDashboard");
+        // ✅ บังคับ Redirect ไปหน้า Dashboard ของ Admin เท่านั้น และล้างประวัติหน้าล็อกอิน
+        navigate("/AdminDashboard", { replace: true });
       }, 500); 
       
     } catch (err) {
@@ -127,7 +133,7 @@ function Loginadmin() {
       <div className="absolute -top-20 -left-20 w-72 h-72 bg-white/20 rounded-full blur-3xl opacity-40" />
       <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#7C3AED]/20 rounded-full blur-3xl opacity-40" />
 
-      <div className="relative w-full max-w-3xl bg-white/70 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/50 px-6 py-10 md:px-10 md:py-12">
+      <div className="relative w-full max-w-3xl bg-white/70 backdrop-blur-xl rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/50 px-6 py-10 md:px-10 md:py-12 text-left">
         
         <Link 
           to="/loginchoice" 
@@ -151,7 +157,7 @@ function Loginadmin() {
           className="max-w-md mx-auto space-y-4 text-left" 
           onSubmit={handleLoginSubmit}
         >
-          <div className={`flex items-center bg-white/90 border rounded-lg px-3 py-2 shadow-sm transition ${loginError && !email ? "border-red-400" : "border-gray-300 focus-within:border-[#6D28D9]"}`}>
+          <div className={`flex items-center bg-white/90 border rounded-lg px-3 py-2 shadow-sm transition ${loginError && !email ? "border-red-400" : "border-gray-300 focus-within:border-[#6D28D9]"} text-left`}>
             <FiUser className="text-gray-500 mr-2" />
             <input
               type="email"
@@ -165,7 +171,7 @@ function Loginadmin() {
             />
           </div>
 
-          <div className={`flex items-center bg-white/90 border rounded-lg px-3 py-2 shadow-sm transition ${loginError && email && !password ? "border-red-400" : "border-gray-300 focus-within:border-[#6D28D9]"}`}>
+          <div className={`flex items-center bg-white/90 border rounded-lg px-3 py-2 shadow-sm transition ${loginError && email && !password ? "border-red-400" : "border-gray-300 focus-within:border-[#6D28D9]"} text-left`}>
             <FiKey className="text-gray-500 mr-2" />
             <input
               type={showPassword ? "text" : "password"} // ✅ เปลี่ยน type ตาม State
@@ -187,7 +193,7 @@ function Loginadmin() {
             </button>
           </div>
 
-          {loginError && <p className="mt-2 text-xs md:text-sm text-center text-red-600 bg-red-50 border border-red-200 rounded-md py-2 px-3">{loginError}</p>}
+          {loginError && <p className="mt-2 text-xs md:text-sm text-center text-red-600 bg-red-50 border border-red-200 rounded-md py-2 px-3 text-center">{loginError}</p>}
 
           <div className="flex items-center justify-between text-xs md:text-sm mt-2 text-left">
             <label className="inline-flex items-center cursor-pointer">
@@ -204,7 +210,7 @@ function Loginadmin() {
 
           <button 
             type="submit" 
-            className="w-full bg-gradient-to-r from-[#7C3AED] to-[#A855F7] hover:from-[#6D28D9] hover:to-[#9333EA] text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all mt-4"
+            className="w-full bg-gradient-to-r from-[#7C3AED] to-[#A855F7] hover:from-[#6D28D9] hover:to-[#9333EA] text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all mt-4 text-center"
           >
             เข้าสู่ระบบ
           </button>
@@ -212,7 +218,7 @@ function Loginadmin() {
       </div>
       
       {showResetModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4 text-left">
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative text-left">
               <button onClick={closeResetModal} className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 text-xl leading-none">×</button>
               <h2 className="text-lg md:text-xl font-semibold text-[#111827] mb-1 text-left">ลืมรหัสผ่าน</h2>
