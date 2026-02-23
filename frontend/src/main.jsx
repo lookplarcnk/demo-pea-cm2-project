@@ -26,16 +26,19 @@ import SearchDocumentsPage4 from "./components/SearchDocumentsPage4.jsx";
 import SearchDocumentsPage5 from "./components/SearchDocumentsPage5.jsx"; 
 import SearchDocumentsPage6 from "./components/SearchDocumentsPage6.jsx"; 
 import ResetPassword from "./components/ResetPassword.jsx";
+import AllDocumentsPage from "./components/AllDocumentsPage.jsx";
+import ContactPage from "./components/ContactPage.jsx"; // มั่นใจว่านำเข้าไฟล์นี้แล้ว
 
 // ✅ 1. นำเข้าหน้าพิจารณาเอกสาร และหน้าส่งเอกสารสำหรับ Admin ให้ครบถ้วน
 import AdminApprovalCenter from "./components/AdminApprovalCenter.jsx"; 
-import AdminSubmitApproval from "./components/AdminSubmitApproval.jsx"; // 👈 เพิ่มบรรทัดนี้เพื่อให้รันขึ้น
+import AdminSubmitApproval from "./components/AdminSubmitApproval.jsx"; 
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
+        
         <Route path="/loginchoice" element={<Loginchoice />} />
         <Route path="/loginpublic" element={<Loginpublic />} />
         <Route path="/loginemployee" element={<Loginemployee />} />
@@ -59,11 +62,13 @@ createRoot(document.getElementById("root")).render(
         <Route path="/SearchDocumentsPage5" element={<SearchDocumentsPage5 />} /> 
         <Route path="/SearchDocumentsPage6" element={<SearchDocumentsPage6 />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/AllDocuments" element={<AllDocumentsPage />} />
+        
+        {/* ✅ แก้ไข Path ตรงนี้ให้เป็น /ContactPage เพื่อให้ตรงกับ URL ที่คุณเรียก */}
+        <Route path="/ContactPage" element={<ContactPage />} /> 
 
-        {/* ✅ 2. ตรวจสอบ Route ของ Admin ให้ถูกต้องตาม Path ที่เรียกใช้ */}
         <Route path="/adminapprovalcenter" element={<AdminApprovalCenter />} />
         <Route path="/AdminSubmitApproval" element={<AdminSubmitApproval />} />
-
       </Routes>
     </BrowserRouter>
   </React.StrictMode>

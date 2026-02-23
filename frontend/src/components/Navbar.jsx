@@ -11,21 +11,14 @@ function Navbar() {
 
   const navigate = useNavigate();
   
-  // ✅ แก้ไข: บังคับเช็คเฉพาะข้อมูลบุคคลทั่วไป และกรองข้อมูลแอดมินทิ้งทันที
   const userData = JSON.parse(localStorage.getItem("user") || "null");
   const adminData = JSON.parse(localStorage.getItem("pea-admin-user") || "null");
   
-  // เงื่อนไขเด็ดขาด: 
-  // 1. ต้องมีข้อมูลใน userData
-  // 2. ต้องไม่มี emp_id (เพราะบุคคลทั่วไปไม่มีรหัสพนักงาน)
-  // 3. role ต้องไม่ใช่ admin
-  // 4. ต้องไม่มีข้อมูลใน pea-admin-user ซ้อนขึ้นมา
   const user = (userData && !userData.emp_id && userData.role !== 'admin' && !adminData) ? userData : null;
 
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    // ล้างเฉพาะส่วนของบุคคลทั่วไป แต่อย่าลืมเช็คหน้า Login ว่าเขียนค่า 'user' ทับ Admin หรือไม่
     navigate("/");
     window.location.reload(); 
   };
@@ -67,7 +60,8 @@ function Navbar() {
             </div>
 
             <Link to="#" className="nav-link text-gray-700 hover:text-[#74045F] text-left">การบริหารงาน</Link>
-            <Link to="#" className="nav-link text-gray-700 hover:text-[#74045F] text-left">ติดต่อเรา</Link>
+            {/* ✅ แก้ไข: ลิ้งก์ไปยังหน้า ContactPage (Desktop) */}
+            <Link to="/ContactPage" className="nav-link text-gray-700 hover:text-[#74045F] text-left">ติดต่อเรา</Link>
           </div>
 
           {/* Right Side (Desktop) */}
@@ -75,7 +69,7 @@ function Navbar() {
             {!user ? (
               <>
                 <Link to="/loginchoice" className="text-[#74045F] text-sm font-semibold px-4 py-2 rounded-md hover:bg-[#F3E8FF] text-left">เข้าสู่ระบบ</Link>
-                <Link to="/register" className="bg-[#00D0FF] hover:bg-[#00B2D8] text-white text-sm font-semibold px-5 py-2 rounded-md shadow-sm text-left">สมัครสมาชิก</Link>
+                <Link to="/register" className="bg-[#74045F] hover:bg-[#5E0856] text-white text-sm font-semibold px-5 py-2 rounded-md shadow-sm transition-colors">สมัครสมาชิก</Link>
               </>
             ) : (
               <div className="relative text-left">
@@ -102,7 +96,7 @@ function Navbar() {
 
           {/* Mobile Hamburger Button */}
           <button onClick={() => setToggle(!toggle)} className="md:hidden text-[#74045F] text-2xl outline-none active:scale-90 transition-transform text-left">
-            {toggle ? <FiX className="animate-in spin-in-90 duration-300" /> : <FaBars className="animate-in fade-in duration-300" />}
+            {toggle ? <FiX className="animate-in spin-in-90 duration-300 text-left" /> : <FaBars className="animate-in fade-in duration-300 text-left" />}
           </button>
         </div>
       </div>
@@ -129,13 +123,14 @@ function Navbar() {
           </div>
 
           <Link to="#" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors text-left" onClick={() => setToggle(false)}>การบริหารงาน</Link>
-          <Link to="#" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors text-left" onClick={() => setToggle(false)}>ติดต่อเรา</Link>
+          {/* ✅ แก้ไข: ลิ้งก์ไปยังหน้า ContactPage (Mobile) */}
+          <Link to="/ContactPage" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors text-left" onClick={() => setToggle(false)}>ติดต่อเรา</Link>
           
           <div className="pt-4 border-t border-gray-50 space-y-4 text-left">
             {!user ? (
               <div className="space-y-4 text-left">
                 <Link to="/loginchoice" className="block text-[#74045F] font-black text-center py-2 rounded-lg bg-[#F3E8FF] active:scale-95 transition-transform text-center" onClick={() => setToggle(false)}>เข้าสู่ระบบ</Link>
-                <Link to="/register" className="block bg-[#00D0FF] text-white text-center py-3 rounded-lg font-black shadow-md active:scale-95 transition-transform text-center" onClick={() => setToggle(false)}>สมัครสมาชิก</Link>
+                <Link to="/register" className="block bg-[#74045F] text-white text-center py-3 rounded-lg font-black shadow-md active:scale-95 transition-transform text-center" onClick={() => setToggle(false)}>สมัครสมาชิก</Link>
               </div>
             ) : (
               <div className="space-y-4 text-left">

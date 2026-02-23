@@ -15,6 +15,68 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// --- ⭐ API สำหรับดึงเอกสารที่มียอดดาวน์โหลดสูงสุด 5 อันดับแบบ Real-time ---
+router.get('/most-downloaded', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        d.doc_id as id, 
+        d.doc_name as title, 
+        c.cat_name as category, 
+        d.file_url as url, 
+        d.file_size as size, 
+        d.owner as uploader, 
+        d.dept as department,
+        COALESCE(d.download_count, 0) as downloads 
+      FROM documents d
+      LEFT JOIN categories c ON d.cat_id = c.cat_id
+      WHERE d.status = 'อนุมัติแล้ว'
+      ORDER BY d.download_count DESC, d.created_at DESC
+      LIMIT 5
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Most Downloaded Error:", err.message);
+    res.status(500).json({ error: "ไม่สามารถดึงข้อมูลเอกสารยอดนิยมได้" });
+  }
+});
+
+// --- ⭐ API ใหม่: สำหรับดึงเอกสารที่อนุมัติแล้วทั้งหมด (หน้าดูเอกสารทั้งหมด) ---
+router.get('/all-documents', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        d.doc_id as id, 
+        d.doc_name as title, 
+        c.cat_name as category, 
+        d.file_url as url, 
+        d.file_size as size, 
+        d.owner as uploader, 
+        d.dept as department,
+        d.created_at,
+        COALESCE(d.download_count, 0) as downloads 
+      FROM documents d
+      LEFT JOIN categories c ON d.cat_id = c.cat_id
+      WHERE d.status = 'อนุมัติแล้ว'
+      ORDER BY d.created_at DESC
+    `);
+
+    const formattedData = result.rows.map(doc => {
+      const date = new Date(doc.created_at);
+      const thaiDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear() + 543}`;
+      return { 
+        ...doc, 
+        uploadDate: thaiDate 
+      };
+    });
+
+    res.json(formattedData);
+  } catch (err) {
+    console.error("All Documents Error:", err.message);
+    res.status(500).json({ error: "ไม่สามารถดึงข้อมูลเอกสารทั้งหมดได้" });
+  }
+});
+
 // --- ⭐ API สำหรับระบบส่งเอกสารพิจารณา (Document Submission) ---
 
 // 1. ดึงรายชื่อพนักงานที่มีบทบาทหัวหน้าแผนกเท่านั้น (สำหรับเลือกผู้อนุมัติ)

@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 
 function Header() {
   return (
-    <div className="bg-gradient-to-r from-[#00BEEA] to-[#00D0FF] h-auto md:h-[34rem] flex items-center">
+    /* 🎨 เปลี่ยนจากสีฟ้าเป็นสีม่วง PEA (#74045F) ถึงม่วงสว่าง (#A30786) */
+    <div className="bg-gradient-to-r from-[#74045F] to-[#A30786] h-auto md:h-[34rem] flex items-center">
       <div className="container mx-auto max-w-[1320px] p-8 md:p-0 flex flex-col md:flex-row md:justify-between md:items-center gap-10">
 
         {/* Text Section - Right Aligned */}
@@ -28,7 +29,8 @@ function Header() {
           {/* ปุ่ม */}
           <div className="mt-8 flex md:justify-end justify-center">
             <Link
-              className="py-3 px-7 bg-white text-[#003A59] rounded-lg font-semibold text-[1rem]
+              /* 🎨 เปลี่ยนสีตัวอักษรบนปุ่มเป็นสีม่วงเข้มให้ตัดกับปุ่มสีขาว */
+              className="py-3 px-7 bg-white text-[#74045F] rounded-lg font-semibold text-[1rem]
                          shadow-md hover:shadow-xl hover:bg-gray-100 transition-all duration-300"
               to="/Register"
             >

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // ✅ เพิ่มการ import Link
 
 function DocsLastedUpdate() {
   // ✅ สถานะสำหรับข้อมูลเอกสารและการแสดงผล
@@ -125,14 +126,15 @@ function DocsLastedUpdate() {
             </table>
           </div>
 
+          {/* ✅ แก้ไขจุดนี้: ใส่ Link ไปยังหน้า /AllDocuments */}
           <div className="mt-4 flex justify-end">
-            <button
-              type="button"
+            <Link
+              to="/AllDocuments"
               className="inline-flex items-center gap-2 text-sm md:text-base text-[#2563EB] hover:text-[#1D4ED8] font-semibold transition mt-1"
             >
               ดูเอกสารทั้งหมด
               <span className="text-lg">→</span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>

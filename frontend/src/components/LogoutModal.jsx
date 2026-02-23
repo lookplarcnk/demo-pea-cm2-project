@@ -8,8 +8,8 @@ export default function LogoutModal({ isOpen, onClose, onConfirm }) {
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4 font-bold text-left animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl p-10 relative animate-in zoom-in duration-300">
         
-        {/* Icon */}
-        <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-rose-100">
+        {/* Icon - 🎨 เปลี่ยนเป็นโทนม่วง PEA */}
+        <div className="w-20 h-20 bg-purple-50 text-[#74045F] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm border border-purple-100">
           <FiLogOut size={40} />
         </div>
 
@@ -21,9 +21,10 @@ export default function LogoutModal({ isOpen, onClose, onConfirm }) {
 
         {/* Buttons */}
         <div className="flex flex-col gap-3">
+          {/* 🎨 ปุ่มยืนยันเปลี่ยนเป็นสีม่วง PEA #74045F */}
           <button 
             onClick={onConfirm}
-            className="w-full bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-rose-200 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+            className="w-full bg-[#74045F] hover:bg-[#5a034a] text-white font-black py-4 rounded-2xl shadow-lg shadow-purple-200 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
           >
             <FiCheck size={18} /> ยืนยันออกจากระบบ
           </button>
