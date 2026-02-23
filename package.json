@@ -1,0 +1,7 @@
+{
+  "name": "pea-cm2-root",
+  "private": true,
+  "scripts": {
+    "install": "npm install"
+  }
+}
