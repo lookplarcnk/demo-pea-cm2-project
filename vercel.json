@@ -12,21 +12,9 @@
     }
   ],
   "rewrites": [
-    { 
-      "source": "/api/(.*)", 
-      "destination": "backend/index.js" 
-    },
-    { 
-      "source": "/files/(.*)", 
-      "destination": "/backend/uploads/$1" 
-    },
-    { 
-      "source": "/assets/(.*)", 
-      "destination": "/frontend/dist/assets/$1" 
-    },
-    { 
-      "source": "/(.*)", 
-      "destination": "/frontend/dist/index.html" 
-    }
+    { "source": "/api/(.*)", "destination": "backend/index.js" },
+    { "source": "/files/(.*)", "destination": "/backend/uploads/$1" },
+    { "source": "/assets/(.*)", "destination": "/frontend/dist/assets/$1" },
+    { "source": "/(.*)", "destination": "/frontend/dist/index.html" }
   ]
 }
