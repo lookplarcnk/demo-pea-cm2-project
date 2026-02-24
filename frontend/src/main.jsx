@@ -27,7 +27,7 @@ import SearchDocumentsPage5 from "./components/SearchDocumentsPage5.jsx";
 import SearchDocumentsPage6 from "./components/SearchDocumentsPage6.jsx"; 
 import ResetPassword from "./components/ResetPassword.jsx";
 import AllDocumentsPage from "./components/AllDocumentsPage.jsx";
-import ContactPage from "./components/ContactPage.jsx"; // มั่นใจว่านำเข้าไฟล์นี้แล้ว
+import ContactPage from "./components/ContactPage.jsx"; 
 
 // ✅ 1. นำเข้าหน้าพิจารณาเอกสาร และหน้าส่งเอกสารสำหรับ Admin ให้ครบถ้วน
 import AdminApprovalCenter from "./components/AdminApprovalCenter.jsx"; 
@@ -64,7 +64,7 @@ createRoot(document.getElementById("root")).render(
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/AllDocuments" element={<AllDocumentsPage />} />
         
-        {/* ✅ แก้ไข Path ตรงนี้ให้เป็น /ContactPage เพื่อให้ตรงกับ URL ที่คุณเรียก */}
+        {/* ✅ ตรวจสอบ Path ตรงนี้ให้ตรงกับ URL ที่เรียกใช้งานจากหน้าหมวดหมู่เอกสาร */}
         <Route path="/ContactPage" element={<ContactPage />} /> 
 
         <Route path="/adminapprovalcenter" element={<AdminApprovalCenter />} />
