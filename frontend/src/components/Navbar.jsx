@@ -60,7 +60,6 @@ function Navbar() {
             </div>
 
             <Link to="#" className="nav-link text-gray-700 hover:text-[#74045F] text-left">การบริหารงาน</Link>
-            {/* ✅ แก้ไข: ลิ้งก์ไปยังหน้า ContactPage (Desktop) */}
             <Link to="/ContactPage" className="nav-link text-gray-700 hover:text-[#74045F] text-left">ติดต่อเรา</Link>
           </div>
 
@@ -69,7 +68,8 @@ function Navbar() {
             {!user ? (
               <>
                 <Link to="/loginchoice" className="text-[#74045F] text-sm font-semibold px-4 py-2 rounded-md hover:bg-[#F3E8FF] text-left">เข้าสู่ระบบ</Link>
-                <Link to="/register" className="bg-[#74045F] hover:bg-[#5E0856] text-white text-sm font-semibold px-5 py-2 rounded-md shadow-sm transition-colors">สมัครสมาชิก</Link>
+                {/* 🎨 แก้ไขสีปุ่มสมัครสมาชิกเป็นสีม่วง PEA #74045F */}
+                <Link to="/register" className="bg-[#74045F] hover:bg-[#5E0856] text-white text-sm font-semibold px-5 py-2 rounded-md shadow-sm transition-colors text-left">สมัครสมาชิก</Link>
               </>
             ) : (
               <div className="relative text-left">
@@ -123,13 +123,13 @@ function Navbar() {
           </div>
 
           <Link to="#" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors text-left" onClick={() => setToggle(false)}>การบริหารงาน</Link>
-          {/* ✅ แก้ไข: ลิ้งก์ไปยังหน้า ContactPage (Mobile) */}
           <Link to="/ContactPage" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors text-left" onClick={() => setToggle(false)}>ติดต่อเรา</Link>
           
           <div className="pt-4 border-t border-gray-50 space-y-4 text-left">
             {!user ? (
               <div className="space-y-4 text-left">
                 <Link to="/loginchoice" className="block text-[#74045F] font-black text-center py-2 rounded-lg bg-[#F3E8FF] active:scale-95 transition-transform text-center" onClick={() => setToggle(false)}>เข้าสู่ระบบ</Link>
+                {/* 🎨 แก้ไขสีปุ่มสมัครสมาชิก Mobile เป็นสีม่วง PEA #74045F */}
                 <Link to="/register" className="block bg-[#74045F] text-white text-center py-3 rounded-lg font-black shadow-md active:scale-95 transition-transform text-center" onClick={() => setToggle(false)}>สมัครสมาชิก</Link>
               </div>
             ) : (
