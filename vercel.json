@@ -22,11 +22,11 @@
     },
     { 
       "source": "/assets/(.*)", 
-      "destination": "/assets/$1" 
+      "destination": "/frontend/dist/assets/$1" 
     },
     { 
       "source": "/(.*)", 
-      "destination": "/index.html" 
+      "destination": "/frontend/dist/index.html" 
     }
   ]
 }

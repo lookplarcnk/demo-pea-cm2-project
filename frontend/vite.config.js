@@ -10,8 +10,9 @@ export default defineConfig({
       path: 'vite-hmr',
     },
   },
-  // ✅ เพิ่มส่วนนี้เพื่อขยายขีดจำกัดขนาดไฟล์เป็น 1000kB (1MB)
   build: {
+    // ✅ มั่นใจว่าไฟล์จะไปอยู่ที่โฟลเดอร์ dist เสมอเพื่อให้ Vercel หาเจอ
+    outDir: 'dist',
     chunkSizeWarningLimit: 1000, 
   }
 })
