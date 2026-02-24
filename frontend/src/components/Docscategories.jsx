@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; // เพิ่มการนำเข้า Link เพื่อใช้จัดการเส้นทางภายในแอป
 import icon01 from '../assets/img/icon-01.png';
 import icon02 from '../assets/img/icon-02.png';
 import icon03 from '../assets/img/icon-03.png';
@@ -24,8 +25,8 @@ function Docscategories() {
         {/* Grid Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mt-6">
           {/* Card 1 */}
-          <a
-            href="/SearchDocumentsPage1" 
+          <Link
+            to="/SearchDocumentsPage1" 
             className="group bg-white rounded-2xl shadow-md border border-gray-100 px-6 py-8 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 hover:border-[#74045F]/40 transition-all duration-200"
           >
             <div className="w-20 h-20 mb-4 rounded-full bg-[#EEF2FF] flex items-center justify-center group-hover:bg-[#E0E7FF] transition">
@@ -43,11 +44,11 @@ function Docscategories() {
               <br className="hidden md:block" />
               ที่เกี่ยวข้องกับการดำเนินงานภายในหน่วยงาน
             </p>
-          </a>
+          </Link>
 
           {/* Card 2 */}
-          <a
-            href="/SearchDocumentsPage2" 
+          <Link
+            to="/SearchDocumentsPage2" 
             className="group bg-white rounded-2xl shadow-md border border-gray-100 px-6 py-8 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 hover:border-[#74045F]/40 transition-all duration-200"
           >
             <div className="w-20 h-20 mb-4 rounded-full bg-[#ECFEFF] flex items-center justify-center group-hover:bg-[#CFFAFE] transition">
@@ -65,11 +66,11 @@ function Docscategories() {
               <br className="hidden md:block" />
               ของแต่ละแผนกภายในหน่วยงาน
             </p>
-          </a>
+          </Link>
 
           {/* Card 3 */}
-          <a
-            href="/SearchDocumentsPage3" 
+          <Link
+            to="/SearchDocumentsPage3" 
             className="group bg-white rounded-2xl shadow-md border border-gray-100 px-6 py-8 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 hover:border-[#74045F]/40 transition-all duration-200"
           >
             <div className="w-20 h-20 mb-4 rounded-full bg-[#FEF3C7] flex items-center justify-center group-hover:bg-[#FDE68A] transition">
@@ -87,11 +88,11 @@ function Docscategories() {
               <br className="hidden md:block" />
               สำหรับงานด้านต่าง ๆ ของหน่วยงาน
             </p>
-          </a>
+          </Link>
 
           {/* Card 4 */}
-          <a
-            href="/SearchDocumentsPage4" 
+          <Link
+            to="/SearchDocumentsPage4" 
             className="group bg-white rounded-2xl shadow-md border border-gray-100 px-6 py-8 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 hover:border-[#74045F]/40 transition-all duration-200"
           >
             <div className="w-20 h-20 mb-4 rounded-full bg-[#E0F2FE] flex items-center justify-center group-hover:bg-[#BFDBFE] transition">
@@ -109,11 +110,11 @@ function Docscategories() {
               <br className="hidden md:block" />
               แยกตามประเภทและแผนกที่รับผิดชอบ
             </p>
-          </a>
+          </Link>
 
           {/* Card 5 */}
-          <a
-            href="/SearchDocumentsPage5" 
+          <Link
+            to="/SearchDocumentsPage5" 
             className="group bg-white rounded-2xl shadow-md border border-gray-100 px-6 py-8 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 hover:border-[#74045F]/40 transition-all duration-200"
           >
             <div className="w-20 h-20 mb-4 rounded-full bg-[#FCE7F3] flex items-center justify-center group-hover:bg-[#F9A8D4] transition">
@@ -131,11 +132,11 @@ function Docscategories() {
               <br className="hidden md:block" />
               ของหน่วยงานและแผนกต่าง ๆ
             </p>
-          </a>
+          </Link>
 
           {/* Card 6 */}
-          <a
-            href="/SearchDocumentsPage6" 
+          <Link
+            to="/SearchDocumentsPage6" 
             className="group bg-white rounded-2xl shadow-md border border-gray-100 px-6 py-8 flex flex-col items-center text-center hover:shadow-xl hover:-translate-y-1 hover:border-[#74045F]/40 transition-all duration-200"
           >
             <div className="w-20 h-20 mb-4 rounded-full bg-[#E5E7EB] flex items-center justify-center group-hover:bg-[#D1D5DB] transition">
@@ -153,7 +154,7 @@ function Docscategories() {
               <br className="hidden md:block" />
               ที่เผยแพร่ให้บุคลากรรับทราบ
             </p>
-          </a>
+          </Link>
         </div>
       </div>
     </section>
