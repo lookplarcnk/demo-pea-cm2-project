@@ -17,8 +17,12 @@
       "destination": "backend/index.js"
     },
     {
+      "source": "/files/(.*)",
+      "destination": "backend/uploads/$1"
+    },
+    {
       "source": "/(.*)",
-      "destination": "/frontend/dist/$1"
+      "destination": "/frontend/dist/index.html" 
     }
   ]
 }
