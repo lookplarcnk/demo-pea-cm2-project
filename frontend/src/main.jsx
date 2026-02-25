@@ -37,7 +37,8 @@ createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        {/* ✅ แก้ไขจุดที่ 1: เปลี่ยน path="/" เป็น "/*" เพื่อรองรับ Nested Routes ที่อาจเกิดขึ้นใน App.jsx */}
+        <Route path="/*" element={<App />} />
         
         <Route path="/loginchoice" element={<Loginchoice />} />
         <Route path="/loginpublic" element={<Loginpublic />} />
@@ -55,16 +56,18 @@ createRoot(document.getElementById("root")).render(
         <Route path="/SubmitDocsApprov" element={<DocumentSubmissionCenter />} />
         <Route path="/EmpSetting" element={<EmployeeSettingsPage />} />
         <Route path="/ManageDocs" element={<ManageDocs />} />
-        <Route path="/SearchDocumentsPage1" element={<SearchDocumentsPage1 />} />
+        
+        {/* ✅ แก้ไขจุดที่ 2: เพิ่ม "/*" ให้กับหน้าที่อาจมีการเรียกใช้ Route ลูกซ้อนข้างใน เพื่อป้องกัน Error "parent route path has no trailing '*'" */}
+        <Route path="/SearchDocumentsPage1/*" element={<SearchDocumentsPage1 />} />
         <Route path="/SearchDocumentsPage2" element={<SearchDocumentsPage2 />} />
         <Route path="/SearchDocumentsPage3" element={<SearchDocumentsPage3 />} />
         <Route path="/SearchDocumentsPage4" element={<SearchDocumentsPage4 />} /> 
         <Route path="/SearchDocumentsPage5" element={<SearchDocumentsPage5 />} /> 
         <Route path="/SearchDocumentsPage6" element={<SearchDocumentsPage6 />} />
+        
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/AllDocuments" element={<AllDocumentsPage />} />
         
-        {/* ✅ ตรวจสอบ Path ตรงนี้ให้ตรงกับ URL ที่เรียกใช้งานจากหน้าหมวดหมู่เอกสาร */}
         <Route path="/ContactPage" element={<ContactPage />} /> 
 
         <Route path="/adminapprovalcenter" element={<AdminApprovalCenter />} />
