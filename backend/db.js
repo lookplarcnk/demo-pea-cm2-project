@@ -3,11 +3,16 @@ const { Pool } = require("pg");
 require("dotenv").config();
 
 const pool = new Pool({
-  host: "localhost",
-  port: 5432,
-  user: "postgres",
-  password: "ad1234",
-  database: "pea_cm2_docs",
+  // เปลี่ยนจากค่าตายตัว ให้ไปอ่านจาก Environment Variables ที่ตั้งไว้ใน Render
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT || 5432,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  // *** สำคัญมาก: Render บังคับให้ใช้ SSL สำหรับ External Connection ***
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 pool
