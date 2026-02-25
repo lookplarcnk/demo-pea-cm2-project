@@ -13,9 +13,9 @@ import ContactPage from "./components/ContactPage";
 function App() {
   return (
       <Routes>
-        {/* หน้าหลัก (Home) */}
+        {/* หน้าหลัก (Home) - ปรับเป็น /* เพื่อแก้ปัญหา Warning ตามที่ Console แจ้ง */}
         <Route
-          path="/"
+          path="/*"
           element={
             <>
               <Navbar />
@@ -41,7 +41,7 @@ function App() {
         />
 
         {/* หมายเหตุ: ส่วนของ Route อื่นๆ เช่น /SearchDocumentsPage1 
-           ถูกจัดการในไฟล์ main.jsx เรียบร้อยแล้ว 
+            ถูกจัดการในไฟล์ main.jsx เรียบร้อยแล้ว 
         */}
       </Routes>
   );
