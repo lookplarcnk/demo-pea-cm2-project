@@ -39,6 +39,12 @@ app.use('/files', handleThaiFileName, express.static(path.join(__dirname, 'uploa
 app.use('/uploads', handleThaiFileName, express.static(path.join(__dirname, 'uploads')));
 
 // --- 3. การกำหนด Routes ของ API ---
+
+// เพิ่ม Route หน้าแรกเพื่อให้หน้าเว็บไม่ขึ้น Cannot GET /
+app.get('/', (req, res) => {
+  res.send('🚀 PEA CM2 Backend server is running perfectly!');
+});
+
 app.use('/api', authRoutes);
 app.use('/api', docRoutes); 
 app.use('/api', employeesRoutes); 
