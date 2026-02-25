@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"; 
-import { FiUser, FiKey, FiMail, FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi"; // ✅ เพิ่ม FiEye, FiEyeOff
+import { FiUser, FiKey, FiMail, FiArrowLeft, FiEye, FiEyeOff } from "react-icons/fi"; 
 import { useNavigate, Link } from "react-router-dom"; 
 import userStaff from "../assets/img/user-staff.png";
 
@@ -12,12 +12,14 @@ function Loginemployee() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // ✅ เพิ่ม State สำหรับเปิดปิดรหัสผ่าน
+  const [showPassword, setShowPassword] = useState(false); 
   const [rememberMe, setRememberMe] = useState(false); 
   const [loginError, setLoginError] = useState("");
   const [loading, setLoading] = useState(false); 
 
-  // ✅ 1. ดึงข้อมูลที่จำไว้มาแสดงผลทันทีที่เปิดหน้า (ใช้คีย์เฉพาะของพนักงาน)
+  // ✅ แก้ไข: กำหนด URL ของ Backend จาก Render (เปลี่ยนชื่อแอปให้ตรงกับของคุณ)
+  const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com";
+
   useEffect(() => {
     const savedEmail = localStorage.getItem("emp_remember_email");
     const savedPassword = localStorage.getItem("emp_remember_password");
@@ -44,7 +46,8 @@ function Loginemployee() {
     if (!resetEmail) return;
     setSending(true);
     try {
-      const res = await fetch("http://localhost:5000/api/forgot-password", {
+      // ✅ แก้ไข: ใช้ API_BASE_URL แทน localhost
+      const res = await fetch(`${API_BASE_URL}/api/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: resetEmail }), 
@@ -64,9 +67,8 @@ function Loginemployee() {
     }
   };
 
-  /* ================= ส่วนเข้าสู่ระบบ: ปรับปรุงเพื่อแยกประเภทผู้ใช้และป้องกันการโผล่หน้าบุคคลทั่วไป ================= */
   const handleLoginSubmit = async (e) => {
-    e.preventDefault(); // ✅ ยับยั้งการ Refresh แต่ Browser จะเริ่มบันทึกฟอร์มจากจุดนี้
+    e.preventDefault(); 
     setLoginError("");
 
     if (!email || !password) {
@@ -76,7 +78,8 @@ function Loginemployee() {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/api/employees/login", {
+      // ✅ แก้ไข: ใช้ API_BASE_URL แทน localhost เพื่อให้ Frontend บน Vercel คุยกับ Render ได้
+      const res = await fetch(`${API_BASE_URL}/api/employees/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -95,7 +98,6 @@ function Loginemployee() {
       const userData = data.user || data.employee || data;
 
       if (userData) {
-        // จัดการส่วน Remember Me ภายในแอป
         if (rememberMe) {
           localStorage.setItem("emp_remember_email", email);
           localStorage.setItem("emp_remember_password", password);
@@ -104,7 +106,6 @@ function Loginemployee() {
           localStorage.removeItem("emp_remember_password");
         }
 
-        // ✅ ล้างข้อมูลของบุคคลทั่วไปออกก่อน เพื่อป้องกันความสับสนของสถานะล็อกอิน
         localStorage.removeItem("public_token");
         localStorage.removeItem("public_user");
 
@@ -123,19 +124,17 @@ function Loginemployee() {
           email: userData.emp_email || userData.email, 
           avatar: userData.avatar && userData.avatar !== "null" ? userData.avatar : userStaff, 
           role: userData.role || "Officer",
-          userType: "employee" // ✅ ระบุสถานะว่าเป็นพนักงานอย่างชัดเจน
+          userType: "employee" 
         }));
 
         localStorage.removeItem("pea-admin-user");
         localStorage.removeItem("pea-admin-token");
 
-        // ✅ เทคนิคสำคัญ: นำ Focus ออกจาก Input และหน่วงเวลาก่อนเปลี่ยนหน้าเพื่อให้ Browser เด้ง Pop-up
         if (document.activeElement instanceof HTMLElement) {
           document.activeElement.blur();
         }
 
         setTimeout(() => {
-          // ✅ บังคับ Redirect ไปยังหน้า Dashboard ของพนักงานเท่านั้น
           navigate("/EmployeeDashboard", { replace: true });
         }, 500); 
 
@@ -174,18 +173,17 @@ function Loginemployee() {
           <img src={userStaff} alt="Officer" className="w-32 h-32 md:w-36 md:h-36 object-contain drop-shadow-lg" />
         </div>
 
-        {/* ✅ ระบุ action และ method เพื่อหลอกเบราว์เซอร์ว่าเป็นฟอร์มมาตรฐาน */}
         <form action="#" method="POST" className="max-w-md mx-auto space-y-4 text-left" onSubmit={handleLoginSubmit}>
           <div className={`flex items-center bg-white/90 border rounded-lg px-3 py-2 shadow-sm transition ${loginError && !email ? "border-red-400" : "border-gray-300 focus-within:border-[#6D28D9]"} text-left`}>
             <FiUser className="text-gray-500 mr-2" />
             <input
               type="email"
-              name="username" // ✅ ใช้ name="username" เพื่อให้ Password Manager จดจำได้ดีขึ้น
+              name="username" 
               placeholder="Email (พนักงาน)"
               className="w-full bg-transparent outline-none text-sm text-left"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              autoComplete="username" // ✅ ระบุประเภทข้อมูล
+              autoComplete="username" 
               required
             />
           </div>
@@ -193,16 +191,15 @@ function Loginemployee() {
           <div className={`flex items-center bg-white/90 border rounded-lg px-3 py-2 shadow-sm transition ${loginError && email && !password ? "border-red-400" : "border-gray-300 focus-within:border-[#6D28D9]"} text-left`}>
             <FiKey className="text-gray-500 mr-2" />
             <input
-              type={showPassword ? "text" : "password"} // ✅ เปลี่ยน type ตาม State
-              name="password" // ✅ ต้องมี name เสมอ
+              type={showPassword ? "text" : "password"} 
+              name="password" 
               placeholder="Password"
               className="w-full bg-transparent outline-none text-sm text-left"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              autoComplete="current-password" // ✅ ระบุรหัสผ่านปัจจุบัน
+              autoComplete="current-password" 
               required
             />
-            {/* ✅ ปุ่มเปิดปิดรหัสผ่าน */}
             <button 
               type="button" 
               onClick={() => setShowPassword(!showPassword)}
