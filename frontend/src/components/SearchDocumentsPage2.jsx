@@ -9,7 +9,7 @@ import axios from "axios";
 import Navbar from "./Navbar"; 
 import Footer from "./Footer"; 
 
-const API_BASE_URL = "/api";
+const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
 
 // --- ส่วนที่ 2: หน้าหลักการค้นหาเอกสาร (รักษาโครงสร้างเดิมห้ามหาย) ---
 function SearchDocumentsPage2() {

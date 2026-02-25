@@ -10,7 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Footer from "./Footer"; 
 
-const API_BASE_URL = "/api";
+const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
 
 // --- ส่วนที่ 1: Navbar (ปรับปรุงสีปุ่มสมัครสมาชิกเป็นสีม่วง #74045F) ---
 function Navbar() {
