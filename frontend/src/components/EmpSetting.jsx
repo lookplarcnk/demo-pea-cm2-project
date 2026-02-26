@@ -20,7 +20,7 @@ import {
   FiMail
 } from "react-icons/fi";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
 
 export default function EmpSetting() {
   const navigate = useNavigate(); 

@@ -15,7 +15,7 @@ import LogoutModal from "./LogoutModal";
 import AdminProfileModal from "./AdminProfileModal";
 import Logo from "../assets/img/logo-pea.png"; // ✅ นำเข้า Logo
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
 
 export default function ManageDocs() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

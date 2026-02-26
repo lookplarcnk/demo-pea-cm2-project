@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { FiX, FiCamera, FiCheck } from "react-icons/fi";
 import axios from "axios";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
 
 export default function EmployeeProfileModal({ user, setUser, onClose }) {
   // ✅ แก้ไข: ดักจับชื่อตัวแปรที่อาจต่างกันในแต่ละหน้า (name vs fullName, department vs dept)
