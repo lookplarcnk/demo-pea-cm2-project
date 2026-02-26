@@ -7,22 +7,24 @@ function Mostdownloaddocs() {
   const [downloadCounts, setDownloadCounts] = useState({});
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  // ✅ แก้ไข: กำหนด URL ของ Backend จาก Render (ตรวจสอบให้ตรงกับ URL แอปของคุณ)
+  const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com";
+
   // ✅ 2. ดึงข้อมูลจาก API โดยเรียงตามยอดดาวน์โหลดสูงสุด (Top 5)
   useEffect(() => {
     const fetchTopDocs = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/most-downloaded'); 
+        // ✅ แก้ไข: เปลี่ยนจาก localhost เป็น API_BASE_URL
+        const response = await fetch(`${API_BASE_URL}/api/most-downloaded`); 
         const data = await response.json();
         
-        // ปรับปรุงการเก็บข้อมูล downloads จาก backend ให้ลง state docs โดยตรง
         const mappedData = data.map(doc => ({
           ...doc,
-          downloads: parseInt(doc.downloads) || 0 // มั่นใจว่าเป็นตัวเลขจาก DB
+          downloads: parseInt(doc.downloads) || 0 
         }));
         
         setDocs(mappedData);
 
-        // ตั้งค่า State สำหรับยอดดาวน์โหลดแยกตาม ID เพื่อใช้ใน Modal
         const counts = mappedData.reduce((acc, doc) => {
           acc[doc.id] = doc.downloads;
           return acc;
@@ -45,13 +47,13 @@ function Mostdownloaddocs() {
     
     // สร้าง URL สำหรับ Preview รองรับชื่อไฟล์ภาษาไทย
     const fileName = encodeURIComponent(`${doc.title}.pdf`);
-    const fileUrl = `http://localhost:5000/files/${fileName}`;
+    // ✅ แก้ไข: เปลี่ยนจาก localhost เป็น API_BASE_URL
+    const fileUrl = `${API_BASE_URL}/files/${fileName}`;
 
     setPreviewDoc({
       ...doc,
       url: fileUrl
     });
-    // หมายเหตุ: ไม่มีการ fetch PATCH ในนี้เพื่อให้ยอดนิ่งตอนเปิดดู
   };
 
   // ✅ 4. เพิ่มฟังก์ชัน handleDownload: ดาวน์โหลดลงเครื่องก่อน -> แล้วค่อยนับยอดแบบเรียลไทม์
@@ -59,7 +61,8 @@ function Mostdownloaddocs() {
     try {
       // --- ส่วนที่ 1: ดำเนินการดาวน์โหลดไฟล์ลงเครื่องก่อน (Save to Computer First) ---
       const downloadFileName = `${doc.title}.pdf`;
-      const downloadUrl = `http://localhost:5000/files/${encodeURIComponent(downloadFileName)}`;
+      // ✅ แก้ไข: เปลี่ยนจาก localhost เป็น API_BASE_URL
+      const downloadUrl = `${API_BASE_URL}/files/${encodeURIComponent(downloadFileName)}`;
 
       const link = document.createElement('a');
       link.href = downloadUrl;
@@ -69,19 +72,18 @@ function Mostdownloaddocs() {
       link.remove();
 
       // --- ส่วนที่ 2: หลังจากเริ่มดาวน์โหลดแล้ว จึงส่ง PATCH request ไปนับยอดที่ Backend ---
-      const response = await fetch(`http://localhost:5000/api/documents/${doc.id}/download`, {
+      // ✅ แก้ไข: เปลี่ยนจาก localhost เป็น API_BASE_URL
+      const response = await fetch(`${API_BASE_URL}/api/documents/${doc.id}/download`, {
         method: 'PATCH',
       });
       const data = await response.json();
 
       if (data.success) {
-        // อัปเดตยอดดาวน์โหลดสะสมใน Modal ทันที
         setDownloadCounts((prev) => ({
           ...prev,
           [doc.id]: data.newCount,
         }));
         
-        // ✅ จุดสำคัญ: อัปเดตข้อมูลในตารางหลัก (State docs) ให้เลขเปลี่ยนทันทีโดยไม่รีเฟรช
         setDocs((prevDocs) => 
           prevDocs.map((item) => 
             item.id === doc.id ? { ...item, downloads: data.newCount } : item
@@ -138,7 +140,6 @@ function Mostdownloaddocs() {
                     </td>
                     <td className="px-4 py-3 text-center text-sm border-b border-gray-100">
                       <span className="px-3 py-1 rounded-full bg-[#ECFEFF] text-[#0369A1] font-semibold">
-                        {/* ✅ ใช้ยอด downloads จาก state docs โดยตรงเพื่อให้แสดงผล 11 ครั้งตาม DB */}
                         {doc.downloads?.toLocaleString('th-TH')} ครั้ง
                       </span>
                     </td>
@@ -161,7 +162,6 @@ function Mostdownloaddocs() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                {/* ✅ ปุ่มดาวน์โหลดลงเครื่อง: เมื่อกดปุ่มนี้ระบบจะเซฟไฟล์ก่อน แล้วถึงจะนับจำนวนครั้ง */}
                 <button
                   onClick={() => handleDownload(previewDoc)}
                   className="inline-flex items-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-full px-4 py-2 transition shadow-md"

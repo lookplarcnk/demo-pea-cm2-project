@@ -13,7 +13,7 @@ import Logo from "../assets/img/logo-pea.png";
 import EmployeeProfileModal from "./EmployeeProfileModal"; 
 
 const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL = "https://demo-pea-cm2-project.onrender.com";
 
 /* --- 1. LogoutModal Component --- */
 function LogoutModal({ isOpen, onClose, onConfirm }) {

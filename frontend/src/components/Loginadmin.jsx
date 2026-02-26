@@ -17,6 +17,9 @@ function Loginadmin() {
   const [rememberMe, setRememberMe] = useState(false); 
   const [loginError, setLoginError] = useState("");
 
+  // ✅ แก้ไข: กำหนด URL ของ Backend จาก Render (เปลี่ยนชื่อแอปให้ตรงกับของคุณ)
+  const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com";
+
   useEffect(() => {
     const savedEmail = localStorage.getItem("admin_remember_email");
     const savedPassword = localStorage.getItem("admin_remember_password");
@@ -43,7 +46,8 @@ function Loginadmin() {
     if (!resetEmail) return;
     setSending(true);
     try {
-      const res = await fetch("http://localhost:5000/api/forgot-password", {
+      // ✅ แก้ไข: เปลี่ยนจาก localhost เป็น API_BASE_URL
+      const res = await fetch(`${API_BASE_URL}/api/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: resetEmail }),
@@ -74,7 +78,8 @@ function Loginadmin() {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/api/employees/login", {
+      // ✅ แก้ไข: เปลี่ยนจาก localhost เป็น API_BASE_URL
+      const res = await fetch(`${API_BASE_URL}/api/employees/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }), 

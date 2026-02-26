@@ -11,6 +11,9 @@ function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
+  // ✅ แก้ไข: กำหนด URL ของ Backend จาก Render (ตรวจสอบให้ตรงกับ URL แอปของคุณ)
+  const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -30,8 +33,9 @@ function ResetPassword() {
 
     try {
       setLoading(true);
+      // ✅ แก้ไข: เปลี่ยนจาก localhost เป็น API_BASE_URL เพื่อให้ Vercel คุยกับ Render ได้จริง
       // ส่ง token และรหัสใหม่ไปที่ Backend (รองรับทั้งบุคคลทั่วไปและพนักงานผ่าน API เดียวกัน)
-      const res = await fetch(`http://localhost:5000/api/reset-password/${token}`, {
+      const res = await fetch(`${API_BASE_URL}/api/reset-password/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),

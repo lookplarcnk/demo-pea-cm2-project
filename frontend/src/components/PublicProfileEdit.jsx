@@ -14,6 +14,10 @@ function PublicProfileEdit() {
   const fileRef = useRef(null);
 
   const storedUser = JSON.parse(localStorage.getItem("user"));
+  const token = localStorage.getItem("token"); // ดึง token มาใช้ยืนยันตัวตน
+
+  // ✅ แก้ไข: กำหนด URL ของ Backend จาก Render
+  const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com";
 
   const [form, setForm] = useState({
     firstName: storedUser?.firstName || "",
@@ -22,6 +26,8 @@ function PublicProfileEdit() {
     phone: storedUser?.phone || "",
     avatar: storedUser?.avatar || "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -39,15 +45,40 @@ function PublicProfileEdit() {
     reader.readAsDataURL(file);
   };
 
-  const handleSave = () => {
-    const updatedUser = { ...storedUser, ...form };
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-    alert("บันทึกข้อมูลเรียบร้อย");
-    navigate("/");
+  // ✅ แก้ไข: ฟังก์ชัน handleSave ให้ส่งข้อมูลไปที่ Backend จริง
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_BASE_URL}/api/public-users/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` // ส่ง Token ไปด้วยถ้า Backend บังคับ
+        },
+        body: JSON.stringify(form),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // อัปเดตใน localStorage เพื่อให้หน้าแรกเปลี่ยนตามทันที
+        const updatedUser = { ...storedUser, ...form };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        alert("บันทึกข้อมูลเรียบร้อย");
+        navigate("/");
+      } else {
+        alert(data.message || "เกิดข้อผิดพลาดในการบันทึก");
+      }
+    } catch (err) {
+      console.error("Update Profile Error:", err);
+      alert("ไม่สามารถติดต่อเซิร์ฟเวอร์ได้");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-indigo-100 to-blue-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-indigo-100 to-blue-100 p-6 text-left">
       <div className="max-w-xl mx-auto">
 
         {/* Back */}
@@ -59,7 +90,7 @@ function PublicProfileEdit() {
         </button>
 
         {/* Card */}
-        <div className="bg-white/80 backdrop-blur rounded-2xl shadow-lg border border-white/60 p-6">
+        <div className="bg-white/80 backdrop-blur rounded-2xl shadow-lg border border-white/60 p-6 text-left">
 
           {/* Avatar Upload */}
           <div className="flex justify-center mb-6 relative">
@@ -77,7 +108,6 @@ function PublicProfileEdit() {
                 <FiUser className="text-purple-700 text-5xl" />
               )}
 
-              {/* Overlay */}
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                 <FiCamera className="text-white text-2xl" />
               </div>
@@ -96,11 +126,9 @@ function PublicProfileEdit() {
             แก้ไขโปรไฟล์บุคคลทั่วไป
           </h1>
 
-          {/* Form */}
           <div className="space-y-4">
-
             <div>
-              <label className="text-sm text-gray-600">ชื่อจริง (First Name)</label>
+              <label className="text-sm text-gray-600 block text-left">ชื่อจริง (First Name)</label>
               <div className="flex items-center border rounded-lg px-3 py-2 bg-white mt-1">
                 <FiUser className="text-gray-400 mr-2" />
                 <input
@@ -113,7 +141,7 @@ function PublicProfileEdit() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">นามสกุล (Last Name)</label>
+              <label className="text-sm text-gray-600 block text-left">นามสกุล (Last Name)</label>
               <div className="flex items-center border rounded-lg px-3 py-2 bg-white mt-1">
                 <FiUser className="text-gray-400 mr-2" />
                 <input
@@ -126,19 +154,19 @@ function PublicProfileEdit() {
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">อีเมล (Email)</label>
+              <label className="text-sm text-gray-600 block text-left">อีเมล (Email)</label>
               <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-100 mt-1">
                 <FiMail className="text-gray-400 mr-2" />
                 <input
                   value={form.email}
                   disabled
-                  className="w-full outline-none bg-transparent"
+                  className="w-full outline-none bg-transparent cursor-not-allowed"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-sm text-gray-600">เบอร์โทร (Phone No.)</label>
+              <label className="text-sm text-gray-600 block text-left">เบอร์โทร (Phone No.)</label>
               <div className="flex items-center border rounded-lg px-3 py-2 bg-white mt-1">
                 <FiPhone className="text-gray-400 mr-2" />
                 <input
@@ -151,12 +179,12 @@ function PublicProfileEdit() {
             </div>
           </div>
 
-          {/* Save */}
           <button
             onClick={handleSave}
-            className="mt-6 w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-3 rounded-xl hover:bg-purple-700 transition"
+            disabled={loading}
+            className={`mt-6 w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-3 rounded-xl hover:bg-purple-700 transition ${loading ? "opacity-70 cursor-not-allowed" : ""}`}
           >
-            <FiSave /> บันทึกข้อมูล
+            <FiSave /> {loading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
           </button>
         </div>
       </div>

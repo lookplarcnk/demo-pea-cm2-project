@@ -22,7 +22,10 @@ function Register() {
 
   const navigate = useNavigate();
 
-  // ฟังก์ชันคำนวณความแข็งแรงของรหัสผ่าน
+  // ✅ แก้ไข: กำหนด URL ของ Backend จาก Render (ตรวจสอบให้ตรงกับ URL แอปของคุณ)
+  const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com";
+
+  // ฟังก์ชันคำนวณความแข็งแรงของหรัสผ่าน
   const getPasswordScore = (pwd) => {
     let score = 0;
     if (pwd.length >= 8) score += 1;
@@ -77,7 +80,8 @@ const handleSubmit = async (e) => {
 
   try {
     setLoading(true);
-    const res = await fetch("http://localhost:5000/api/register-public", {
+    // ✅ แก้ไข: เปลี่ยนจาก localhost เป็น API_BASE_URL เพื่อให้ Vercel คุยกับ Render ได้
+    const res = await fetch(`${API_BASE_URL}/api/register-public`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -116,7 +120,6 @@ const handleSubmit = async (e) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#C79AF7] via-[#E4D5FB] to-[#B4E3FF] flex flex-col items-center justify-center px-4 py-8">
       
-      {/* ปุ่ม Back อยู่นอกกรอบสีขาว */}
       <div className="w-full max-w-4xl mb-4">
         <Link 
           to="/" 
@@ -129,8 +132,7 @@ const handleSubmit = async (e) => {
         </Link>
       </div>
 
-      <div className="w-full max-w-4xl bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/70 overflow-hidden">
-        {/* Header */}
+      <div className="w-full max-w-4xl bg-white/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/70 overflow-hidden text-left">
         <div className="border-b border-gray-100 px-6 py-6 md:px-10 md:py-8 bg-gradient-to-r from-[#8B5CF6] via-[#6366F1] to-[#0EA5E9]">
           <h1 className="text-center text-2xl md:text-3xl font-semibold text-white drop-shadow-sm">
             สมัครสมาชิก
@@ -140,7 +142,6 @@ const handleSubmit = async (e) => {
           </p>
         </div>
 
-        {/* ฟอร์มสมัครสมาชิก */}
         <div className="px-6 py-4 md:px-10">
           <form
             onSubmit={handleSubmit}
