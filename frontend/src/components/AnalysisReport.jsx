@@ -14,6 +14,9 @@ import "jspdf-autotable";
 import html2canvas from "html2canvas";
 import * as XLSX from "xlsx"; 
 
+// ✅ แก้ไข: กำหนด URL หลักให้ชี้ไปยัง Render
+const RENDER_API_BASE = "https://demo-pea-cm2-project.onrender.com";
+
 export default function AnalyticalReportPage() {
   const navigate = useNavigate(); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -49,7 +52,7 @@ export default function AnalyticalReportPage() {
     };
   });
 
-  // ✅ ฟังก์ชันดึงข้อมูลจาก Database
+  // ✅ ฟังก์ชันดึงข้อมูลจาก Database ผ่าน Render
   const fetchAnalytics = useCallback(async () => {
     try {
       setLoading(true);
@@ -58,12 +61,11 @@ export default function AnalyticalReportPage() {
         queryParams += `&start=${selectedDate}&end=${selectedDate}`;
       }
 
-      // ดึงข้อมูลวิเคราะห์ภาพรวม
-      const statsRes = await fetch(`http://localhost:5000/api/admin/analytics?${queryParams}`);
+      // ✅ แก้ไข: เปลี่ยนจาก localhost เป็น RENDER_API_BASE
+      const statsRes = await fetch(`${RENDER_API_BASE}/api/admin/analytics?${queryParams}`);
       const statsData = await statsRes.json();
 
       if (statsRes.ok) {
-        // ⭐ นำจำนวนผู้ใช้งานใหม่จากพนักงานและบุคคลทั่วไปมารวมกัน
         const combinedNewUsers = (parseInt(statsData.totalNewUsers?.count) || 0) + (parseInt(statsData.totalNewPublicUsers?.count) || 0);
 
         setStats([
@@ -93,10 +95,8 @@ export default function AnalyticalReportPage() {
           },
         ]);
 
-        // ดึงข้อมูลสัดส่วนรายแผนก
         setDeptData(statsData.departments || []);
 
-        // ดึงข้อมูลกราฟแนวโน้ม (เปรียบเทียบความสูงตามข้อมูลจริง)
         if (statsData.weeklyUsage && statsData.weeklyUsage.length > 0) {
           const maxVal = Math.max(...statsData.weeklyUsage.map(d => parseInt(d.height) || 0));
           const processedUsage = statsData.weeklyUsage.map((d, i) => ({
@@ -120,13 +120,13 @@ export default function AnalyticalReportPage() {
     return () => clearInterval(interval);
   }, [fetchAnalytics]);
 
-  // ✅ แก้ไข: กรองข้อมูล Excel ตาม Period
+  // ✅ แก้ไข: กรองข้อมูล Excel ชี้ไปที่ Render
   const downloadExcel = async () => {
     try {
       let queryParams = `period=${reportPeriod}`;
       if (selectedDate) queryParams += `&start=${selectedDate}&end=${selectedDate}`;
       
-      const resDocs = await fetch(`http://localhost:5000/api/export/excel/documents?${queryParams}`);
+      const resDocs = await fetch(`${RENDER_API_BASE}/api/export/excel/documents?${queryParams}`);
       const docsData = await resDocs.json();
 
       const workbook = XLSX.utils.book_new();
@@ -139,14 +139,14 @@ export default function AnalyticalReportPage() {
     }
   };
 
-  // ✅ แก้ไข: ปรับปรุง PDF Export ให้กรองตาม Period สอดคล้องกับหน้าจอ
+  // ✅ แก้ไข: กรองข้อมูล PDF ชี้ไปที่ Render
   const downloadPDF = async () => {
     try {
       setLoading(true);
       let queryParams = `period=${reportPeriod}`;
       if (selectedDate) queryParams += `&start=${selectedDate}&end=${selectedDate}`;
       
-      const resDocs = await fetch(`http://localhost:5000/api/export/pdf/documents?${queryParams}`);
+      const resDocs = await fetch(`${RENDER_API_BASE}/api/export/pdf/documents?${queryParams}`);
       if (!resDocs.ok) throw new Error("API Connection Failed");
       const docsData = await resDocs.json();
 
@@ -212,12 +212,12 @@ export default function AnalyticalReportPage() {
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-purple-50 flex flex-col transform transition-transform duration-300 lg:relative lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="p-6 flex items-center gap-3 border-b border-purple-50 text-left">
           <img src={Logo} alt="PEA Logo" className="h-12 w-auto object-contain" />
-          <div className="leading-tight text-left text-left">
+          <div className="leading-tight text-left">
             <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight text-left">PEA ADMIN</h1>
             <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none text-left">Chiang Mai 2 System</p>
           </div>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-2 font-bold text-left text-left">
+        <nav className="flex-1 px-4 py-6 space-y-2 font-bold text-left">
           <Link to="/AdminDashboard"><SidebarItem icon={<FiPieChart />} label="หน้าสรุปผล (Overview)" /></Link>
           <Link to="/ManageDocs"><SidebarItem icon={<FiFileText />} label="จัดการเอกสารทั้งหมด" /></Link>
           <Link to="/AdminApprovalCenter"><SidebarItem icon={<FiCheckCircle />} label="พิจารณาเอกสาร" /></Link> 
@@ -225,7 +225,7 @@ export default function AnalyticalReportPage() {
           <Link to="/UserManage"><SidebarItem icon={<FiUsers />} label="จัดการผู้ใช้งาน" /></Link>
           <SidebarItem icon={<FiTrendingUp />} label="รายงานเชิงวิเคราะห์" active />
         </nav>
-        <div className="p-6 border-t border-purple-50 space-y-2 font-bold text-left text-left text-left">
+        <div className="p-6 border-t border-purple-50 space-y-2 font-bold text-left">
           <Link to="/AdminSetting"><SidebarItem icon={<FiSettings />} label="ตั้งค่าระบบ" /></Link>
           <div onClick={() => setOpenLogoutModal(true)} className="cursor-pointer">
             <SidebarItem icon={<FiLogOut />} label="ออกจากระบบ" danger />
@@ -238,7 +238,7 @@ export default function AnalyticalReportPage() {
           <div className="flex items-center gap-3 text-left">
             <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100 lg:hidden text-[#74045F] flex items-center justify-center text-center"><FiMenu size={20} /></button>
             <div className="flex flex-col text-left">
-                <h2 className="text-xl lg:text-2xl font-black text-[#74045F] tracking-tight">รายงานเชิงวิเคราะห์</h2>
+                <h2 className="text-xl lg:text-2xl font-black text-[#74045F] tracking-tight text-left">รายงานเชิงวิเคราะห์</h2>
                 <div className="flex items-center gap-2 text-[10px] text-emerald-500 font-bold uppercase tracking-widest text-left">
                     <span className="relative flex h-2 w-2 text-left">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 text-left"></span>
@@ -250,7 +250,6 @@ export default function AnalyticalReportPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-left">
-            {/* ✅ ส่วน Responsive สำหรับปุ่มและตัวเลือกวันที่ */}
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto text-left">
               <div className="flex items-center gap-2 bg-purple-50/50 px-4 py-2.5 rounded-2xl border border-purple-100 shadow-sm transition-all focus-within:ring-2 focus-within:ring-purple-200 flex-1 sm:flex-none">
                   <FiCalendar className="text-[#74045F]" size={16} />
@@ -283,15 +282,15 @@ export default function AnalyticalReportPage() {
           </div>
         </div>
 
-        <div className="px-4 lg:px-10 pb-10 mt-8 space-y-8 text-left text-left text-left">
+        <div className="px-4 lg:px-10 pb-10 mt-8 space-y-8 text-left">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
             {stats.map((s, i) => ( <ReportCard key={i} {...s} /> ))}
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 text-left text-left">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 text-left">
             <div className="xl:col-span-2 bg-white rounded-[2.5rem] p-8 border border-purple-50 shadow-sm flex flex-col h-[450px] text-left">
-              <div className="flex justify-between items-center mb-8 text-left text-left">
-                <div className="text-left text-left">
+              <div className="flex justify-between items-center mb-8 text-left">
+                <div className="text-left">
                   <h3 className="text-lg font-black text-[#74045F] uppercase tracking-wider text-left">แนวโน้มการเข้าใช้งาน</h3>
                   <p className="text-sm text-slate-400 font-bold text-left">ข้อมูลสถิติรายวันเปรียบเทียบความหนาแน่น</p>
                 </div>
@@ -300,7 +299,7 @@ export default function AnalyticalReportPage() {
               <div className="flex-1 flex items-end justify-between gap-2 sm:gap-4 px-2 sm:px-4 pb-4 text-left">
                 {usageData.length > 0 ? usageData.map((d, i) => (
                   <Bar key={i} height={d.height} label={d.label} active={d.active} />
-                )) : <p className="w-full text-center text-slate-300 italic">กำลังเชื่อมต่อข้อมูล...</p>}
+                )) : <p className="w-full text-center text-slate-300 italic text-center">กำลังเชื่อมต่อข้อมูล...</p>}
               </div>
             </div>
 
@@ -311,8 +310,8 @@ export default function AnalyticalReportPage() {
                 <div className="w-48 h-48 rounded-full border-[20px] border-purple-50/20 relative flex items-center justify-center shadow-lg text-left">
                   <div className="absolute inset-[-20px] rounded-full border-[20px] border-transparent border-t-[#74045F] border-r-[#9333EA] rotate-45 transition-transform duration-1000 text-left"></div>
                   <div className="text-center text-left">
-                    <p className="text-3xl font-black text-[#74045F] text-left">100%</p>
-                    <p className="text-[11px] text-slate-400 font-black uppercase tracking-tighter text-left">Engagement</p>
+                    <p className="text-3xl font-black text-[#74045F] text-center">100%</p>
+                    <p className="text-[11px] text-slate-400 font-black uppercase tracking-tighter text-center">Engagement</p>
                   </div>
                 </div>
                 <div className="mt-8 w-full space-y-4 text-left">
@@ -331,14 +330,14 @@ export default function AnalyticalReportPage() {
           onClose={() => setOpenProfileModal(false)} 
         />
       )}
-      <LogoutModal isOpen={openLogoutModal} onClose={() => setOpenLogoutModal(false)} onConfirm={handleConfirmLogout} />
+      <LogoutModal isOpen={openLogoutModal} onClose={() => setIsLogoutModalOpen(false)} onConfirm={handleConfirmLogout} />
     </div>
   );
 }
 
 function ReportCard({ title, value, trend, up }) {
   return (
-    <div className="bg-white p-6 rounded-[2rem] border border-purple-50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-left text-left">
+    <div className="bg-white p-6 rounded-[2rem] border border-purple-50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group text-left">
       <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-2 group-hover:text-[#74045F] transition-colors text-left">{title}</p>
       <div className="flex items-end justify-between text-left">
         <h4 className="text-3xl font-black text-[#74045F] tracking-tight leading-none group-hover:scale-105 transition-transform origin-left text-left">{value}</h4>
@@ -353,7 +352,7 @@ function ReportCard({ title, value, trend, up }) {
 
 function Bar({ height, label, active }) {
   return (
-    <div className="flex-1 flex flex-col items-center gap-3 group cursor-pointer text-left text-left">
+    <div className="flex-1 flex flex-col items-center gap-3 group cursor-pointer text-left">
       <div className="w-full relative flex flex-col justify-end h-48 bg-purple-50/30 rounded-2xl overflow-hidden group-hover:bg-purple-50 transition-all border border-transparent group-hover:border-purple-100 text-left">
         <div style={{ height: height }} className={`w-full transition-all duration-1000 ease-out shadow-lg shadow-purple-100/50 ${active ? 'bg-gradient-to-t from-[#74045F] to-[#9333EA]' : 'bg-purple-100 group-hover:bg-purple-300'} text-left`}></div>
       </div>
@@ -374,12 +373,12 @@ function DeptLegend({ label, color, percent }) {
   const finalColor = peaColors[color] || color;
 
   return (
-    <div className="flex items-center justify-between w-full px-2 sm:px-5 group text-left text-left">
-      <div className="flex items-center gap-3 text-left text-left">
+    <div className="flex items-center justify-between w-full px-2 sm:px-5 group text-left">
+      <div className="flex items-center gap-3 text-left">
         <div className={`w-4 h-4 rounded-lg shadow-sm group-hover:scale-125 transition-transform duration-300 ${finalColor} text-left`}></div>
         <span className="text-[11px] sm:text-[13px] font-bold text-slate-600 group-hover:text-[#74045F] transition-colors text-left">{label}</span>
       </div>
-      <div className="flex items-center gap-2 text-right text-left">
+      <div className="flex items-center gap-2 text-right">
         <div className="w-12 sm:w-16 h-1.5 bg-purple-50 rounded-full overflow-hidden hidden sm:block text-left">
             <div style={{ width: percent }} className={`h-full opacity-30 ${finalColor} text-left`}></div>
         </div>
@@ -391,7 +390,7 @@ function DeptLegend({ label, color, percent }) {
 
 function SidebarItem({ icon, label, active, danger }) {
   return (
-    <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left text-left ${active ? "bg-purple-50 text-[#74045F] shadow-sm shadow-purple-100" : "text-slate-400 hover:bg-purple-50 hover:text-[#74045F]"} ${danger ? "text-rose-500 mt-auto" : ""} text-left`}>
+    <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left ${active ? "bg-purple-50 text-[#74045F] shadow-sm shadow-purple-100" : "text-slate-400 hover:bg-purple-50 hover:text-[#74045F]"} ${danger ? "text-rose-500 mt-auto" : ""} text-left`}>
       <span className={`${active ? "text-[#74045F]" : "text-purple-200"} flex items-center justify-center text-lg text-left`}>{icon}</span>{label}
     </div>
   );

@@ -1,9 +1,14 @@
 import React, { useState, useRef } from "react";
 import { FiX, FiCamera, FiCheck } from "react-icons/fi";
+import axios from "axios"; // ✅ เพิ่มการนำเข้า axios
+
+// ✅ กำหนด URL ของ Backend จาก Render
+const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
 
 export default function AdminProfileModal({ user, setUser, onClose }) {
   // สร้าง State ชั่วคราวสำหรับการแก้ไข
   const [tempUser, setTempUser] = useState(user);
+  const [isSaving, setIsSaving] = useState(false); // ✅ เพิ่มสถานะการบันทึก
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
@@ -17,8 +22,8 @@ export default function AdminProfileModal({ user, setUser, onClose }) {
     }
   };
 
-  const handleSave = () => {
-    // ✅ ตรวจสอบสิทธิ์เบื้องต้น: รองรับสำหรับแอดมินเท่านั้น
+  const handleSave = async () => {
+    // ✅ ตรวจสอบสิทธิ์เบื้องต้น
     const currentRole = user.role?.toLowerCase();
     if (!currentRole.includes("admin") && !currentRole.includes("administrator")) {
       alert("สิทธิ์ปฏิเสธ: เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถแก้ไขข้อมูลนี้ได้");
@@ -26,28 +31,43 @@ export default function AdminProfileModal({ user, setUser, onClose }) {
     }
 
     try {
-      // 1. อัปเดต State ในหน้าจอหลัก (Frontend) ทันที
-      setUser(tempUser);
-      
-      // 2. บันทึกลง localStorage (เพื่อให้หน้าอื่นๆ ที่เป็นแอดมินอัปเดตตาม)
-      const empId = tempUser.employeeId || tempUser.id;
-      const dataToSave = {
-        id: empId,
-        name: tempUser.name,
-        email: tempUser.email,
-        dept: tempUser.department || tempUser.dept || "ทั่วไป",
+      setIsSaving(true);
+      const empId = tempUser.employeeId?.replace("ADM-", "") || tempUser.id;
+
+      // 1. ส่งข้อมูลไปอัปเดตที่ Backend (Render)
+      const response = await axios.put(`${API_BASE_URL}/employees/${empId}`, {
+        emp_name: tempUser.name,
+        emp_email: tempUser.email,
+        emp_phone: tempUser.phone,
         role: tempUser.role,
-        phone: tempUser.phone,
-        avatar: tempUser.avatar
-      };
-      
-      localStorage.setItem("pea-admin-user", JSON.stringify(dataToSave));
-      
-      alert("บันทึกข้อมูลผู้ดูแลระบบสำเร็จ (Local Update)");
-      onClose();
+        avatar: tempUser.avatar // ส่ง Base64 หรือ URL รูปภาพ
+      });
+
+      if (response.status === 200) {
+        // 2. อัปเดต State ในหน้าจอหลัก (Frontend) ทันที
+        setUser(tempUser);
+        
+        // 3. บันทึกลง localStorage (Sync ข้อมูลทุกหน้า)
+        const dataToSave = {
+          id: tempUser.employeeId || tempUser.id,
+          name: tempUser.name,
+          email: tempUser.email,
+          dept: tempUser.department || tempUser.dept || "ทั่วไป",
+          role: tempUser.role,
+          phone: tempUser.phone,
+          avatar: tempUser.avatar
+        };
+        
+        localStorage.setItem("pea-admin-user", JSON.stringify(dataToSave));
+        
+        alert("บันทึกข้อมูลผู้ดูแลระบบลงฐานข้อมูลสำเร็จ");
+        onClose();
+      }
     } catch (err) {
       console.error("Save Error:", err);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      alert(err.response?.data?.message || "เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -62,11 +82,11 @@ export default function AdminProfileModal({ user, setUser, onClose }) {
           <FiX size={24} />
         </button>
 
-        <h3 className="text-2xl font-black text-slate-800 mb-10 uppercase tracking-tight border-l-8 border-indigo-600 pl-4">
+        <h3 className="text-2xl font-black text-slate-800 mb-10 uppercase tracking-tight border-l-8 border-indigo-600 pl-4 text-left">
           แก้ไขข้อมูลผู้ดูแลระบบ
         </h3>
 
-        <div className="flex flex-col lg:flex-row gap-12">
+        <div className="flex flex-col lg:flex-row gap-12 text-left">
           {/* ส่วนรูปภาพ */}
           <div className="flex flex-col items-center text-center shrink-0">
             <div className="relative group cursor-pointer" onClick={() => fileInputRef.current.click()}>
@@ -89,44 +109,45 @@ export default function AdminProfileModal({ user, setUser, onClose }) {
           </div>
 
           {/* ส่วนฟอร์มข้อมูล */}
-          <div className="flex-1 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1">ชื่อ-นามสกุล</label>
-                  <input type="text" value={tempUser.name || ""} onChange={(e) => setTempUser({...tempUser, name: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold" />
+          <div className="flex-1 space-y-6 text-left">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                <div className="space-y-2 text-left">
+                  <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 block text-left">ชื่อ-นามสกุล</label>
+                  <input type="text" value={tempUser.name || ""} onChange={(e) => setTempUser({...tempUser, name: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold text-left" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1">ระดับสิทธิ์ / ตำแหน่ง</label>
-                  <input type="text" value={tempUser.role || ""} onChange={(e) => setTempUser({...tempUser, role: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold" />
+                <div className="space-y-2 text-left">
+                  <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 block text-left">ระดับสิทธิ์ / ตำแหน่ง</label>
+                  <input type="text" value={tempUser.role || ""} onChange={(e) => setTempUser({...tempUser, role: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold text-left" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1">อีเมลติดต่องาน</label>
-                  <input type="text" value={tempUser.email || ""} onChange={(e) => setTempUser({...tempUser, email: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold" />
+                <div className="space-y-2 text-left">
+                  <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 block text-left">อีเมลติดต่องาน</label>
+                  <input type="text" value={tempUser.email || ""} onChange={(e) => setTempUser({...tempUser, email: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold text-left" />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1">เบอร์โทรศัพท์</label>
-                  <input type="text" value={tempUser.phone || ""} onChange={(e) => setTempUser({...tempUser, phone: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold" />
+                <div className="space-y-2 text-left">
+                  <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 block text-left">เบอร์โทรศัพท์</label>
+                  <input type="text" value={tempUser.phone || ""} onChange={(e) => setTempUser({...tempUser, phone: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold text-left" />
                 </div>
             </div>
             
-            <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
-              <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">สังกัดหน่วยงาน</h4>
-              <p className="text-slate-800 font-bold">{tempUser.department || tempUser.dept || "ไม่ระบุ"}</p>
+            <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 text-left">
+              <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 text-left">สังกัดหน่วยงาน</h4>
+              <p className="text-slate-800 font-bold text-left">{tempUser.department || tempUser.dept || "ไม่ระบุ"}</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <button 
                 type="button" 
                 onClick={onClose} 
-                className="flex-1 bg-white border-2 border-slate-100 text-slate-400 hover:text-rose-500 hover:border-rose-100 font-black py-4 rounded-2xl transition-all active:scale-95 uppercase tracking-widest text-xs"
+                className="flex-1 bg-white border-2 border-slate-100 text-slate-400 hover:text-rose-500 hover:border-rose-100 font-black py-4 rounded-2xl transition-all active:scale-95 uppercase tracking-widest text-xs text-center"
               >
                 ยกเลิก
               </button>
               <button 
                 onClick={handleSave} 
-                className="flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 px-8 rounded-2xl shadow-lg shadow-indigo-100 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+                disabled={isSaving}
+                className={`flex-[2] bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 px-8 rounded-2xl shadow-lg shadow-indigo-100 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs text-center ${isSaving ? "opacity-70 cursor-not-allowed" : ""}`}
               >
-                <FiCheck size={18} /> บันทึกการเปลี่ยนแปลง
+                {isSaving ? "กำลังบันทึก..." : <><FiCheck size={18} /> บันทึกการเปลี่ยนแปลง</>}
               </button>
             </div>
           </div>

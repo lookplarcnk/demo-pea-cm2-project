@@ -15,6 +15,9 @@ import {
   FiSend
 } from "react-icons/fi";
 
+// ✅ กำหนด API Base URL สำหรับ Render (กรณีมีการขยายระบบบันทึกค่าลง DB ในอนาคต)
+const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
+
 export default function SystemSettingsPage() {
   const navigate = useNavigate(); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -42,7 +45,7 @@ export default function SystemSettingsPage() {
     maintenanceMode: false
   });
 
-  // ✅ 2. เปลี่ยนจาก alert เป็น toast
+  // ✅ 2. เปลี่ยนจาก alert เป็น toast พร้อมสีม่วงการไฟฟ้า
   const handleSaveSettings = () => {
     if (settings.notifications) {
       toast.success('บันทึกการตั้งค่าและเปิดการแจ้งเตือนแล้ว', {
@@ -50,7 +53,7 @@ export default function SystemSettingsPage() {
         position: 'top-right',
         style: {
           borderRadius: '15px',
-          background: '#74045F', // ✅ เปลี่ยนเป็นสีม่วง PEA
+          background: '#74045F', // ✅ สีม่วง PEA
           color: '#fff',
           fontFamily: 'inherit',
           fontWeight: 'bold'
@@ -70,6 +73,7 @@ export default function SystemSettingsPage() {
 
   const handleConfirmLogout = () => {
     localStorage.removeItem("pea-admin-token"); 
+    localStorage.removeItem("pea-admin-user");
     setOpenLogoutModal(false);
     navigate("/"); 
   };
@@ -85,8 +89,8 @@ export default function SystemSettingsPage() {
   };
 
   return (
-    <div className={`flex min-h-screen ${theme.bg} font-sans ${theme.textMain} overflow-x-hidden text-left font-medium`}>
-      {/* ✅ 3. เพิ่มคอมโพเนนต์ Toaster ไว้บนสุดของหน้า */}
+    <div className={`flex min-h-screen ${theme.bg} font-sans ${theme.textMain} overflow-x-hidden text-left font-medium text-left`}>
+      {/* ✅ 3. คอมโพเนนต์ Toaster */}
       <Toaster />
 
       {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
@@ -95,8 +99,8 @@ export default function SystemSettingsPage() {
         <div className={`p-6 flex items-center gap-3 border-b border-purple-50 text-left`}>
           <img src={Logo} alt="PEA Logo" className="h-12 w-auto object-contain" />
           <div className="leading-tight text-left">
-            <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight">PEA ADMIN</h1>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Chiang Mai 2 System</p>
+            <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight text-left">PEA ADMIN</h1>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none text-left">Chiang Mai 2 System</p>
           </div>
         </div>
         <nav className="flex-1 px-4 py-6 space-y-2 font-bold text-left">
@@ -115,13 +119,13 @@ export default function SystemSettingsPage() {
         </div>
       </aside>
 
-      <main className="flex-1 min-w-0 overflow-y-auto">
-        <div className={`backdrop-blur-md px-4 lg:px-10 py-6 border-b ${theme.header} sticky top-0 z-30 font-bold flex justify-between items-center`}>
+      <main className="flex-1 min-w-0 overflow-y-auto text-left">
+        <div className={`backdrop-blur-md px-4 lg:px-10 py-6 border-b ${theme.header} sticky top-0 z-30 font-bold flex justify-between items-center text-left`}>
           <div className="flex items-center gap-3 text-left">
             <button onClick={() => setIsSidebarOpen(true)} className={`p-2.5 bg-white border-purple-100 rounded-xl shadow-sm border lg:hidden text-[#74045F] flex items-center justify-center`}><FiMenu size={20} /></button>
-            <h2 className={`text-2xl lg:text-3xl font-bold text-[#74045F] tracking-tight`}>ตั้งค่าระบบ</h2>
+            <h2 className={`text-2xl lg:text-3xl font-bold text-[#74045F] tracking-tight text-left`}>ตั้งค่าระบบ</h2>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 text-left">
             <button onClick={() => setOpenProfileModal(true)} className="w-11 h-11 rounded-xl overflow-hidden border-2 border-white shadow-md active:scale-95 transition-transform">
               <img src={user.avatar} alt="profile" className="w-full h-full object-cover" />
             </button>
@@ -132,7 +136,7 @@ export default function SystemSettingsPage() {
           <section className="space-y-4 text-left">
             <div className="flex items-center gap-3 mb-6 text-left">
               <div className={`w-10 h-10 bg-purple-50 text-[#74045F] rounded-xl flex items-center justify-center`}><FiGlobe size={20} /></div>
-              <h3 className={`text-xl font-black text-[#74045F]`}>การตั้งค่าทั่วไป</h3>
+              <h3 className={`text-xl font-black text-[#74045F] text-left`}>การตั้งค่าทั่วไป</h3>
             </div>
             <div className="grid gap-4 text-left">
               <SettingToggleItem 
@@ -148,7 +152,7 @@ export default function SystemSettingsPage() {
           <section className="space-y-4 text-left">
             <div className="flex items-center gap-3 mb-6 text-left">
               <div className={`w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center`}><FiShield size={20} /></div>
-              <h3 className={`text-xl font-black text-slate-800`}>ความปลอดภัยและสิทธิ์</h3>
+              <h3 className={`text-xl font-black text-slate-800 text-left`}>ความปลอดภัยและสิทธิ์</h3>
             </div>
             <div className="grid gap-4 text-left">
               <SettingToggleItem 
@@ -168,16 +172,16 @@ export default function SystemSettingsPage() {
             </div>
           </section>
 
-          <section className="space-y-4 text-left">
+          <section className="space-y-4 text-left text-left">
             <div className="flex items-center gap-3 mb-6 text-left">
               <div className={`w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center`}><FiSettings size={20} /></div>
-              <h3 className={`text-xl font-black text-slate-800`}>การจัดการขั้นสูง</h3>
+              <h3 className={`text-xl font-black text-slate-800 text-left`}>การจัดการขั้นสูง</h3>
             </div>
             <div className={`${theme.card} p-8 rounded-[2.5rem] border shadow-sm space-y-6 text-left`}>
                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-left">
                   <div className="text-left">
-                    <p className={`font-black text-slate-800 text-lg`}>โหมดปิดปรับปรุงระบบ</p>
-                    <p className={`text-sm ${theme.textSub} font-bold`}>จำกัดการเข้าถึงของผู้ใช้งานทั่วไปชั่วคราวเพื่ออัปเดตระบบ</p>
+                    <p className={`font-black text-slate-800 text-lg text-left`}>โหมดปิดปรับปรุงระบบ</p>
+                    <p className={`text-sm ${theme.textSub} font-bold text-left`}>จำกัดการเข้าถึงของผู้ใช้งานทั่วไปชั่วคราวเพื่ออัปเดตระบบ</p>
                   </div>
                   <button 
                     onClick={() => toggleSetting('maintenanceMode')}
@@ -194,7 +198,7 @@ export default function SystemSettingsPage() {
                   >
                     <FiCheck size={18}/> บันทึกการตั้งค่า
                   </button>
-                  <button className="bg-white border border-purple-100 text-[#74045F] px-8 py-3 rounded-2xl font-black hover:bg-purple-50 transition-all active:scale-95 text-sm uppercase tracking-widest">
+                  <button className="bg-white border border-purple-100 text-[#74045F] px-8 py-3 rounded-2xl font-black hover:bg-purple-50 transition-all active:scale-95 text-sm uppercase tracking-widest text-center">
                     คืนค่าเริ่มต้น
                   </button>
                </div>
@@ -230,8 +234,8 @@ function SettingToggleItem({ icon, title, desc, active, onToggle }) {
           {icon}
         </div>
         <div className="text-left">
-          <p className={`font-black text-slate-800 text-lg leading-tight mb-1`}>{title}</p>
-          <p className={`text-sm text-slate-400 font-bold max-w-md`}>{desc}</p>
+          <p className={`font-black text-slate-800 text-lg leading-tight mb-1 text-left`}>{title}</p>
+          <p className={`text-sm text-slate-400 font-bold max-w-md text-left`}>{desc}</p>
         </div>
       </div>
       <button 
@@ -246,7 +250,7 @@ function SettingToggleItem({ icon, title, desc, active, onToggle }) {
 
 function SidebarItem({ icon, label, active, danger }) {
   return (
-    <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left ${active ? "bg-purple-50 text-[#74045F] shadow-sm shadow-purple-100" : "text-slate-400 hover:bg-purple-50/50 hover:text-[#74045F]"} ${danger ? "text-rose-500 mt-auto" : ""}`}>
+    <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left ${active ? "bg-purple-50 text-[#74045F] shadow-sm shadow-purple-100 font-black" : "text-slate-400 hover:bg-purple-50/50 hover:text-[#74045F] font-black"} ${danger ? "text-rose-500 mt-auto" : ""}`}>
       <span className={`${active ? "text-[#74045F]" : "text-purple-200"} flex items-center justify-center text-lg`}>{icon}</span>{label}
     </div>
   );
