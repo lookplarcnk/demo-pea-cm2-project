@@ -42,15 +42,33 @@ function SearchDocumentsPage2() {
   const handleSearch = async (e) => {
     if (e) e.preventDefault();
     setLoading(true);
+
+    // ✅ แปลงปี พ.ศ. เป็น ค.ศ. ก่อนส่งไป Backend
+    let yearToSend = "";
+    if (selectedYear !== "ทั้งหมด") {
+      yearToSend = (parseInt(selectedYear) - 543).toString();
+    }
+
     try {
       const response = await axios.get(`${API_BASE_URL}/public/documents/manuals`, {
         params: {
           query: searchQuery,
-          year: selectedYear === "ทั้งหมด" ? "" : selectedYear,
+          year: yearToSend,
           dept: selectedDept === "ทั้งหมด" ? "" : selectedDept
         }
       });
-      setDocuments(response.data);
+
+      // ✅ แปลงปี ค.ศ. ที่ได้จาก DB กลับเป็น พ.ศ. เพื่อแสดงผล
+      const mappedDocs = response.data.map(doc => ({
+        ...doc,
+        // เพิ่มฟิลด์แผนกเพื่อให้เรียกใช้ได้ง่าย
+        displayDept: doc.dept_name || doc.dept || "ไม่ระบุแผนก",
+        displayYear: doc.fiscal_year 
+          ? (parseInt(doc.fiscal_year) < 2500 ? parseInt(doc.fiscal_year) + 543 : doc.fiscal_year)
+          : "ไม่ระบุ"
+      }));
+
+      setDocuments(mappedDocs);
     } catch (err) {
       console.error("Search error:", err);
     } finally {
@@ -71,7 +89,6 @@ function SearchDocumentsPage2() {
 
   return (
     <div className="min-h-screen bg-[#F0F4F8] font-sans text-left flex flex-col">
-      {/* ✅ 2. เรียกใช้คอมโพเนนต์ Navbar ที่ปรับปรุงสีปุ่มสมัครสมาชิกแล้ว */}
       <Navbar />
       
       <header className="bg-[#74045F] py-16 px-4 border-b-4 border-[#74045F]">
@@ -106,20 +123,21 @@ function SearchDocumentsPage2() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
               <div className="text-left">
-                <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left text-left">ปี พ.ศ.</label>
+                <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left">ปี พ.ศ.</label>
                 <select 
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
                   className="w-full px-4 py-3.5 border border-gray-200 rounded-xl bg-[#F8FAFC] font-bold text-gray-600 outline-none cursor-pointer focus:border-[#74045F] text-left"
                 >
-                  <option>ทั้งหมด</option>
-                  <option>2569</option>
-                  <option>2568</option>
-                  <option>2567</option>
+                  <option value="ทั้งหมด">ทั้งหมด</option>
+                  <option value="2569">2569</option>
+                  <option value="2568">2568</option>
+                  <option value="2567">2567</option>
+                  <option value="2566">2566</option>
                 </select>
               </div>
               <div className="text-left">
-                <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left text-left">แผนก</label>
+                <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left">แผนก</label>
                 <select 
                   value={selectedDept}
                   onChange={(e) => setSelectedDept(e.target.value)}
@@ -137,13 +155,13 @@ function SearchDocumentsPage2() {
               </div>
             </div>
 
-            <button type="button" onClick={() => setShowAdvance(!showAdvance)} className="flex items-center gap-2 text-sm font-bold text-[#74045F] hover:text-[#5a034a] transition-colors text-left text-left">
+            <button type="button" onClick={() => setShowAdvance(!showAdvance)} className="flex items-center gap-2 text-sm font-bold text-[#74045F] hover:text-[#5a034a] transition-colors text-left">
               <FiChevronDown className={`transition-transform duration-300 ${showAdvance ? 'rotate-180' : ''}`} />
               แสดง/ซ่อน ตัวเลือกการค้นหาเพิ่มเติม
             </button>
 
-            <button type="submit" className="w-full bg-[#74045F] text-white py-4.5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-[#5a034a] transition-all shadow-xl shadow-purple-900/10 active:scale-[0.98] text-center text-center">
-              <FiSearch size={22} /> {loading ? "กำลังค้นหา..." : "ค้นหาคู่มือตอนนี้"}
+            <button type="submit" className="w-full bg-[#74045F] text-white py-4.5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-[#5a034a] transition-all shadow-xl shadow-purple-900/10 active:scale-[0.98] text-center">
+              {loading ? "กำลังค้นหา..." : <><FiSearch size={22} /> ค้นหาคู่มือตอนนี้</>}
             </button>
           </form>
         </div>
@@ -158,7 +176,7 @@ function SearchDocumentsPage2() {
                 {documents.map((doc) => (
                   <div key={doc.doc_id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-md hover:shadow-xl hover:border-[#74045F] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group text-left">
                     <div className="flex items-center gap-5 flex-1 cursor-pointer text-left" onClick={() => handleAccess(doc)}>
-                      <div className="w-16 h-16 bg-purple-50 text-[#74045F] rounded-2xl flex items-center justify-center text-3xl group-hover:bg-[#74045F] group-hover:text-white transition-all duration-300">
+                      <div className="w-16 h-16 bg-purple-50 text-[#74045F] rounded-2xl flex items-center justify-center text-3xl group-hover:bg-[#74045F] group-hover:text-white transition-all duration-300 text-center shadow-sm">
                         {doc.require_login && !user ? <FiLock /> : <FiFileText />}
                       </div>
                       <div className="text-left">
@@ -167,8 +185,9 @@ function SearchDocumentsPage2() {
                           {doc.require_login && <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full flex items-center gap-1 font-bold"><FiLock size={10}/> ต้องล็อกอิน</span>}
                         </h4>
                         <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2 text-[11px] font-black text-gray-400 uppercase tracking-widest text-left">
-                          <span className="text-[#74045F]">{doc.category || "คู่มือ/SOP"}</span>
-                          <span>• {doc.fiscal_year}</span>
+                          {/* ✅ แก้ไข: เปลี่ยนจากหมวดหมู่เป็นแผนก */}
+                          <span className="text-[#74045F]">{doc.displayDept}</span>
+                          <span>• ปี {doc.displayYear}</span>
                           <span>• {doc.file_size}</span>
                         </div>
                       </div>
@@ -177,7 +196,7 @@ function SearchDocumentsPage2() {
                     <div className="flex items-center gap-3 text-left">
                       <button 
                         onClick={() => handleAccess(doc)} 
-                        className="p-3 bg-gray-50 text-gray-400 hover:text-[#74045F] hover:bg-purple-50 rounded-xl transition-all shadow-sm text-left" 
+                        className="p-3 bg-gray-50 text-gray-400 hover:text-[#74045F] hover:bg-purple-50 rounded-xl transition-all shadow-sm text-center" 
                         title="เปิดดูเอกสารฉบับจริง"
                       >
                         <FiExternalLink size={24} />
@@ -188,10 +207,10 @@ function SearchDocumentsPage2() {
               </div>
             </div>
           ) : (
-            <div className="bg-purple-50/50 py-20 rounded-3xl border border-purple-100 text-center text-left text-center">
+            <div className="bg-purple-50/50 py-20 rounded-3xl border border-purple-100 text-center">
               <FiSearch className="text-6xl text-purple-200 mx-auto mb-4 text-center" />
-              <p className="text-purple-400 font-bold uppercase tracking-widest italic text-center text-center">
-                {searchQuery ? "ไม่พบข้อมูลที่ค้นหา" : "กรุณาพิมพ์ชื่อคู่มือหรือ SOP ที่ต้องการค้นหา"}
+              <p className="text-purple-400 font-bold uppercase tracking-widest italic text-center">
+                {loading ? "กำลังโหลดข้อมูล..." : (searchQuery ? "ไม่พบข้อมูลที่ค้นหา" : "กรุณาพิมพ์ชื่อคู่มือหรือ SOP ที่ต้องการค้นหา")}
               </p>
             </div>
           )}

@@ -44,15 +44,33 @@ function SearchDocumentsPage4() {
     if (e) e.preventDefault();
     setLoading(true);
     setHasSearched(true); 
+
+    // ✅ แปลงปี พ.ศ. เป็น ค.ศ. ก่อนส่ง API
+    let yearToSend = "";
+    if (selectedYear !== "ทั้งหมด") {
+      yearToSend = (parseInt(selectedYear) - 543).toString();
+    }
+
     try {
       const response = await axios.get(`${API_BASE_URL}/public/documents/procurement`, { 
         params: {
           query: searchQuery,
           dept: selectedDept === "ทั้งหมด" ? "" : selectedDept,
-          year: selectedYear === "ทั้งหมด" ? "" : selectedYear
+          year: yearToSend
         }
       });
-      setDocuments(response.data);
+
+      // ✅ จัดรูปแบบข้อมูลผลลัพธ์
+      const mappedDocs = response.data.map(d => ({
+        ...d,
+        // แปลงปีในฐานข้อมูล (ค.ศ.) กลับเป็น พ.ศ. เพื่อแสดงผล
+        displayYear: d.fiscal_year 
+          ? (parseInt(d.fiscal_year) < 2500 ? parseInt(d.fiscal_year) + 543 : d.fiscal_year)
+          : "ไม่ระบุ",
+        displayDept: d.dept_name || d.dept || "ไม่ระบุแผนก"
+      }));
+
+      setDocuments(mappedDocs);
     } catch (err) {
       console.error("Search error:", err);
       setDocuments([]);
@@ -73,26 +91,26 @@ function SearchDocumentsPage4() {
       <Navbar />
       
       <header className="bg-[#74045F] py-16 px-4 border-b-4 border-[#74045F]">
-        <div className="container mx-auto max-w-[1200px] text-center text-left">
+        <div className="container mx-auto max-w-[1200px] text-center">
           <h2 className="text-2xl md:text-4xl font-black text-white mb-2 uppercase tracking-wide text-center">ค้นหาเอกสารการจัดซื้อจัดจ้าง</h2>
           <p className="text-white opacity-90 text-sm md:text-base font-bold text-center">ระบบข้อมูลข่าวสารการพัสดุและการจัดหาพัสดุ การไฟฟ้าส่วนภูมิภาคจังหวัดเชียงใหม่ 2</p>
         </div>
       </header>
 
-      <main className="container mx-auto max-w-[950px] px-4 -mt-12 pb-24 text-left flex-grow text-left">
-        <div className="bg-white p-6 md:p-10 rounded-3xl shadow-2xl border border-gray-100 text-left relative text-left">
+      <main className="container mx-auto max-w-[950px] px-4 -mt-12 pb-24 text-left flex-grow">
+        <div className="bg-white p-6 md:p-10 rounded-3xl shadow-2xl border border-gray-100 text-left relative">
           
           <button 
             onClick={() => navigate("/")} 
-            className="absolute left-6 top-6 flex items-center gap-2 text-gray-500 hover:text-[#74045F] transition-colors duration-200 font-semibold text-sm group text-left"
+            className="absolute left-6 top-6 flex items-center gap-2 text-gray-500 hover:text-[#74045F] transition-colors duration-200 font-semibold text-sm group"
           >
             <FiArrowLeft className="group-hover:-translate-x-1 transition-transform" />
             กลับหน้าแรก
           </button>
 
-          <form className="space-y-8 text-left mt-8 text-left" onSubmit={handleSearch}>
-            <div className="text-left">
-              <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left text-left">ค้นหาประกาศจัดซื้อจัดจ้าง / เลขที่โครงการ</label>
+          <form className="space-y-8 text-left mt-8" onSubmit={handleSearch}>
+            <div>
+              <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left">ค้นหาประกาศจัดซื้อจัดจ้าง / เลขที่โครงการ</label>
               <input
                 type="text"
                 placeholder="พิมพ์ชื่อเอกสารเพื่อเริ่มการค้นหา..."
@@ -102,8 +120,8 @@ function SearchDocumentsPage4() {
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-              <div className="text-left text-left">
-                <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left text-left">ปี พ.ศ.</label>
+              <div>
+                <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left">ปี พ.ศ.</label>
                 <select 
                   value={selectedYear}
                   onChange={(e) => setSelectedYear(e.target.value)}
@@ -113,63 +131,61 @@ function SearchDocumentsPage4() {
                   <option value="2569">2569</option>
                   <option value="2568">2568</option>
                   <option value="2567">2567</option>
+                  <option value="2566">2566</option>
                 </select>
               </div>
-              <div className="text-left text-left text-left">
-                <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left text-left">แผนก</label>
+              <div>
+                <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left">แผนก</label>
                 <select 
                   value={selectedDept}
                   onChange={(e) => setSelectedDept(e.target.value)}
                   className="w-full px-4 py-3.5 border border-gray-200 rounded-xl bg-[#F8FAFC] font-bold text-gray-600 outline-none cursor-pointer focus:border-[#74045F] text-left"
                 >
                   <option value="ทั้งหมด">ทั้งหมด</option>
-                  {departments.length > 0 ? (
-                    departments.map((name, idx) => (
-                      <option key={idx} value={name}>{name}</option>
-                    ))
-                  ) : (
-                    <option disabled>กำลังโหลดแผนก...</option>
-                  )}
+                  {departments.map((name, idx) => (
+                    <option key={idx} value={name}>{name}</option>
+                  ))}
                 </select>
               </div>
             </div>
-            <button type="button" onClick={() => setShowAdvance(!showAdvance)} className="flex items-center gap-2 text-sm font-bold text-[#74045F] hover:text-[#5a034a] transition-colors text-left text-left">
+            <button type="button" onClick={() => setShowAdvance(!showAdvance)} className="flex items-center gap-2 text-sm font-bold text-[#74045F] hover:text-[#5a034a] transition-colors text-left">
               <FiChevronDown className={`transition-transform duration-300 ${showAdvance ? 'rotate-180' : ''}`} />
               แสดง/ซ่อน ตัวเลือกการค้นหาเพิ่มเติม
             </button>
-            <button type="submit" className="w-full bg-[#74045F] text-white py-4.5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-[#5a034a] transition-all shadow-xl shadow-purple-900/10 active:scale-[0.98] text-center text-center">
-              <FiSearch size={22} /> {loading ? "กำลังค้นหา..." : "ค้นหาประกาศตอนนี้"}
+            <button type="submit" className="w-full bg-[#74045F] text-white py-4.5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-[#5a034a] transition-all shadow-xl shadow-purple-900/10 active:scale-[0.98] text-center">
+              {loading ? "กำลังค้นหา..." : <><FiSearch size={22} /> ค้นหาประกาศตอนนี้</>}
             </button>
           </form>
         </div>
 
-        <section className="mt-16 text-left text-left">
+        <section className="mt-16 text-left">
           {hasSearched ? (
             documents.length > 0 ? (
-              <div className="results-container text-left text-left text-left text-left">
-                <p className="text-gray-400 font-black text-xs uppercase tracking-[0.2em] mb-8 border-l-4 border-[#74045F] pl-4 text-left text-left">รายการประกาศที่เกี่ยวข้อง ({documents.length})</p>
-                <div className="space-y-5 text-left text-left text-left text-left">
+              <div className="results-container text-left">
+                <p className="text-gray-400 font-black text-xs uppercase tracking-[0.2em] mb-8 border-l-4 border-[#74045F] pl-4 text-left">รายการประกาศที่เกี่ยวข้อง ({documents.length})</p>
+                <div className="space-y-5 text-left">
                   {documents.map((doc) => (
-                    <div key={doc.doc_id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-md hover:shadow-xl hover:border-[#74045F] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group text-left text-left text-left">
-                      <div className="flex items-center gap-5 flex-1 cursor-pointer text-left text-left text-left" onClick={() => handleAccess(doc)}>
-                        <div className="w-16 h-16 bg-purple-50 text-[#74045F] rounded-2xl flex items-center justify-center text-3xl group-hover:bg-[#74045F] group-hover:text-white transition-all duration-300 text-left text-left">
+                    <div key={doc.doc_id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-md hover:shadow-xl hover:border-[#74045F] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group text-left">
+                      <div className="flex items-center gap-5 flex-1 cursor-pointer text-left" onClick={() => handleAccess(doc)}>
+                        <div className="w-16 h-16 bg-purple-50 text-[#74045F] rounded-2xl flex items-center justify-center text-3xl group-hover:bg-[#74045F] group-hover:text-white transition-all duration-300 text-center">
                           <FiFileText />
                         </div>
-                        <div className="text-left text-left text-left text-left text-left">
+                        <div className="text-left">
                           <h4 className="font-black text-gray-800 text-lg group-hover:text-[#74045F] transition-colors flex items-center gap-2 text-left">
                             {doc.doc_name}
                           </h4>
-                          <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2 text-[11px] font-black text-gray-400 uppercase tracking-widest text-left text-left text-left">
-                            <span className="text-[#74045F] font-bold">{doc.category || "ประกาศจัดซื้อ"}</span>
-                            <span>• {doc.fiscal_year}</span>
-                            <span>• {doc.file_size}</span>
+                          {/* ✅ แก้ไข: แสดงเฉพาะ แผนก • ขนาดไฟล์ • ปี พ.ศ. */}
+                          <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2 text-[11px] font-black text-gray-400 uppercase tracking-widest text-left">
+                            <span className="text-[#74045F]">{doc.displayDept}</span>
+                            <span>• {doc.file_size || "N/A"}</span>
+                            <span>• ปี {doc.displayYear}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3 text-left">
+                      <div className="flex items-center gap-3">
                         <button 
                           onClick={() => handleAccess(doc)} 
-                          className="p-3 bg-gray-50 text-gray-400 hover:text-[#74045F] hover:bg-purple-50 rounded-xl transition-all shadow-sm text-left" 
+                          className="p-3 bg-gray-50 text-gray-400 hover:text-[#74045F] hover:bg-purple-50 rounded-xl transition-all shadow-sm text-center" 
                           title="เปิดดูประกาศฉบับจริง"
                         >
                           <FiExternalLink size={24} />
@@ -180,15 +196,15 @@ function SearchDocumentsPage4() {
                 </div>
               </div>
             ) : (
-              <div className="bg-purple-50/50 py-20 rounded-3xl border border-purple-100 text-center text-left text-center">
-                <FiSearch className="text-6xl text-purple-200 mx-auto mb-4 text-center text-center" />
-                <p className="text-purple-400 font-bold uppercase tracking-widest italic text-center text-center text-center text-center">ไม่พบประกาศที่คุณต้องการ</p>
+              <div className="bg-purple-50/50 py-20 rounded-3xl border border-purple-100 text-center">
+                <FiSearch className="text-6xl text-purple-200 mx-auto mb-4 text-center" />
+                <p className="text-purple-400 font-bold uppercase tracking-widest italic text-center">ไม่พบประกาศที่คุณต้องการ</p>
               </div>
             )
           ) : (
-            <div className="bg-gray-50 py-20 rounded-3xl border border-dashed border-gray-200 text-center text-left text-left text-center">
-              <FiSearch className="text-6xl text-gray-200 mx-auto mb-4 text-center text-center" />
-              <p className="text-gray-400 font-bold uppercase tracking-widest italic text-center text-center text-center text-center">
+            <div className="bg-gray-50 py-20 rounded-3xl border border-dashed border-gray-200 text-center text-center">
+              <FiSearch className="text-6xl text-gray-200 mx-auto mb-4 text-center" />
+              <p className="text-gray-400 font-bold uppercase tracking-widest italic text-center">
                 กรุณาพิมพ์ชื่อเอกสารหรือระบุเงื่อนไขเพื่อเริ่มต้นการค้นหา
               </p>
             </div>

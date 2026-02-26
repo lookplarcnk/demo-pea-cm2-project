@@ -42,17 +42,38 @@ function SearchDocumentsPage6() {
   const handleSearch = async (e) => {
     if (e) e.preventDefault();
     setLoading(true);
+
+    // ✅ แก้ไข: แปลงปี พ.ศ. เป็น ค.ศ. ก่อนส่งไปยัง Backend (ถ้าไม่ใช่ "ทั้งหมด")
+    let yearToSend = "";
+    if (selectedYear !== "ทั้งหมด") {
+      yearToSend = (parseInt(selectedYear) - 543).toString();
+    }
+
     try {
-      const response = await axios.get(`${API_BASE_URL}/public/documents/manuals`, {
+      // ✅ แก้ไขจุดที่ผิด: เปลี่ยน endpoint ให้ตรงกับหมวดหมู่คำสั่งและประกาศ (เช่น /orders) 
+      // เพื่อป้องกันข้อมูลหมวดคู่มือ (manuals) มาโผล่หน้านี้
+      const response = await axios.get(`${API_BASE_URL}/public/documents/orders`, {
         params: {
           query: searchQuery,
-          year: selectedYear,
-          dept: selectedDept
+          year: yearToSend, // ส่งเป็น ค.ศ.
+          dept: selectedDept === "ทั้งหมด" ? "" : selectedDept
         }
       });
-      setDocuments(response.data);
+
+      // ✅ แก้ไข: แปลงปี ค.ศ. ที่ได้จากฐานข้อมูลกลับเป็น พ.ศ. เพื่อแสดงผลในรายการ
+      const mappedDocs = response.data.map(doc => ({
+        ...doc,
+        // เพิ่มตัวแปรสำหรับแสดงผลแผนก
+        displayDept: doc.dept_name || doc.dept || "ไม่ระบุแผนก",
+        displayYear: doc.fiscal_year 
+          ? (parseInt(doc.fiscal_year) < 2500 ? parseInt(doc.fiscal_year) + 543 : doc.fiscal_year)
+          : "ไม่ระบุ"
+      }));
+
+      setDocuments(mappedDocs);
     } catch (err) {
       console.error("Search error:", err);
+      setDocuments([]);
     } finally {
       setLoading(false);
     }
@@ -140,14 +161,14 @@ function SearchDocumentsPage6() {
               แสดง/ซ่อน ตัวเลือกการค้นหาเพิ่มเติม
             </button>
             <button type="submit" className="w-full bg-[#74045F] text-white py-4.5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-[#5a034a] transition-all shadow-xl shadow-purple-900/10 active:scale-[0.98] text-center">
-              <FiSearch size={22} className="text-left" /> {loading ? "กำลังค้นหา..." : "ค้นหาข้อมูลตอนนี้"}
+              {loading ? "กำลังค้นหา..." : <><FiSearch size={22} className="text-left" /> ค้นหาข้อมูลตอนนี้</>}
             </button>
           </form>
         </div>
 
         <section className="mt-16 text-left text-left text-left text-left text-left">
           {documents.length > 0 ? (
-            <div className="results-container text-left text-left text-left text-left text-left">
+            <div className="results-container text-left text-left text-left text-left">
               <p className="text-gray-400 font-black text-xs uppercase tracking-[0.2em] mb-8 border-l-4 border-[#74045F] pl-4 text-left text-left text-left text-left">รายการที่เกี่ยวข้อง ({documents.length})</p>
               <div className="space-y-5 text-left text-left text-left text-left text-left text-left">
                 {documents.map((doc) => (
@@ -161,10 +182,11 @@ function SearchDocumentsPage6() {
                           {doc.doc_name}
                           {doc.require_login && <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 text-left shadow-sm"><FiLock size={10} className="text-left" /> ต้องล็อกอิน</span>}
                         </h4>
+                        {/* ✅ แก้ไข: แสดงผลเฉพาะ แผนก • ขนาดไฟล์ • ปี พ.ศ. */}
                         <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2 text-[11px] font-black text-gray-400 uppercase tracking-widest text-left text-left text-left text-left text-left text-left">
-                          <span className="text-[#74045F] font-bold text-left">{doc.category || "คำสั่ง/ประกาศ"}</span>
-                          <span className="text-left text-left">• {doc.fiscal_year}</span>
-                          <span className="text-left text-left">• {doc.file_size}</span>
+                          <span className="text-[#74045F] font-bold text-left">{doc.displayDept}</span>
+                          <span className="text-left text-left">• {doc.file_size || "N/A"}</span>
+                          <span className="text-left text-left">• ปี {doc.displayYear}</span>
                         </div>
                       </div>
                     </div>

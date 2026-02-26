@@ -15,6 +15,7 @@ import {
   FiCheckCircle, FiSend 
 } from "react-icons/fi";
 
+// ✅ แก้ไข: กำหนด URL ให้ชี้ไปยัง Render สำหรับการเชื่อมต่อฐานข้อมูลจริง
 const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
 
 export default function UserManagementPage() {
@@ -215,8 +216,7 @@ export default function UserManagementPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#fcfaff] font-sans text-slate-700 overflow-x-hidden text-left font-medium">
-      {/* ✅ ติดตั้ง Toaster Container */}
+    <div className="flex min-h-screen bg-[#fcfaff] font-sans text-slate-700 overflow-x-hidden text-left font-medium text-left">
       <Toaster position="top-right" reverseOrder={false} />
       
       {isSidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
@@ -225,8 +225,8 @@ export default function UserManagementPage() {
         <div className="p-6 flex items-center gap-3 border-b border-purple-50 text-left">
           <img src={Logo} alt="PEA Logo" className="h-12 w-auto object-contain" />
           <div className="leading-tight text-left">
-            <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight">PEA ADMIN</h1>
-            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">Chiang Mai 2 System</p>
+            <h1 className="text-base font-black text-[#74045F] uppercase tracking-tight text-left">PEA ADMIN</h1>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none text-left">Chiang Mai 2 System</p>
           </div>
         </div>
         <nav className="flex-1 px-4 py-6 space-y-2 font-bold text-left">
@@ -245,11 +245,11 @@ export default function UserManagementPage() {
         </div>
       </aside>
 
-      <main className="flex-1 min-w-0 overflow-y-auto">
-        <div className="bg-white/70 backdrop-blur-md px-4 lg:px-10 py-6 border-b border-purple-50 sticky top-0 z-30 font-bold flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100 lg:hidden text-[#74045F] flex items-center justify-center"><FiMenu size={20} /></button>
-            <h2 className="text-2xl lg:text-3xl font-bold text-[#74045F] tracking-tight">จัดการผู้ใช้งาน</h2>
+      <main className="flex-1 min-w-0 overflow-y-auto text-left">
+        <div className="bg-white/70 backdrop-blur-md px-4 lg:px-10 py-6 border-b border-purple-50 sticky top-0 z-30 font-bold flex justify-between items-center text-left">
+          <div className="flex items-center gap-3 text-left">
+            <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100 lg:hidden text-[#74045F] flex items-center justify-center text-center"><FiMenu size={20} /></button>
+            <h2 className="text-2xl lg:text-3xl font-bold text-[#74045F] tracking-tight text-left">จัดการผู้ใช้งาน</h2>
           </div>
 
           <div className="flex bg-slate-100 p-1 rounded-2xl">
@@ -263,20 +263,20 @@ export default function UserManagementPage() {
         </div>
 
         <div className="px-4 lg:px-10 pb-10 mt-8 text-left space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
                 <SummaryCard title={`ทั้งหมด (${activeTab})`} value={stats.total} icon={<FiUsers />} color="blue" />
                 <SummaryCard title="กำลังใช้งานอยู่" value={stats.active} icon={<FiUserCheck />} color="purple" />
                 <SummaryCard title="ระงับการใช้งาน" value={stats.suspended} icon={<FiUserX />} color="rose" />
             </div>
 
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-purple-50 overflow-hidden font-bold">
-                <div className="p-6 lg:p-8 flex flex-col xl:flex-row justify-between items-center gap-6 border-b border-purple-50 bg-purple-50/20">
-                    <div className="relative w-full xl:w-96 group">
+            <div className="bg-white rounded-[2.5rem] shadow-sm border border-purple-50 overflow-hidden font-bold text-left">
+                <div className="p-6 lg:p-8 flex flex-col xl:flex-row justify-between items-center gap-6 border-b border-purple-50 bg-purple-50/20 text-left">
+                    <div className="relative w-full xl:w-96 group text-left">
                         <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-purple-300" size={18} />
-                        <input type="text" placeholder={`ค้นหาชื่อ, อีเมล หรือรหัส...`} className="pl-12 pr-4 py-3 rounded-2xl bg-white border border-purple-100 w-full outline-none focus:ring-4 focus:ring-purple-500/10 transition-all font-medium text-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                        <input type="text" placeholder={`ค้นหาชื่อ, อีเมล หรือรหัส...`} className="pl-12 pr-4 py-3 rounded-2xl bg-white border border-purple-100 w-full outline-none focus:ring-4 focus:ring-purple-500/10 transition-all font-medium text-sm text-left" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                     </div>
                     
-                    <div className="flex flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto font-bold">
+                    <div className="flex flex-wrap items-center justify-center xl:justify-end gap-3 w-full xl:w-auto font-bold text-left">
                         {activeTab === "พนักงานภายใน" && (
                           <>
                             <button onClick={() => setOpenManageDeptModal(true)} className="bg-purple-50 hover:bg-purple-100 text-[#74045F] px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2.5 active:scale-95 h-[48px]">
@@ -290,9 +290,9 @@ export default function UserManagementPage() {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto text-left">
                     <table className="w-full text-left">
-                        <thead className="bg-white text-[#74045F]/40 text-xs font-black uppercase tracking-widest border-b border-purple-50">
+                        <thead className="bg-white text-[#74045F]/40 text-xs font-black uppercase tracking-widest border-b border-purple-50 text-left">
                             <tr>
                                 <th className="px-6 py-5 text-center w-20">ลำดับ</th>
                                 {activeTab === "พนักงานภายใน" && <th className="px-6 py-5">รหัสพนักงาน</th>}
@@ -304,10 +304,10 @@ export default function UserManagementPage() {
                                 <th className="px-8 py-5 text-right">ดำเนินการ</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-purple-50 font-bold">
+                        <tbody className="divide-y divide-purple-50 font-bold text-left">
                             {filteredData.map((u, index) => (
-                                <tr key={u.id} className="hover:bg-purple-50/20 transition-all font-bold group">
-                                    <td className="px-6 py-5 text-center"><span className="text-purple-200 font-black text-sm">{index + 1}</span></td>
+                                <tr key={u.id} className="hover:bg-purple-50/20 transition-all font-bold group text-left">
+                                    <td className="px-6 py-5 text-center"><span className="text-purple-200 font-black text-sm text-center">{index + 1}</span></td>
                                     {activeTab === "พนักงานภายใน" && (
                                         <td className="px-6 py-5 text-left">
                                             <span className={`text-[10px] px-3 py-1 rounded-lg border font-black tracking-widest uppercase shadow-sm ${getDeptColor(u.department)}`}>
@@ -315,23 +315,23 @@ export default function UserManagementPage() {
                                             </span>
                                         </td>
                                     )}
-                                    <td className="px-8 py-5">
-                                        <div className="flex items-center gap-4">
+                                    <td className="px-8 py-5 text-left">
+                                        <div className="flex items-center gap-4 text-left">
                                             <img src={u.avatar} className="w-12 h-12 rounded-2xl object-cover shadow-sm group-hover:scale-105 transition-transform" alt="avatar" />
-                                            <div>
-                                                <p className="text-slate-800 text-lg font-black">{u.name}</p>
-                                                <p className="text-xs text-purple-300 font-medium">{u.role}</p>
+                                            <div className="text-left">
+                                                <p className="text-slate-800 text-lg font-black text-left">{u.name}</p>
+                                                <p className="text-xs text-purple-300 font-medium text-left">{u.role}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-5"><div className="flex items-center gap-2 text-slate-600 font-bold"><FiPhone size={14} className="text-purple-400" /><span className="text-xs">{u.phone}</span></div></td>
-                                    <td className="px-6 py-5"><div className="flex items-center gap-2 text-slate-500 font-bold"><FiCalendar size={14} className="text-purple-400" /><span className="text-xs">{u.joinDate}</span></div></td>
-                                    {activeTab === "พนักงานภายใน" && <td className="px-6 py-5"><span className="text-slate-600 font-bold">{u.department}</span></td>}
-                                    <td className="px-6 py-5 text-center"><span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${u.status === 'ใช้งานอยู่' ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'}`}>{u.status}</span></td>
+                                    <td className="px-6 py-5 text-left"><div className="flex items-center gap-2 text-slate-600 font-bold text-left"><FiPhone size={14} className="text-purple-400 text-left" /><span className="text-xs text-left">{u.phone}</span></div></td>
+                                    <td className="px-6 py-5 text-left"><div className="flex items-center gap-2 text-slate-500 font-bold text-left"><FiCalendar size={14} className="text-purple-400 text-left" /><span className="text-xs text-left">{u.joinDate}</span></div></td>
+                                    {activeTab === "พนักงานภายใน" && <td className="px-6 py-5 text-left"><span className="text-slate-600 font-bold text-left">{u.department}</span></td>}
+                                    <td className="px-6 py-5 text-center"><span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase text-center ${u.status === 'ใช้งานอยู่' ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'}`}>{u.status}</span></td>
                                     <td className="px-8 py-5 text-right font-bold">
-                                        <div className="flex justify-end gap-2">
-                                            <button onClick={() => { setSelectedUserForEdit(u); setOpenEditModal(true); }} className="p-2.5 bg-white border border-purple-50 text-purple-300 hover:text-[#74045F] hover:bg-purple-50 rounded-xl transition-all shadow-sm"><FiEdit size={16} /></button>
-                                            <button onClick={() => handleToggleStatus(u.id)} className={`p-2.5 bg-white border border-purple-50 rounded-xl transition-all shadow-sm ${u.status === 'ระงับการใช้งาน' ? 'text-emerald-500 hover:bg-emerald-50' : 'text-rose-500 hover:bg-rose-50'}`}>{u.status === 'ใช้งานอยู่' ? <FiUserX size={16} /> : <FiUserCheck size={16} />}</button>
+                                        <div className="flex justify-end gap-2 text-left">
+                                            <button onClick={() => { setSelectedUserForEdit(u); setOpenEditModal(true); }} className="p-2.5 bg-white border border-purple-50 text-purple-300 hover:text-[#74045F] hover:bg-purple-50 rounded-xl transition-all shadow-sm text-center flex items-center justify-center"><FiEdit size={16} /></button>
+                                            <button onClick={() => handleToggleStatus(u.id)} className={`p-2.5 bg-white border border-purple-50 rounded-xl transition-all shadow-sm text-center flex items-center justify-center ${u.status === 'ระงับการใช้งาน' ? 'text-emerald-500 hover:bg-emerald-50' : 'text-rose-500 hover:bg-rose-50'}`}>{u.status === 'ใช้งานอยู่' ? <FiUserX size={16} /> : <FiUserCheck size={16} />}</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -374,60 +374,60 @@ function EditUserModal({ user, onSave, onClose, departments }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 font-bold">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 font-bold text-left">
       <div className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl p-10 relative animate-in zoom-in duration-300 text-left">
-        <button onClick={onClose} className="absolute right-8 top-8 w-10 h-10 text-slate-400 hover:text-rose-50 flex items-center justify-center hover:bg-rose-50 rounded-full font-black"><FiX size={24} /></button>
-        <h3 className="text-2xl font-black text-[#74045F] mb-8 uppercase tracking-tight">แก้ไขข้อมูลผู้ใช้งาน</h3>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-2 gap-5">
+        <button onClick={onClose} className="absolute right-8 top-8 w-10 h-10 text-slate-400 hover:text-rose-50 flex items-center justify-center hover:bg-rose-50 rounded-full font-black text-center"><FiX size={24} /></button>
+        <h3 className="text-2xl font-black text-[#74045F] mb-8 uppercase tracking-tight text-left">แก้ไขข้อมูลผู้ใช้งาน</h3>
+        <form onSubmit={handleSubmit} className="space-y-5 text-left">
+          <div className="grid grid-cols-2 gap-5 text-left">
             <ProfileInput label="ชื่อ-นามสกุล" value={formData.name} onChange={(v) => setFormData({...formData, name: v})} />
             <ProfileInput label="อีเมล" value={formData.email} onChange={(v) => setFormData({...formData, email: v})} />
           </div>
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 gap-5 text-left">
             <ProfileInput label="เบอร์โทรศัพท์" value={formData.phone} onChange={(v) => setFormData({...formData, phone: v})} />
             <div className="space-y-2 block text-left">
-              <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1">เพศ</label>
-              <div className="relative">
-                <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
+              <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1 text-left">เพศ</label>
+              <div className="relative text-left">
+                <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer text-left" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
                     <option value="ชาย">ชาย</option><option value="หญิง">หญิง</option>
                 </select>
-                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none text-left" />
               </div>
             </div>
           </div>
           {formData.role && (
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-2 gap-5 text-left">
               <div className="space-y-2 block text-left">
-                <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1">แผนก</label>
-                <div className="relative">
-                  <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer" value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})}>
+                <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1 text-left">แผนก</label>
+                <div className="relative text-left">
+                  <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer text-left" value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})}>
                       {departments.map((dept, idx) => <option key={idx} value={dept}>{dept}</option>)}
                   </select>
-                  <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                  <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none text-left" />
                 </div>
               </div>
               <div className="space-y-2 block text-left">
-                <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1">ระดับสิทธิ์</label>
-                <div className="relative">
-                  <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
+                <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1 text-left">ระดับสิทธิ์</label>
+                <div className="relative text-left">
+                  <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer text-left" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
                       <option>Admin</option><option>หัวหน้าแผนก</option><option>พนักงานทั่วไป</option>
                   </select>
-                  <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                  <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none text-left" />
                 </div>
               </div>
             </div>
           )}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 w-full px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 w-full px-4 text-left">
             <button 
               type="button" 
               onClick={onClose} 
-              className="w-full sm:w-40 bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-[1.5rem] transition-all active:scale-95 uppercase tracking-widest text-xs shadow-md shadow-rose-100 flex items-center justify-center"
+              className="w-full sm:w-40 bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-[1.5rem] transition-all active:scale-95 uppercase tracking-widest text-xs shadow-md shadow-rose-100 flex items-center justify-center text-center"
             >
               ยกเลิก
             </button>
             <button 
               type="submit" 
-              className="w-full sm:w-64 bg-[#74045F] hover:bg-[#5a034a] text-white font-black py-4 px-8 rounded-[1.5rem] shadow-lg shadow-purple-100 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+              className="w-full sm:w-64 bg-[#74045F] hover:bg-[#5a034a] text-white font-black py-4 px-8 rounded-[1.5rem] shadow-lg shadow-purple-100 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs text-center"
             >
               <FiCheck size={18} /> บันทึกการแก้ไข
             </button>
@@ -486,33 +486,33 @@ function ManageDeptModal({ departments, onClose, fetchDepartments }) {
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[110] p-4 font-bold text-left">
       <div className="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl p-8 relative animate-in zoom-in duration-300 text-left">
-        <button onClick={onClose} className="absolute right-6 top-6 w-8 h-8 text-slate-400 hover:text-rose-50 flex items-center justify-center hover:bg-rose-50 rounded-full transition-all"><FiX size={20} /></button>
-        <h3 className="text-xl font-black text-[#74045F] mb-6 uppercase tracking-tight">จัดการรายชื่อแผนก</h3>
+        <button onClick={onClose} className="absolute right-6 top-6 w-8 h-8 text-slate-400 hover:text-rose-50 flex items-center justify-center hover:bg-rose-50 rounded-full transition-all text-center"><FiX size={20} /></button>
+        <h3 className="text-xl font-black text-[#74045F] mb-6 uppercase tracking-tight text-left">จัดการรายชื่อแผนก</h3>
         <div className="flex gap-3 mb-6 text-left">
-          <input type="text" value={newDept} onChange={(e) => setNewDept(e.target.value)} placeholder="ระบุชื่อแผนกใหม่..." className="flex-1 bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-purple-500/10 outline-none font-bold" />
-          <button onClick={handleAdd} className="bg-[#74045F] text-white px-5 py-3 rounded-xl font-black text-xs hover:bg-[#5a034a] transition-all flex items-center gap-2 shadow-lg shadow-purple-100"><FiPlus size={16}/> เพิ่ม</button>
+          <input type="text" value={newDept} onChange={(e) => setNewDept(e.target.value)} placeholder="ระบุชื่อแผนกใหม่..." className="flex-1 bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-sm focus:ring-4 focus:ring-purple-500/10 outline-none font-bold text-left" />
+          <button onClick={handleAdd} className="bg-[#74045F] text-white px-5 py-3 rounded-xl font-black text-xs hover:bg-[#5a034a] transition-all flex items-center gap-2 shadow-lg shadow-purple-100 text-center"><FiPlus size={16}/> เพิ่ม</button>
         </div>
-        <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+        <div className="max-h-64 overflow-y-auto space-y-2 pr-2 custom-scrollbar text-left">
           {departments.length > 0 ? departments.map((dept, index) => (
-            <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl group hover:bg-purple-50 hover:shadow-sm border border-transparent hover:border-purple-100 transition-all">
+            <div key={index} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl group hover:bg-purple-50 hover:shadow-sm border border-transparent hover:border-purple-100 transition-all text-left">
               {editingDept === dept ? (
-                <div className="flex-1 flex gap-2 items-center">
-                  <input autoFocus type="text" className="flex-1 bg-white border border-purple-200 rounded-lg px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-purple-500/20 font-bold" value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdate(dept)} />
-                  <button onClick={() => handleUpdate(dept)} className="text-emerald-600 hover:bg-emerald-50 p-2 rounded-lg transition-colors"><FiCheck size={16}/></button>
-                  <button onClick={() => setEditingDept(null)} className="text-rose-400 hover:bg-rose-50 p-2 rounded-lg transition-colors"><FiX size={16}/></button>
+                <div className="flex-1 flex gap-2 items-center text-left">
+                  <input autoFocus type="text" className="flex-1 bg-white border border-purple-200 rounded-lg px-3 py-1 text-sm outline-none focus:ring-2 focus:ring-purple-500/20 font-bold text-left" value={editValue} onChange={(e) => setEditValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleUpdate(dept)} />
+                  <button onClick={() => handleUpdate(dept)} className="text-emerald-600 hover:bg-emerald-50 p-2 rounded-lg transition-colors text-center flex items-center justify-center"><FiCheck size={16}/></button>
+                  <button onClick={() => setEditingDept(null)} className="text-rose-400 hover:bg-rose-50 p-2 rounded-lg transition-colors text-center flex items-center justify-center"><FiX size={16}/></button>
                 </div>
               ) : (
                 <>
-                  <span className="text-slate-700 text-sm font-bold">{dept}</span>
-                  <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all">
-                    <button onClick={() => { setEditingDept(dept); setEditValue(dept); }} className="w-8 h-8 flex items-center justify-center text-purple-300 hover:bg-white hover:text-[#74045F] rounded-lg transition-all"><FiEdit3 size={15}/></button>
-                    <button onClick={() => handleDelete(dept)} className="w-8 h-8 flex items-center justify-center text-purple-300 hover:bg-rose-50 hover:text-rose-500 rounded-lg transition-all"><FiTrash2 size={15}/></button>
+                  <span className="text-slate-700 text-sm font-bold text-left">{dept}</span>
+                  <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-all text-left">
+                    <button onClick={() => { setEditingDept(dept); setEditValue(dept); }} className="w-8 h-8 flex items-center justify-center text-purple-300 hover:bg-white hover:text-[#74045F] rounded-lg transition-all text-center flex items-center justify-center"><FiEdit3 size={15}/></button>
+                    <button onClick={() => handleDelete(dept)} className="w-8 h-8 flex items-center justify-center text-purple-300 hover:bg-rose-50 hover:text-rose-500 rounded-lg transition-all text-center flex items-center justify-center"><FiTrash2 size={15}/></button>
                   </div>
                 </>
               )}
             </div>
           )) : (
-            <div className="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest">ไม่มีข้อมูลแผนก</div>
+            <div className="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest text-center">ไม่มีข้อมูลแผนก</div>
           )}
         </div>
       </div>
@@ -538,62 +538,62 @@ function AddUserModal({ onAdd, onClose, departments }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 font-bold text-left">
-      <div className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl p-10 relative animate-in zoom-in duration-300">
-        <button onClick={onClose} className="absolute right-8 top-8 w-10 h-10 text-slate-400 hover:text-rose-50 flex items-center justify-center hover:bg-rose-50 rounded-full font-black"><FiX size={24} /></button>
-        <h3 className="text-2xl font-black text-[#74045F] mb-8 uppercase tracking-tight">เพิ่มพนักงานใหม่</h3>
-        <p className="text-xs text-[#74045F] mb-6 bg-purple-50 p-3 rounded-xl flex items-center gap-2 font-bold"><FiHash /> รหัสผ่านเริ่มต้นจะถูกตั้งเป็น "รหัสพนักงาน" โดยอัตโนมัติ</p>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-2 gap-5">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 font-bold text-left text-left">
+      <div className="bg-white w-full max-w-xl rounded-[3rem] shadow-2xl p-10 relative animate-in zoom-in duration-300 text-left">
+        <button onClick={onClose} className="absolute right-8 top-8 w-10 h-10 text-slate-400 hover:text-rose-50 flex items-center justify-center hover:bg-rose-50 rounded-full font-black text-center"><FiX size={24} /></button>
+        <h3 className="text-2xl font-black text-[#74045F] mb-8 uppercase tracking-tight text-left">เพิ่มพนักงานใหม่</h3>
+        <p className="text-xs text-[#74045F] mb-6 bg-purple-50 p-3 rounded-xl flex items-center gap-2 font-bold text-left"><FiHash className="text-left" /> รหัสผ่านเริ่มต้นจะถูกตั้งเป็น "รหัสพนักงาน" โดยอัตโนมัติ</p>
+        <form onSubmit={handleSubmit} className="space-y-5 text-left">
+          <div className="grid grid-cols-2 gap-5 text-left">
             <ProfileInput label="รหัสพนักงาน" value={formData.empCode} onChange={(v) => setFormData({...formData, empCode: v})} />
             <ProfileInput label="ชื่อ-นามสกุล" value={formData.name} onChange={(v) => setFormData({...formData, name: v})} />
           </div>
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 gap-5 text-left">
             <ProfileInput label="อีเมล" value={formData.email} onChange={(v) => setFormData({...formData, email: v})} />
             <ProfileInput label="เบอร์โทรศัพท์" value={formData.phone} onChange={(v) => setFormData({...formData, phone: v})} />
           </div>
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 gap-5 text-left">
             <div className="space-y-2 block text-left">
-              <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1">เพศ</label>
-              <div className="relative">
-                <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
+              <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1 text-left">เพศ</label>
+              <div className="relative text-left">
+                <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer text-left" value={formData.gender} onChange={(e) => setFormData({...formData, gender: e.target.value})}>
                     <option value="ชาย">ชาย</option><option value="หญิง">หญิง</option>
                 </select>
-                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none text-left" />
               </div>
             </div>
             <div className="space-y-2 block text-left">
-              <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1">ระดับสิทธิ์</label>
-              <div className="relative">
-                <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
+              <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1 text-left">ระดับสิทธิ์</label>
+              <div className="relative text-left">
+                <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer text-left" value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})}>
                     <option>Admin</option><option>หัวหน้าแผนก</option><option>พนักงานทั่วไป</option>
                 </select>
-                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none text-left" />
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-5">
+          <div className="grid grid-cols-1 gap-5 text-left">
              <div className="space-y-2 block text-left">
-              <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1">แผนก / หน่วยงาน</label>
-              <div className="relative">
-                <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer" value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})}>
+              <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1 text-left">แผนก / หน่วยงาน</label>
+              <div className="relative text-left">
+                <select className="appearance-none w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold cursor-pointer text-left" value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})}>
                     {departments.map((dept, index) => <option key={index} value={dept}>{dept}</option>)}
                 </select>
-                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none" />
+                <FiChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-400 pointer-events-none text-left" />
               </div>
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 w-full px-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10 w-full px-4 text-left">
             <button 
               type="button" 
               onClick={onClose} 
-              className="w-full sm:w-40 bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-[1.5rem] transition-all active:scale-95 uppercase tracking-widest text-xs shadow-sm shadow-rose-100 flex items-center justify-center"
+              className="w-full sm:w-40 bg-rose-500 hover:bg-rose-600 text-white font-black py-4 rounded-[1.5rem] transition-all active:scale-95 uppercase tracking-widest text-xs shadow-sm shadow-rose-100 flex items-center justify-center text-center"
             >
               ยกเลิก
             </button>
             <button 
               type="submit" 
-              className="w-full sm:w-64 bg-[#74045F] hover:bg-[#5a034a] text-white font-black py-4 px-8 rounded-[1.5rem] shadow-lg shadow-purple-100 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+              className="w-full sm:w-64 bg-[#74045F] hover:bg-[#5a034a] text-white font-black py-4 px-8 rounded-[1.5rem] shadow-lg shadow-purple-100 transition-all active:scale-95 flex items-center justify-center gap-2 uppercase tracking-widest text-xs text-center"
             >
               <FiCheck size={18} /> ยืนยันการเพิ่มพนักงาน
             </button>
@@ -615,7 +615,7 @@ function SidebarItem({ icon, label, active, danger }) {
 function ProfileInput({ label, value, onChange }) {
   return (
     <div className="space-y-2 block font-bold text-left">
-      <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1">{label}</label>
+      <label className="text-[14px] font-black text-purple-300 uppercase tracking-widest ml-1 text-left">{label}</label>
       <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className="w-full bg-slate-50 border border-purple-50 rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-purple-500/10 transition-all outline-none font-bold text-left" />
     </div>
   );
@@ -625,10 +625,10 @@ function SummaryCard({ title, value, icon, color }) {
   const colors = { purple: "bg-purple-50 text-[#74045F]", blue: "bg-blue-50 text-blue-600", rose: "bg-rose-50 text-rose-600" };
   return (
     <div className="bg-white rounded-[2rem] border border-purple-50 transition-all hover:shadow-lg group flex items-center p-6 shadow-sm relative overflow-hidden text-left">
-      <div className={`w-14 h-14 rounded-2xl text-2xl group-hover:scale-110 transition-transform ${colors[color]} flex items-center justify-center shadow-sm shrink-0 mr-5 z-10`}>{icon}</div>
-      <div className="flex flex-col z-10 overflow-hidden">
-        <p className="text-[11px] font-black text-purple-200 uppercase tracking-[0.1em] truncate mb-0.5">{title}</p>
-        <p className="text-3xl font-black text-slate-800 leading-tight">{value.toLocaleString()}</p>
+      <div className={`w-14 h-14 rounded-2xl text-2xl group-hover:scale-110 transition-transform ${colors[color]} flex items-center justify-center shadow-sm shrink-0 mr-5 z-10 text-center`}>{icon}</div>
+      <div className="flex flex-col z-10 overflow-hidden text-left">
+        <p className="text-[11px] font-black text-purple-200 uppercase tracking-[0.1em] truncate mb-0.5 text-left">{title}</p>
+        <p className="text-3xl font-black text-slate-800 leading-tight text-left">{value.toLocaleString()}</p>
       </div>
     </div>
   );
