@@ -65,7 +65,7 @@ export default function DocumentApprovalCenter() {
     avatar: ""
   });
 
-  // ✅ ตรวจสอบสิทธิ์ (RBAC): อนุญาตเฉพาะ หัวหน้าแผนก และ Admin
+  // 🔥 แก้ไข Logic การเข้าถึง: อนุญาตเฉพาะ "หัวหน้าแผนก" เท่านั้น (และ Admin)
   const hasAccess = useMemo(() => {
     const role = user.role?.toLowerCase() || "";
     return role.includes("หัวหน้าแผนก") || role.includes("admin") || role.includes("administrator");
@@ -196,7 +196,7 @@ export default function DocumentApprovalCenter() {
   const currentItems = filteredDocs.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredDocs.length / itemsPerPage) || 1;
 
-  // ✅ แสดงหน้า Access Denied หากเป็นพนักงานทั่วไป
+  // 🔥 แสดงหน้า Access Denied หากไม่ใช่ "หัวหน้าแผนก"
   if (user.name !== "กำลังโหลด..." && !hasAccess) {
     return (
       <div className="flex min-h-screen bg-[#fcfaff] font-sans items-center justify-center p-6 text-center">
@@ -204,8 +204,8 @@ export default function DocumentApprovalCenter() {
               <div className="w-24 h-24 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-sm">
                   <FiLock size={48} />
               </div>
-              <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tight">สิทธิ์การเข้าถึงถูกจำกัด</h2>
-              <p className="text-slate-400 font-bold mb-10 leading-relaxed text-sm">ขออภัย หน้าจอนี้อนุญาตให้เข้าใช้งานได้เฉพาะ<br/><span className="text-[#74045F]">หัวหน้าแผนก หรือ ผู้ดูแลระบบ</span> เท่านั้น</p>
+              <h2 className="text-3xl font-black text-slate-800 mb-4 tracking-tight">สิทธิ์เฉพาะหัวหน้าแผนก</h2>
+              <p className="text-slate-400 font-bold mb-10 leading-relaxed text-sm">ขออภัย หน้าจอนี้จำกัดสิทธิ์การเข้าใช้งานเฉพาะ<br/><span className="text-[#74045F] font-black uppercase">หัวหน้าแผนก</span> เท่านั้น</p>
               <button onClick={() => navigate("/EmployeeDashboard")} className="bg-[#74045F] text-white px-10 py-4 rounded-2xl font-black shadow-lg shadow-purple-100 hover:bg-[#5a034a] transition-all active:scale-95 uppercase tracking-widest text-xs">กลับสู่หน้าหลัก</button>
           </div>
       </div>
