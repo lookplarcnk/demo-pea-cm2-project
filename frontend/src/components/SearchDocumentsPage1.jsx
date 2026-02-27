@@ -38,7 +38,7 @@ function Navbar() {
         <div className="flex items-center justify-between h-[85px]">
           <Link to="/" className="flex items-center gap-3">
             <img src={Logo} alt="PEA Chiang Mai 2" className="h-14 md:h-16 object-contain" />
-            <div className="leading-tight text-left">
+            <div className="leading-tight text-left text-left">
               <p className="text-[#74045F] font-bold text-lg md:text-xl text-left">การไฟฟ้าส่วนภูมิภาคจังหวัดเชียงใหม่ 2</p>
               <p className="text-[#74045F] text-xs md:text-sm opacity-80 -mt-1 font-medium text-left">Provincial Electricity Authority Chiang Mai 2</p>
             </div>
@@ -66,11 +66,11 @@ function Navbar() {
             <Link to="#" className="nav-link text-gray-700 hover:text-[#74045F]">ติดต่อเรา</Link>
           </div>
 
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-4 text-left">
             {!user ? (
               <>
                 <Link to="/loginchoice" className="text-[#74045F] text-sm font-semibold px-4 py-2 rounded-md hover:bg-[#F3E8FF]">เข้าสู่ระบบ</Link>
-                <Link to="/register" className="bg-[#74045F] hover:bg-[#5a034a] text-white text-sm font-semibold px-5 py-2 rounded-md shadow-sm transition-all">สมัครสมาชิก</Link>
+                <Link to="/register" className="bg-[#74045F] hover:bg-[#5a034a] text-white text-sm font-semibold px-5 py-2 rounded-md shadow-sm transition-all text-left">สมัครสมาชิก</Link>
               </>
             ) : (
               <div className="relative text-left">
@@ -120,7 +120,7 @@ function Navbar() {
           </div>
           <Link to="#" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors" onClick={() => setToggle(false)}>การบริหารงาน</Link>
           <Link to="#" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors" onClick={() => setToggle(false)}>ติดต่อเรา</Link>
-          <div className="pt-4 border-t border-gray-50 space-y-4">
+          <div className="pt-4 border-t border-gray-50 space-y-4 text-left">
             {!user ? (
               <>
                 <Link to="/loginchoice" className="block text-[#74045F] font-black text-center py-2 rounded-lg bg-[#F3E8FF] active:scale-95 transition-transform" onClick={() => setToggle(false)}>เข้าสู่ระบบ</Link>
@@ -135,7 +135,7 @@ function Navbar() {
                   <span className="font-bold text-[#74045F] text-left">{user.firstName}</span>
                 </div>
                 <button onClick={() => { setToggle(false); navigate("/publicprofileedit"); }} className="w-full text-left font-bold text-gray-600 flex items-center gap-2 hover:text-[#74045F] transition-colors"><FiEdit /> แก้ไขโปรไฟล์</button>
-                <button onClick={logout} className="w-full text-left font-bold text-red-600 flex items-center gap-2 hover:bg-red-50 p-2 rounded-lg transition-all"><FiLogOut /> ออกจากระบบ</button>
+                <button onClick={logout} className="w-full text-left font-bold text-red-600 flex items-center gap-2 hover:bg-red-50 p-2 rounded-lg transition-all text-left"><FiLogOut /> ออกจากระบบ</button>
               </div>
             )}
           </div>
@@ -145,7 +145,7 @@ function Navbar() {
   );
 }
 
-// --- ส่วนที่ 2: หน้าหลักการค้นหาเอกสาร (แก้ไขจุดแสดงผลลัพธ์) ---
+// --- ส่วนที่ 2: หน้าหลักการค้นหาเอกสาร ---
 function SearchDocumentsPage1() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAdvance, setShowAdvance] = useState(false);
@@ -158,6 +158,9 @@ function SearchDocumentsPage1() {
   
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
+
+  // ✅ กำหนด SERVER URL สำหรับเปิดไฟล์ PDF (Render)
+  const RENDER_SERVER_URL = "https://demo-pea-cm2-project.onrender.com";
 
   useEffect(() => {
     const initDeptData = async () => {
@@ -212,19 +215,21 @@ function SearchDocumentsPage1() {
     }
   };
 
+  // ✅ แก้ไข: ฟังก์ชันเปิดไฟล์ PDF ให้ชี้ไปยัง Render Server
   const handleAccess = (doc) => {
     if (doc.requireLogin && !user) {
       alert("🔒 เอกสารนี้จำกัดสิทธิ์เฉพาะสมาชิกเท่านั้น\nกรุณาเข้าสู่ระบบเพื่อเข้าถึงเอกสารนี้");
       navigate("/loginchoice");
     } else {
+      // ตรวจสอบว่า doc.name มีข้อมูล และสร้าง URL ที่ถูกต้อง
       const fileName = encodeURIComponent(`${doc.name}.pdf`);
-      const fileUrl = `/files/${fileName}`;
+      const fileUrl = `${RENDER_SERVER_URL}/files/${fileName}`;
       window.open(fileUrl, "_blank", "noopener,noreferrer");
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F4F8] font-sans text-left flex flex-col">
+    <div className="min-h-screen bg-[#F0F4F8] font-sans text-left flex flex-col text-left">
       <Navbar />
       <header className="bg-[#74045F] py-16 px-4 border-b-4 border-[#74045F] text-center">
         <div className="container mx-auto max-w-[1200px] text-center">
@@ -233,7 +238,7 @@ function SearchDocumentsPage1() {
         </div>
       </header>
 
-      <main className="container mx-auto max-w-[950px] px-4 -mt-12 pb-24 text-left flex-grow">
+      <main className="container mx-auto max-w-[950px] px-4 -mt-12 pb-24 text-left flex-grow text-left">
         <div className="bg-white p-6 md:p-10 rounded-3xl shadow-2xl border border-gray-100 text-left relative">
           <button 
             onClick={() => navigate("/")} 
@@ -244,7 +249,7 @@ function SearchDocumentsPage1() {
           </button>
 
           <form className="space-y-8 text-left mt-8" onSubmit={handleSearch}>
-            <div>
+            <div className="text-left">
               <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left">ค้นหารายชื่อเอกสาร</label>
               <input
                 type="text"
@@ -255,7 +260,7 @@ function SearchDocumentsPage1() {
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
-              <div>
+              <div className="text-left">
                 <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left">ปี พ.ศ.</label>
                 <select 
                   value={selectedYear}
@@ -269,7 +274,7 @@ function SearchDocumentsPage1() {
                   <option value="2566">2566</option>
                 </select>
               </div>
-              <div>
+              <div className="text-left">
                 <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left">แผนก</label>
                 <select 
                   value={selectedDept}
@@ -283,7 +288,7 @@ function SearchDocumentsPage1() {
                 </select>
               </div>
             </div>
-            <button type="button" onClick={() => setShowAdvance(!showAdvance)} className="flex items-center gap-2 text-sm font-bold text-[#74045F] hover:text-[#5a034a] transition-colors">
+            <button type="button" onClick={() => setShowAdvance(!showAdvance)} className="flex items-center gap-2 text-sm font-bold text-[#74045F] hover:text-[#5a034a] transition-colors text-left">
               <FiChevronDown className={`transition-transform duration-300 ${showAdvance ? 'rotate-180' : ''}`} />
               แสดง/ซ่อน ตัวเลือกการค้นหาเพิ่มเติม
             </button>
@@ -301,25 +306,24 @@ function SearchDocumentsPage1() {
                 <div className="space-y-5 text-left">
                   {documents.map((doc) => (
                     <div key={doc.id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-md hover:shadow-xl hover:border-[#74045F] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group text-left">
-                      <div className="flex items-center gap-5 flex-1 cursor-pointer" onClick={() => handleAccess(doc)}>
+                      <div className="flex items-center gap-5 flex-1 cursor-pointer text-left" onClick={() => handleAccess(doc)}>
                         <div className="w-16 h-16 bg-purple-50 text-[#74045F] rounded-2xl flex items-center justify-center text-3xl group-hover:bg-[#74045F] group-hover:text-white transition-all duration-300 text-center">
                           {doc.requireLogin && !user ? <FiLock /> : <FiFileText />}
                         </div>
                         <div className="text-left">
                           <h4 className="font-black text-gray-800 text-lg group-hover:text-[#74045F] transition-colors flex items-center gap-2 text-left">
                             {doc.name}
-                            {doc.requireLogin && <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full flex items-center gap-1 font-bold"><FiLock size={10}/> จำกัดสิทธิ์สมาชิก</span>}
+                            {doc.requireLogin && <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full flex items-center gap-1 font-bold text-left"><FiLock size={10}/> จำกัดสิทธิ์สมาชิก</span>}
                           </h4>
-                          {/* ✅ แก้ไขจุดนี้: แสดงเฉพาะ แผนก • ปี พ.ศ. • ขนาดไฟล์ */}
                           <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2 text-[11px] font-black text-gray-400 uppercase tracking-widest text-left">
-                            <span className="text-[#74045F]">{doc.dept}</span>
-                            <span>• ปี {doc.year}</span>
-                            <span>• {doc.size}</span>
+                            <span className="text-[#74045F] font-bold text-left">{doc.dept}</span>
+                            <span className="text-left">• ปี {doc.year}</span>
+                            <span className="text-left">• {doc.size}</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <button onClick={() => handleAccess(doc)} className="p-3 bg-gray-50 text-gray-400 hover:text-[#74045F] hover:bg-purple-50 rounded-xl transition-all shadow-sm" title="เปิดดูเอกสารฉบับจริง text-center"><FiExternalLink size={24} /></button>
+                        <button onClick={() => handleAccess(doc)} className="p-3 bg-gray-50 text-gray-400 hover:text-[#74045F] hover:bg-purple-50 rounded-xl transition-all shadow-sm text-center" title="เปิดดูเอกสารฉบับจริง"><FiExternalLink size={24} /></button>
                       </div>
                     </div>
                   ))}
@@ -327,7 +331,7 @@ function SearchDocumentsPage1() {
               </div>
             ) : (
               <div className="bg-purple-50/50 py-20 rounded-3xl border border-purple-100 text-center">
-                <FiSearch className="text-6xl text-purple-200 mx-auto mb-4" />
+                <FiSearch className="text-6xl text-purple-200 mx-auto mb-4 text-center" />
                 <p className="text-purple-400 font-bold uppercase tracking-widest italic text-center">
                   {loading ? "กำลังโหลดข้อมูล..." : "ไม่พบเอกสารที่ค้นหา"}
                 </p>
@@ -335,7 +339,7 @@ function SearchDocumentsPage1() {
             )
           ) : (
             <div className="bg-purple-50/50 py-20 rounded-3xl border border-purple-100 text-center text-center">
-              <FiSearch className="text-6xl text-purple-200 mx-auto mb-4" />
+              <FiSearch className="text-6xl text-purple-200 mx-auto mb-4 text-center" />
               <p className="text-purple-400 font-bold uppercase tracking-widest italic text-center">กรุณาระบุคำค้นหาหรือเลือกแผนก และกดปุ่มเพื่อเริ่มค้นหา</p>
             </div>
           )}

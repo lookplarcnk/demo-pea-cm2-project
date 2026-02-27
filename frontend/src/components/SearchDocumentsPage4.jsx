@@ -25,6 +25,9 @@ function SearchDocumentsPage4() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
+  // ✅ กำหนด SERVER URL สำหรับเปิดไฟล์ PDF (Render)
+  const RENDER_SERVER_URL = "https://demo-pea-cm2-project.onrender.com";
+
   useEffect(() => {
     const fetchDepts = async () => {
       try {
@@ -79,9 +82,10 @@ function SearchDocumentsPage4() {
     }
   };
 
+  // ✅ แก้ไข: ฟังก์ชันเปิดไฟล์ PDF ให้ชี้ไปยัง Render Server (Production URL)
   const handleAccess = (doc) => {
     const fileName = encodeURIComponent(doc.doc_name);
-    const fileUrl = `/files/${fileName}.pdf`;
+    const fileUrl = `${RENDER_SERVER_URL}/files/${fileName}.pdf`;
     window.open(fileUrl, "_blank", "noopener,noreferrer");
   };
 
@@ -174,9 +178,9 @@ function SearchDocumentsPage4() {
                           <h4 className="font-black text-gray-800 text-lg group-hover:text-[#74045F] transition-colors flex items-center gap-2 text-left">
                             {doc.doc_name}
                           </h4>
-                          {/* ✅ แก้ไข: แสดงเฉพาะ แผนก • ขนาดไฟล์ • ปี พ.ศ. */}
+                          {/* ✅ แสดงเฉพาะ แผนก • ขนาดไฟล์ • ปี พ.ศ. */}
                           <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2 text-[11px] font-black text-gray-400 uppercase tracking-widest text-left">
-                            <span className="text-[#74045F]">{doc.displayDept}</span>
+                            <span className="text-[#74045F] font-bold">{doc.displayDept}</span>
                             <span>• {doc.file_size || "N/A"}</span>
                             <span>• ปี {doc.displayYear}</span>
                           </div>
@@ -202,7 +206,7 @@ function SearchDocumentsPage4() {
               </div>
             )
           ) : (
-            <div className="bg-gray-50 py-20 rounded-3xl border border-dashed border-gray-200 text-center text-center">
+            <div className="bg-gray-50 py-20 rounded-3xl border border-dashed border-gray-200 text-center">
               <FiSearch className="text-6xl text-gray-200 mx-auto mb-4 text-center" />
               <p className="text-gray-400 font-bold uppercase tracking-widest italic text-center">
                 กรุณาพิมพ์ชื่อเอกสารหรือระบุเงื่อนไขเพื่อเริ่มต้นการค้นหา

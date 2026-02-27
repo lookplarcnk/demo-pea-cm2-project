@@ -24,6 +24,9 @@ function SearchDocumentsPage6() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
+  // ✅ กำหนด SERVER URL สำหรับเปิดไฟล์ PDF (Render)
+  const RENDER_SERVER_URL = "https://demo-pea-cm2-project.onrender.com";
+
   useEffect(() => {
     const fetchDepts = async () => {
       try {
@@ -51,7 +54,6 @@ function SearchDocumentsPage6() {
 
     try {
       // ✅ แก้ไขจุดที่ผิด: เปลี่ยน endpoint ให้ตรงกับหมวดหมู่คำสั่งและประกาศ (เช่น /orders) 
-      // เพื่อป้องกันข้อมูลหมวดคู่มือ (manuals) มาโผล่หน้านี้
       const response = await axios.get(`${API_BASE_URL}/public/documents/orders`, {
         params: {
           query: searchQuery,
@@ -79,13 +81,15 @@ function SearchDocumentsPage6() {
     }
   };
 
+  // ✅ แก้ไข: ฟังก์ชันเปิดไฟล์ PDF ให้ชี้ไปยัง Render Server (Production URL)
   const handleAccess = (doc) => {
     if (doc.require_login && !user) {
       alert("กรุณาเข้าสู่ระบบเพื่อเข้าถึงคำสั่งหรือประกาศฉบับนี้");
       navigate("/loginchoice");
     } else {
+      // ตรวจสอบชื่อเอกสารและสร้าง URL ที่ถูกต้องสำหรับ Production
       const fileName = encodeURIComponent(`${doc.doc_name}.pdf`);
-      const fileUrl = `/files/${fileName}`;
+      const fileUrl = `${RENDER_SERVER_URL}/files/${fileName}`;
       window.open(fileUrl, "_blank", "noopener,noreferrer");
     }
   };
@@ -102,7 +106,7 @@ function SearchDocumentsPage6() {
         </div>
       </header>
 
-      <main className="container mx-auto max-w-[950px] px-4 -mt-12 pb-24 text-left flex-grow text-left text-left">
+      <main className="container mx-auto max-w-[950px] px-4 -mt-12 pb-24 text-left flex-grow text-left text-left text-left">
         <div className="bg-white p-6 md:p-10 rounded-3xl shadow-2xl border border-gray-100 text-left relative text-left text-left">
           
           <button 
@@ -113,8 +117,8 @@ function SearchDocumentsPage6() {
             กลับหน้าแรก
           </button>
 
-          <form className="space-y-8 text-left mt-8 text-left text-left" onSubmit={handleSearch}>
-            <div className="text-left text-left text-left">
+          <form className="space-y-8 text-left mt-8 text-left text-left text-left" onSubmit={handleSearch}>
+            <div className="text-left text-left text-left text-left">
               <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left">ค้นหาชื่อคำสั่งและประกาศ</label>
               <input
                 type="text"
@@ -124,8 +128,8 @@ function SearchDocumentsPage6() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-left text-left">
-              <div className="text-left text-left text-left">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left text-left text-left text-left">
+              <div className="text-left text-left text-left text-left">
                 <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left text-left text-left">ปี พ.ศ.</label>
                 <select 
                   value={selectedYear}
@@ -138,7 +142,7 @@ function SearchDocumentsPage6() {
                   <option value="2567">2567</option>
                 </select>
               </div>
-              <div className="text-left text-left text-left text-left">
+              <div className="text-left text-left text-left text-left text-left">
                 <label className="block text-xs font-black text-gray-400 mb-2 uppercase tracking-widest text-left text-left text-left text-left">แผนก</label>
                 <select 
                   value={selectedDept}
@@ -156,44 +160,44 @@ function SearchDocumentsPage6() {
                 </select>
               </div>
             </div>
-            <button type="button" onClick={() => setShowAdvance(!showAdvance)} className="flex items-center gap-2 text-sm font-bold text-[#74045F] hover:text-[#5a034a] transition-colors text-left text-left text-left text-left">
+            <button type="button" onClick={() => setShowAdvance(!showAdvance)} className="flex items-center gap-2 text-sm font-bold text-[#74045F] hover:text-[#5a034a] transition-colors text-left text-left text-left text-left text-left">
               <FiChevronDown className={`transition-transform duration-300 ${showAdvance ? 'rotate-180' : ''} text-left`} />
               แสดง/ซ่อน ตัวเลือกการค้นหาเพิ่มเติม
             </button>
-            <button type="submit" className="w-full bg-[#74045F] text-white py-4.5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-[#5a034a] transition-all shadow-xl shadow-purple-900/10 active:scale-[0.98] text-center">
+            <button type="submit" className="w-full bg-[#74045F] text-white py-4.5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:bg-[#5a034a] transition-all shadow-xl shadow-purple-900/10 active:scale-[0.98] text-center text-center">
               {loading ? "กำลังค้นหา..." : <><FiSearch size={22} className="text-left" /> ค้นหาข้อมูลตอนนี้</>}
             </button>
           </form>
         </div>
 
-        <section className="mt-16 text-left text-left text-left text-left text-left">
+        <section className="mt-16 text-left text-left text-left text-left text-left text-left text-left">
           {documents.length > 0 ? (
-            <div className="results-container text-left text-left text-left text-left">
-              <p className="text-gray-400 font-black text-xs uppercase tracking-[0.2em] mb-8 border-l-4 border-[#74045F] pl-4 text-left text-left text-left text-left">รายการที่เกี่ยวข้อง ({documents.length})</p>
-              <div className="space-y-5 text-left text-left text-left text-left text-left text-left">
+            <div className="results-container text-left text-left text-left text-left text-left">
+              <p className="text-gray-400 font-black text-xs uppercase tracking-[0.2em] mb-8 border-l-4 border-[#74045F] pl-4 text-left text-left text-left text-left text-left">รายการที่เกี่ยวข้อง ({documents.length})</p>
+              <div className="space-y-5 text-left text-left text-left text-left text-left text-left text-left">
                 {documents.map((doc) => (
-                  <div key={doc.doc_id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-md hover:shadow-xl hover:border-[#74045F] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group text-left text-left text-left text-left text-left text-left">
-                    <div className="flex items-center gap-5 flex-1 cursor-pointer text-left text-left text-left text-left text-left text-left" onClick={() => handleAccess(doc)}>
-                      <div className="w-16 h-16 bg-purple-50 text-[#74045F] rounded-2xl flex items-center justify-center text-3xl group-hover:bg-[#74045F] group-hover:text-white transition-all duration-300 text-left shadow-sm">
-                        {doc.require_login && !user ? <FiLock className="text-left" /> : <FiFileText className="text-left" />}
+                  <div key={doc.doc_id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-md hover:shadow-xl hover:border-[#74045F] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group text-left text-left text-left text-left text-left text-left text-left">
+                    <div className="flex items-center gap-5 flex-1 cursor-pointer text-left text-left text-left text-left text-left text-left text-left" onClick={() => handleAccess(doc)}>
+                      <div className="w-16 h-16 bg-purple-50 text-[#74045F] rounded-2xl flex items-center justify-center text-3xl group-hover:bg-[#74045F] group-hover:text-white transition-all duration-300 shadow-sm text-center text-left text-left">
+                        {doc.require_login && !user ? <FiLock /> : <FiFileText />}
                       </div>
-                      <div className="text-left text-left text-left text-left text-left text-left">
-                        <h4 className="font-black text-gray-800 text-lg group-hover:text-[#74045F] transition-colors flex items-center gap-2 text-left text-left text-left text-left text-left text-left">
+                      <div className="text-left text-left text-left text-left text-left text-left text-left">
+                        <h4 className="font-black text-gray-800 text-lg group-hover:text-[#74045F] transition-colors flex items-center gap-2 text-left text-left text-left text-left text-left text-left text-left">
                           {doc.doc_name}
-                          {doc.require_login && <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 text-left shadow-sm"><FiLock size={10} className="text-left" /> ต้องล็อกอิน</span>}
+                          {doc.require_login && <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 text-left shadow-sm text-left text-left"><FiLock size={10} className="text-left" /> ต้องล็อกอิน</span>}
                         </h4>
-                        {/* ✅ แก้ไข: แสดงผลเฉพาะ แผนก • ขนาดไฟล์ • ปี พ.ศ. */}
-                        <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2 text-[11px] font-black text-gray-400 uppercase tracking-widest text-left text-left text-left text-left text-left text-left">
+                        {/* ✅ แสดงผลเฉพาะ แผนก • ขนาดไฟล์ • ปี พ.ศ. */}
+                        <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2 text-[11px] font-black text-gray-400 uppercase tracking-widest text-left text-left text-left text-left text-left text-left text-left">
                           <span className="text-[#74045F] font-bold text-left">{doc.displayDept}</span>
-                          <span className="text-left text-left">• {doc.file_size || "N/A"}</span>
-                          <span className="text-left text-left">• ปี {doc.displayYear}</span>
+                          <span className="text-left text-left text-left">• {doc.file_size || "N/A"}</span>
+                          <span className="text-left text-left text-left">• ปี {doc.displayYear}</span>
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 text-left">
+                    <div className="flex items-center gap-3 text-left text-left">
                       <button 
                         onClick={() => handleAccess(doc)} 
-                        className="p-3 bg-gray-50 text-gray-400 hover:text-[#74045F] hover:bg-purple-50 rounded-xl transition-all shadow-sm text-left text-left text-left text-left" 
+                        className="p-3 bg-gray-50 text-gray-400 hover:text-[#74045F] hover:bg-purple-50 rounded-xl transition-all shadow-sm text-center text-left text-left text-left" 
                         title="เปิดดูเอกสารฉบับจริง"
                       >
                         <FiExternalLink size={24} className="text-left" />
@@ -204,9 +208,9 @@ function SearchDocumentsPage6() {
               </div>
             </div>
           ) : (
-            <div className="bg-purple-50/50 py-20 rounded-3xl border border-purple-100 text-center text-left text-center text-center">
-              <FiSearch className="text-6xl text-purple-200 mx-auto mb-4 text-center text-center text-center" />
-              <p className="text-purple-400 font-bold uppercase tracking-widest italic text-sm md:text-base text-center text-center text-center text-center">
+            <div className="bg-purple-50/50 py-20 rounded-3xl border border-purple-100 text-center text-center text-center text-center text-center">
+              <FiSearch className="text-6xl text-purple-200 mx-auto mb-4 text-center text-center text-center text-center" />
+              <p className="text-purple-400 font-bold uppercase tracking-widest italic text-sm md:text-base text-center text-center text-center text-center text-center">
                 {searchQuery ? "ไม่พบเอกสารที่คุณต้องการ" : "กรุณาพิมพ์ชื่อคำสั่ง หรือประกาศที่ต้องการค้นหา"}
               </p>
             </div>

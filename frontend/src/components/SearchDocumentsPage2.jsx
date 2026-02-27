@@ -24,6 +24,9 @@ function SearchDocumentsPage2() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
 
+  // ✅ กำหนด SERVER URL สำหรับเปิดไฟล์ PDF (Render)
+  const RENDER_SERVER_URL = "https://demo-pea-cm2-project.onrender.com";
+
   useEffect(() => {
     const fetchDepts = async () => {
       try {
@@ -76,19 +79,21 @@ function SearchDocumentsPage2() {
     }
   };
 
+  // ✅ แก้ไข: ฟังก์ชันเปิดไฟล์ PDF ให้ชี้ไปยัง Render Server
   const handleAccess = (doc) => {
     if (doc.require_login && !user) {
       alert("🔒 กรุณาเข้าสู่ระบบเพื่อเข้าถึงเอกสารนี้");
       navigate("/loginchoice");
     } else {
+      // ตรวจสอบชื่อเอกสารและสร้าง URL ที่ถูกต้องสำหรับ Production
       const fileName = encodeURIComponent(`${doc.doc_name}.pdf`);
-      const fileUrl = `/files/${fileName}`;
+      const fileUrl = `${RENDER_SERVER_URL}/files/${fileName}`;
       window.open(fileUrl, "_blank", "noopener,noreferrer");
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F4F8] font-sans text-left flex flex-col">
+    <div className="min-h-screen bg-[#F0F4F8] font-sans text-left flex flex-col text-left">
       <Navbar />
       
       <header className="bg-[#74045F] py-16 px-4 border-b-4 border-[#74045F]">
@@ -98,7 +103,7 @@ function SearchDocumentsPage2() {
         </div>
       </header>
 
-      <main className="container mx-auto max-w-[950px] px-4 -mt-12 pb-24 text-left flex-grow">
+      <main className="container mx-auto max-w-[950px] px-4 -mt-12 pb-24 text-left flex-grow text-left">
         <div className="bg-white p-6 md:p-10 rounded-3xl shadow-2xl border border-gray-100 text-left relative">
           
           <button 
@@ -174,21 +179,20 @@ function SearchDocumentsPage2() {
               </p>
               <div className="space-y-5 text-left">
                 {documents.map((doc) => (
-                  <div key={doc.doc_id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-md hover:shadow-xl hover:border-[#74045F] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group text-left">
+                  <div key={doc.doc_id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-md hover:shadow-xl hover:border-[#74045F] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group text-left text-left">
                     <div className="flex items-center gap-5 flex-1 cursor-pointer text-left" onClick={() => handleAccess(doc)}>
-                      <div className="w-16 h-16 bg-purple-50 text-[#74045F] rounded-2xl flex items-center justify-center text-3xl group-hover:bg-[#74045F] group-hover:text-white transition-all duration-300 text-center shadow-sm">
+                      <div className="w-16 h-16 bg-purple-50 text-[#74045F] rounded-2xl flex items-center justify-center text-3xl group-hover:bg-[#74045F] group-hover:text-white transition-all duration-300 text-center">
                         {doc.require_login && !user ? <FiLock /> : <FiFileText />}
                       </div>
-                      <div className="text-left">
+                      <div className="text-left text-left">
                         <h4 className="font-black text-gray-800 text-lg group-hover:text-[#74045F] transition-colors flex items-center gap-2 text-left">
                           {doc.doc_name}
-                          {doc.require_login && <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full flex items-center gap-1 font-bold"><FiLock size={10}/> ต้องล็อกอิน</span>}
+                          {doc.require_login && <span className="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full flex items-center gap-1 font-bold text-left"><FiLock size={10}/> ต้องล็อกอิน</span>}
                         </h4>
                         <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2 text-[11px] font-black text-gray-400 uppercase tracking-widest text-left">
-                          {/* ✅ แก้ไข: เปลี่ยนจากหมวดหมู่เป็นแผนก */}
-                          <span className="text-[#74045F]">{doc.displayDept}</span>
-                          <span>• ปี {doc.displayYear}</span>
-                          <span>• {doc.file_size}</span>
+                          <span className="text-[#74045F] font-bold text-left">{doc.displayDept}</span>
+                          <span className="text-left">• ปี {doc.displayYear}</span>
+                          <span className="text-left">• {doc.file_size}</span>
                         </div>
                       </div>
                     </div>
