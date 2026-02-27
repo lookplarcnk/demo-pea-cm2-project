@@ -112,7 +112,26 @@ export default function ManageDocs() {
     window.open(fileUrl, "_blank", "noopener,noreferrer");
   };
 
+  // 🔥 จุดที่แก้ไข: เพิ่มระบบป้องกันการซ้ำซ้อน
   const handleAddDocument = async (newDoc) => {
+    // 🔍 ตรวจสอบว่าชื่อไฟล์ซ้ำกับที่มีอยู่ใน State หรือไม่
+    const isDuplicate = allDocuments.some(
+      (doc) => (doc.doc_name || doc.name || "").toLowerCase() === newDoc.name.toLowerCase()
+    );
+
+    if (isDuplicate) {
+      toast.error(`เอกสารชื่อ "${newDoc.name}" มีอยู่ในระบบแล้ว`, {
+        icon: '⚠️',
+        style: {
+          borderRadius: '1rem',
+          background: '#fff',
+          color: '#74045F',
+          fontWeight: 'bold',
+        },
+      });
+      return; // หยุดกระบวนการอัปโหลด
+    }
+
     try {
       const selectedCategory = categories.find(c => c.cat_name === newDoc.category);
       const isAdmin = user.role.toLowerCase().includes("admin");
