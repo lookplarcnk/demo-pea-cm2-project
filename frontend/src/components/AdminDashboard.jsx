@@ -15,6 +15,7 @@ import {
 
 // ✅ แก้ไข: กำหนด URL ให้ชี้ไปยัง Render
 const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
+const RENDER_SERVER_URL = "https://demo-pea-cm2-project.onrender.com";
 
 export default function AdminOverviewDashboard() {
   const navigate = useNavigate(); 
@@ -58,12 +59,10 @@ export default function AdminOverviewDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // ✅ แก้ไข: ดึงสถิติรวมจาก Render
         const statsRes = await fetch(`${API_BASE_URL}/admin/stats`);
         const statsData = await statsRes.json();
         setStats(statsData);
 
-        // ✅ แก้ไข: ดึงกิจกรรมล่าสุดจาก Render
         const activityRes = await fetch(`${API_BASE_URL}/documents`);
         const activityData = await activityRes.json();
         
@@ -99,12 +98,18 @@ export default function AdminOverviewDashboard() {
     fetchDashboardData();
   }, []);
 
+  // ✅ ฟังก์ชันเปิดดูไฟล์เอกสาร
+  const handleViewFile = (docName) => {
+    const fileName = encodeURIComponent(`${docName}.pdf`);
+    const fileUrl = `${RENDER_SERVER_URL}/files/${fileName}`;
+    window.open(fileUrl, "_blank", "noopener,noreferrer");
+  };
+
   const handleSendAnnouncement = async () => {
     if (!announcement.trim()) return alert("กรุณาพิมพ์ข้อความประกาศ");
     
     setIsSending(true);
     try {
-      // ✅ แก้ไข: ส่งประกาศไปยัง Render
       const response = await fetch(`${API_BASE_URL}/announcements`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -208,11 +213,11 @@ export default function AdminOverviewDashboard() {
           <div className="flex items-center justify-between text-left">
             <div className="flex items-center gap-3 text-left">
               <button onClick={() => setIsSidebarOpen(true)} className="p-2.5 bg-white rounded-xl shadow-sm border border-purple-100 lg:hidden text-[#74045F] flex items-center justify-center text-center"><FiMenu size={20} /></button>
-              <h2 className="text-xl lg:text-2xl font-bold text-[#74045F] tracking-tight text-left">หน้าสรุปผล (Overview)</h2>
+              <h2 className="text-xl lg:text-2xl font-bold text-[#74045F] tracking-tight text-left text-left">หน้าสรุปผล (Overview)</h2>
             </div>
             
-            <div className="flex items-center gap-4 text-left">
-              <button onClick={() => setOpenProfileModal(true)} className="flex-shrink-0 active:scale-95 transition-transform flex items-center justify-center text-left">
+            <div className="flex items-center gap-4 text-left text-left">
+              <button onClick={() => setOpenProfileModal(true)} className="flex-shrink-0 active:scale-95 transition-transform flex items-center justify-center">
                 <img src={user.avatar} className="w-11 h-11 rounded-xl object-cover border-2 border-white shadow-md hover:border-[#74045F] transition-all text-left" alt="profile" />
               </button>
             </div>
@@ -233,13 +238,13 @@ export default function AdminOverviewDashboard() {
                     <div className={`p-6 flex justify-between items-center border-b ${theme.divider} bg-purple-50/30 text-left`}>
                         <h3 className="font-bold text-[#74045F] text-base uppercase tracking-tight text-left">กิจกรรมล่าสุดในระบบ</h3>
                         <div className="relative group font-bold text-left">
-                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 text-left" />
+                            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-400 text-left text-left" />
                             <input type="text" placeholder="ค้นหา..." className={`pl-10 pr-4 py-2.5 rounded-2xl ${theme.input} border focus:ring-4 focus:ring-purple-500/10 outline-none transition-all w-40 focus:w-56 font-bold text-xs text-left`} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
                         </div>
                     </div>
                     <div className="overflow-x-auto text-left">
-                        <table className="w-full min-w-[600px] text-left">
-                            <thead className="bg-transparent text-slate-400 text-[11px] uppercase tracking-widest font-black border-b border-purple-50 text-left text-left">
+                        <table className="w-full min-w-[600px] text-left text-left">
+                            <thead className="bg-transparent text-slate-400 text-[11px] uppercase tracking-widest font-black border-b border-purple-50 text-left">
                                 <tr>
                                     <th className="px-6 py-4 text-left">รายการ</th>
                                     <th className="px-6 py-4 text-left">ผู้ดำเนินการ</th>
@@ -253,13 +258,19 @@ export default function AdminOverviewDashboard() {
                                         <td className="px-6 py-4 text-left">
                                             <div className="flex items-center gap-3 text-left">
                                                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base font-bold bg-purple-50 text-[#74045F] text-left`}><FiActivity /></div>
-                                                <span className="text-slate-700 line-clamp-1 font-black text-sm text-left">{act.name}</span>
+                                                {/* ✅ แก้ไข: เพิ่มปุ่มกดดูเอกสารที่ชื่อรายการ */}
+                                                <button 
+                                                  onClick={() => handleViewFile(act.name)}
+                                                  className="text-slate-700 line-clamp-1 font-black text-sm text-left hover:text-[#74045F] hover:underline"
+                                                >
+                                                  {act.name}
+                                                </button>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-left text-left">
+                                        <td className="px-6 py-4 text-left">
                                             <span className="text-slate-600 font-bold text-[13px] text-left">{act.category}</span>
                                         </td>
-                                        <td className="px-6 py-4 text-center text-center">
+                                        <td className="px-6 py-4 text-center">
                                             <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase text-center ${act.size === 'อนุมัติแล้ว' || act.size === 'สำเร็จ' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
                                                 {act.size}
                                             </span>
@@ -277,7 +288,7 @@ export default function AdminOverviewDashboard() {
                         <div className="w-10 h-10 bg-purple-50 text-[#74045F] rounded-xl flex items-center justify-center text-center"><FiAlertCircle size={20}/></div>
                         <h3 className="font-black text-[#74045F] text-base uppercase tracking-tight text-left">ประกาศแจ้งเตือนระบบ</h3>
                     </div>
-                    <div className="flex gap-4 items-start text-left">
+                    <div className="flex gap-4 items-start text-left text-left">
                         <textarea 
                           value={announcement}
                           onChange={(e) => setAnnouncement(e.target.value)}
@@ -297,10 +308,10 @@ export default function AdminOverviewDashboard() {
                 </div>
             </div>
 
-            <div className="space-y-8 font-bold text-left">
+            <div className="space-y-8 font-bold text-left text-left text-left">
                 <div className={`${theme.card} rounded-[2.5rem] shadow-sm border border-purple-100 p-8 space-y-8 text-left`}>
                   <h3 className="font-black text-slate-800 text-base uppercase flex items-center gap-2 tracking-tight text-left">
-                    <FiDatabase className="text-[#74045F] text-left" /> สัดส่วนเอกสารจริงตามรายแผนก
+                    <FiDatabase className="text-[#74045F]" /> สัดส่วนเอกสารจริงตามรายแผนก
                   </h3>
                   <div className="space-y-5 text-left">
                     {deptStats.length > 0 ? (
@@ -315,11 +326,11 @@ export default function AdminOverviewDashboard() {
 
                 <div className="bg-gradient-to-br from-[#74045F] to-purple-800 rounded-[2.5rem] p-8 text-white shadow-xl shadow-purple-200 space-y-6 text-left">
                     <div className="flex items-center gap-3 text-left">
-                        <FiTrendingUp size={24} className="text-purple-200 text-left" />
-                        <h3 className="font-black text-base uppercase tracking-tight text-left">System Insight</h3>
+                        <FiTrendingUp size={24} className="text-purple-200" />
+                        <h3 className="font-black text-base uppercase tracking-tight text-left text-left">System Insight</h3>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-left">
-                        <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-md text-left">
+                        <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-md text-left text-left">
                             <p className="text-[10px] font-black uppercase text-purple-100 text-left">เฉลี่ยเวลา</p>
                             <p className="text-xl font-black text-left">1.5 วัน</p>
                         </div>
@@ -333,11 +344,11 @@ export default function AdminOverviewDashboard() {
                 <div className={`${theme.card} rounded-[2.5rem] p-8 border shadow-sm flex items-center gap-4 text-left`}>
                     <div className="w-12 h-12 bg-emerald-50 border-emerald-100 text-emerald-500 rounded-full flex items-center justify-center border text-center">
                         <div className="relative flex h-3 w-3 text-center">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 text-center"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 text-center"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                         </div>
                     </div>
-                    <div className="text-left">
+                    <div className="text-left text-left">
                         <p className={`text-xs font-black ${theme.textSub} uppercase tracking-widest leading-none mb-1 text-left`}>Server Status</p>
                         <p className="text-sm font-black text-emerald-600 text-left">Online</p>
                     </div>
@@ -369,7 +380,7 @@ export default function AdminOverviewDashboard() {
 
 function DeptProgress({ label, percent, color }) {
   return (
-      <div className="space-y-1.5 text-left">
+      <div className="space-y-1.5 text-left text-left">
           <div className="flex justify-between text-[10px] font-black uppercase tracking-tight text-left">
               <span className="text-slate-500 truncate max-w-[150px] text-left">{label}</span>
               <span className="text-[#74045F] font-black text-left">{percent}%</span>
@@ -394,8 +405,8 @@ function SummaryCard({ title, value, icon, color }) {
   
   return (
     <div className="bg-white border-purple-50 rounded-[2rem] p-6 flex items-center gap-4 border transition-all hover:shadow-xl group text-left">
-      <div className={`p-4 rounded-[1.2rem] text-2xl group-hover:scale-110 transition-transform ${colors[color]} flex items-center justify-center text-center`}>{icon}</div>
-      <div className="text-left font-bold">
+      <div className={`p-4 rounded-[1.2rem] text-2xl group-hover:scale-110 transition-transform ${colors[color]} flex items-center justify-center text-center text-left`}>{icon}</div>
+      <div className="text-left font-bold text-left">
         <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-0.5 text-left leading-none">{title}</p>
         <p className="text-2xl font-black text-slate-800 tracking-tight text-left leading-none">{value.toLocaleString()}</p>
       </div>
@@ -405,8 +416,8 @@ function SummaryCard({ title, value, icon, color }) {
 
 function ProfileInput({ label, value, onChange }) {
   return (
-    <div className="space-y-2 text-left block font-bold">
-      <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 font-bold text-left block">{label}</label>
+    <div className="space-y-2 text-left block font-bold text-left">
+      <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 font-bold text-left block text-left">{label}</label>
       <input 
         type="text" 
         value={value} 
@@ -418,8 +429,8 @@ function ProfileInput({ label, value, onChange }) {
 }
 
 function SidebarItem({ icon, label, active, danger }) {
-  const activeClass = "bg-purple-50 text-[#74045F] shadow-sm shadow-purple-100 text-left font-black";
-  const hoverClass = "text-slate-400 hover:bg-purple-50/50 hover:text-[#74045F] text-left font-black";
+  const activeClass = "bg-purple-50 text-[#74045F] shadow-sm shadow-purple-100 text-left font-black text-left";
+  const hoverClass = "text-slate-400 hover:bg-purple-50/50 hover:text-[#74045F] text-left font-black text-left";
 
   return (
     <div className={`flex items-center gap-3 px-5 py-4 rounded-2xl cursor-pointer text-sm font-black transition-all text-left ${active ? activeClass : hoverClass} ${danger ? "text-rose-500 mt-auto text-left" : ""}`}>
