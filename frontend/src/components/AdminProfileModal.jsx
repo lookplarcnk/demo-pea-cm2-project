@@ -6,8 +6,8 @@ import axios from "axios"; // ✅ เพิ่มการนำเข้า axi
 const API_BASE_URL = "https://demo-pea-cm2-project.onrender.com/api";
 
 export default function AdminProfileModal({ user, setUser, onClose }) {
-  // สร้าง State ชั่วคราวสำหรับการแก้ไข
-  const [tempUser, setTempUser] = useState(user);
+  // สร้าง State ชั่วคราวสำหรับการแก้ไข (ล็อกสิทธิ์เป็น Admin ทันที)
+  const [tempUser, setTempUser] = useState({ ...user, role: "Admin" });
   const [isSaving, setIsSaving] = useState(false); // ✅ เพิ่มสถานะการบันทึก
   const fileInputRef = useRef(null);
 
@@ -39,13 +39,13 @@ export default function AdminProfileModal({ user, setUser, onClose }) {
         emp_name: tempUser.name,
         emp_email: tempUser.email,
         emp_phone: tempUser.phone,
-        role: tempUser.role,
+        role: "Admin", // ล็อกค่าส่งไปยังฐานข้อมูลเป็น Admin
         avatar: tempUser.avatar // ส่ง Base64 หรือ URL รูปภาพ
       });
 
       if (response.status === 200) {
         // 2. อัปเดต State ในหน้าจอหลัก (Frontend) ทันที
-        setUser(tempUser);
+        setUser({ ...tempUser, role: "Admin" });
         
         // 3. บันทึกลง localStorage (Sync ข้อมูลทุกหน้า)
         const dataToSave = {
@@ -53,7 +53,7 @@ export default function AdminProfileModal({ user, setUser, onClose }) {
           name: tempUser.name,
           email: tempUser.email,
           dept: tempUser.department || tempUser.dept || "ทั่วไป",
-          role: tempUser.role,
+          role: "Admin",
           phone: tempUser.phone,
           avatar: tempUser.avatar
         };
@@ -117,7 +117,12 @@ export default function AdminProfileModal({ user, setUser, onClose }) {
                 </div>
                 <div className="space-y-2 text-left">
                   <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 block text-left">ระดับสิทธิ์ / ตำแหน่ง</label>
-                  <input type="text" value={tempUser.role || ""} onChange={(e) => setTempUser({...tempUser, role: e.target.value})} className="w-full bg-slate-50 border-none rounded-xl px-4 py-3 text-slate-700 text-lg focus:ring-4 focus:ring-indigo-500/10 transition-all outline-none font-bold text-left" />
+                  <input 
+                    type="text" 
+                    value="Admin" 
+                    readOnly 
+                    className="w-full bg-slate-100 border-none rounded-xl px-4 py-3 text-slate-500 text-lg outline-none font-bold text-left cursor-not-allowed opacity-70" 
+                  />
                 </div>
                 <div className="space-y-2 text-left">
                   <label className="text-[14px] font-black text-slate-400 uppercase tracking-widest ml-1 block text-left">อีเมลติดต่องาน</label>
