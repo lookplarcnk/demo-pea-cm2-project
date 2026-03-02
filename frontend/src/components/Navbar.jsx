@@ -14,7 +14,18 @@ function Navbar() {
   const userData = JSON.parse(localStorage.getItem("user") || "null");
   const adminData = JSON.parse(localStorage.getItem("pea-admin-user") || "null");
   
-  const user = (userData && !userData.emp_id && userData.role !== 'admin' && !adminData) ? userData : null;
+  // 🔥 แก้ไข Logic: user ในหน้าแรกนี้ต้องเป็น "บุคคลทั่วไป" เท่านั้น
+  // ตรวจสอบว่ามีข้อมูล userData แต่ต้องไม่มี emp_id (ของพนักงาน) 
+  // และ role ต้องไม่ใช่ admin หรือ administrator
+  const user = (
+    userData && 
+    !userData.emp_id && 
+    !userData.id?.toString().startsWith('PEA') && // ตรวจสอบรหัสพนักงานเพิ่มเติมถ้ามี
+    userData.role !== 'admin' && 
+    userData.role !== 'administrator' &&
+    userData.role !== 'หัวหน้าแผนก' &&
+    !adminData
+  ) ? userData : null;
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -68,7 +79,6 @@ function Navbar() {
             {!user ? (
               <>
                 <Link to="/loginchoice" className="text-[#74045F] text-sm font-semibold px-4 py-2 rounded-md hover:bg-[#F3E8FF] text-left">เข้าสู่ระบบ</Link>
-                {/* 🎨 แก้ไขสีปุ่มสมัครสมาชิกเป็นสีม่วง PEA #74045F */}
                 <Link to="/register" className="bg-[#74045F] hover:bg-[#5E0856] text-white text-sm font-semibold px-5 py-2 rounded-md shadow-sm transition-colors text-left">สมัครสมาชิก</Link>
               </>
             ) : (
@@ -129,7 +139,6 @@ function Navbar() {
             {!user ? (
               <div className="space-y-4 text-left">
                 <Link to="/loginchoice" className="block text-[#74045F] font-black text-center py-2 rounded-lg bg-[#F3E8FF] active:scale-95 transition-transform text-center" onClick={() => setToggle(false)}>เข้าสู่ระบบ</Link>
-                {/* 🎨 แก้ไขสีปุ่มสมัครสมาชิก Mobile เป็นสีม่วง PEA #74045F */}
                 <Link to="/register" className="block bg-[#74045F] text-white text-center py-3 rounded-lg font-black shadow-md active:scale-95 transition-transform text-center" onClick={() => setToggle(false)}>สมัครสมาชิก</Link>
               </div>
             ) : (
