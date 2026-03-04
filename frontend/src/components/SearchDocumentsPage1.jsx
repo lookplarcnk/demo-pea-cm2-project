@@ -118,8 +118,8 @@ function Navbar() {
               </div>
             )}
           </div>
-          <Link to="#" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors" onClick={() => setToggle(false)}>การบริหารงาน</Link>
-          <Link to="#" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors" onClick={() => setToggle(false)}>ติดต่อเรา</Link>
+          <Link to="/ManagementPage" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors" onClick={() => setToggle(false)}>การบริหารงาน</Link>
+          <Link to="/ContactPage" className="block font-bold text-gray-700 hover:text-[#74045F] transition-colors" onClick={() => setToggle(false)}>ติดต่อเรา</Link>
           <div className="pt-4 border-t border-gray-50 space-y-4 text-left">
             {!user ? (
               <>

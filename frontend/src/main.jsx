@@ -33,6 +33,8 @@ import ContactPage from "./components/ContactPage.jsx";
 import AboutPage from "./components/AboutPage.jsx"; 
 import OrgStructure from "./components/OrgStructure.jsx";
 import VisionMission from "./components/VisionMission.jsx";
+// ✅ เพิ่มการ Import หน้าการบริหารงาน
+import ManagementPage from "./components/ManagementPage.jsx";
 
 // ✅ 1. นำเข้าหน้าพิจารณาเอกสาร และหน้าส่งเอกสารสำหรับ Admin ให้ครบถ้วน
 import AdminApprovalCenter from "./components/AdminApprovalCenter.jsx"; 
@@ -77,6 +79,8 @@ createRoot(document.getElementById("root")).render(
         <Route path="/AboutPage" element={<AboutPage />} />
         <Route path="/OrgStructure" element={<OrgStructure />} />
         <Route path="/VisionMission" element={<VisionMission />} />
+        {/* ✅ เพิ่ม Route สำหรับหน้าการบริหารงาน */}
+        <Route path="/ManagementPage" element={<ManagementPage />} />
 
         <Route path="/adminapprovalcenter" element={<AdminApprovalCenter />} />
         <Route path="/AdminSubmitApproval" element={<AdminSubmitApproval />} />

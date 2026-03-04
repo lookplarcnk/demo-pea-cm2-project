@@ -57,7 +57,7 @@ export default function VisionMission() {
           <h1 className="text-3xl md:text-4xl font-black mb-3 tracking-tight text-center">
             วิสัยทัศน์ / พันธกิจ
           </h1>
-          <p className="text-purple-100 font-bold max-w-2xl mx-auto italic text-sm text-center">
+          <p className="text-white opacity-90 font-bold text-lg max-w-2xl mx-auto">
             ทิศทางและเป้าหมายสู่การเป็นองค์กรชั้นนำในระดับภูมิภาค
           </p>
         </div>

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiClock, FiActivity, FiMapPin, FiShield, FiAlertTriangle, FiInfo } from "react-icons/fi";
 import axios from "axios";
-import Logo from "../assets/img/logo-pea.png";
 
 // ✅ Import Navbar และ Footer
 import Navbar from "./Navbar";
@@ -14,7 +13,7 @@ export default function AboutPage() {
   // ✅ เพิ่ม State สำหรับจัดการข้อมูลประวัติและไทม์ไลน์จาก API
   const [aboutContent, setAboutContent] = useState({
     history_text_1: "การไฟฟ้าส่วนภูมิภาคจังหวัดเชียงใหม่ 2 ก่อตั้งขึ้นเพื่อรองรับการขยายตัวของเศรษฐกิจและการใช้ไฟฟ้าที่เพิ่มขึ้นอย่างรวดเร็วในเขตพื้นที่ยุทธศาสตร์ของจังหวัดเชียงใหม่ โดยเน้นการบริหารจัดการระบบจำหน่ายไฟฟ้าให้ครอบคลุมและมีเสถียรภาพสูงสุด",
-    history_text_2: "เรามุ่งมั่นพัฒนาโครงสร้างพื้นฐานด้านไฟฟ้าด้วยเทคโนโลยีที่ทันสมัย เพื่อสนับสนุนการเป็นเมืองอัจฉริยะ (Smart City) ของจังหวัดเชียงใหม่ พร้อมทั้งให้ความสำคัญกับพลังงานสะอาดและการบริการที่เป็นเลิศ",
+    history_text_2: "เรามุ่งมั่นพัฒนาโครงสร้างพื้นฐานด้านไฟฟ้าด้วยเทคโนโลยีที่ทันสมัย เพื่อสนับสนุนการเป็นเมืองอัจฉริยะ (Smart City) ของจังหวัดเชียงใหม่ พร้อมทั้งให้ความสำคัญ with พลังงานสะอาดและการบริการที่เป็นเลิศ",
     timeline: [
       { year: "พ.ศ. 25XX", event: "เริ่มดำเนินการจัดตั้งการไฟฟ้าส่วนภูมิภาคจังหวัดเชียงใหม่ 2" },
       { year: "พ.ศ. 25XX", event: "ขยายเขตจำหน่ายไฟฟ้าครอบคลุมพื้นที่เศรษฐกิจฝั่งตะวันออก" },
@@ -56,17 +55,14 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Hero Section - ✅ เอาลายน้ำ PEA ออกแล้ว - ✅ เอา Logo ออกตามคำสั่ง */}
       <header className="relative bg-[#74045F] py-24 overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute transform -rotate-12 -left-10 top-0 text-white text-[15rem] font-black">PEA</div>
-        </div>
         <div className="container mx-auto max-w-[1320px] px-6 relative z-10 text-center">
-          <img src={Logo} alt="PEA Logo" className="h-24 mx-auto mb-8 drop-shadow-2xl" />
-          <h1 className="text-4xl md:text-5xl font-black text-white mb-6 tracking-tight text-center">
+          {/* ✅ ปรับลดขนาดตัวหนังสือประวัติหน่วยงานลงจาก 4xl/5xl เป็น 3xl/4xl */}
+          <h1 className="text-3xl md:text-4xl font-black text-white mb-6 tracking-tight text-center">
             ประวัติหน่วยงาน
           </h1>
-          <p className="text-purple-100 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed text-center">
+          <p className="text-white opacity-90 font-bold text-lg max-w-2xl mx-auto">
             การไฟฟ้าส่วนภูมิภาคจังหวัดเชียงใหม่ 2
           </p>
         </div>
@@ -85,15 +81,15 @@ export default function AboutPage() {
                   <FiInfo /> Background
                 </div>
                 <h2 className="text-3xl font-black text-slate-800">จุดเริ่มต้นของความสว่างไสว</h2>
-                <p className="text-slate-500 leading-relaxed font-medium">
+                <p className="text-slate-500 leading-relaxed font-medium text-left">
                   {aboutContent.history_text_1}
                 </p>
-                <p className="text-slate-500 leading-relaxed font-medium">
+                <p className="text-slate-500 leading-relaxed font-medium text-left">
                   {aboutContent.history_text_2}
                 </p>
               </div>
               <div className="w-full md:w-1/3 h-64 bg-slate-100 rounded-[2.5rem] flex items-center justify-center italic text-slate-400 font-bold border-2 border-dashed border-slate-200">
-                {/* Image Placeholder */}
+                {/*  */}
               </div>
             </section>
 
