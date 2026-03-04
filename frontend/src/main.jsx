@@ -29,6 +29,11 @@ import ResetPassword from "./components/ResetPassword.jsx";
 import AllDocumentsPage from "./components/AllDocumentsPage.jsx";
 import ContactPage from "./components/ContactPage.jsx"; 
 
+// ✅ เพิ่มการ Import AboutPage เพื่อแก้ไข Error: AboutPage is not defined
+import AboutPage from "./components/AboutPage.jsx"; 
+import OrgStructure from "./components/OrgStructure.jsx";
+import VisionMission from "./components/VisionMission.jsx";
+
 // ✅ 1. นำเข้าหน้าพิจารณาเอกสาร และหน้าส่งเอกสารสำหรับ Admin ให้ครบถ้วน
 import AdminApprovalCenter from "./components/AdminApprovalCenter.jsx"; 
 import AdminSubmitApproval from "./components/AdminSubmitApproval.jsx"; 
@@ -69,6 +74,9 @@ createRoot(document.getElementById("root")).render(
         <Route path="/AllDocuments" element={<AllDocumentsPage />} />
         
         <Route path="/ContactPage" element={<ContactPage />} /> 
+        <Route path="/AboutPage" element={<AboutPage />} />
+        <Route path="/OrgStructure" element={<OrgStructure />} />
+        <Route path="/VisionMission" element={<VisionMission />} />
 
         <Route path="/adminapprovalcenter" element={<AdminApprovalCenter />} />
         <Route path="/AdminSubmitApproval" element={<AdminSubmitApproval />} />

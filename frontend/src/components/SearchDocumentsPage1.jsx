@@ -63,7 +63,7 @@ function Navbar() {
               )}
             </div>
             <Link to="#" className="nav-link text-gray-700 hover:text-[#74045F]">การบริหารงาน</Link>
-            <Link to="#" className="nav-link text-gray-700 hover:text-[#74045F]">ติดต่อเรา</Link>
+            <Link to="/ContactPage" className="nav-link text-gray-700 hover:text-[#74045F] text-left">ติดต่อเรา</Link>
           </div>
 
           <div className="hidden md:flex items-center gap-4 text-left">
