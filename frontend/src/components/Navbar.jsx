@@ -63,9 +63,9 @@ function Navbar() {
               
               {openAbout && (
                 <div className="absolute left-0 mt-0 w-56 bg-white shadow-xl border border-gray-100 rounded-xl py-3 animate-in fade-in zoom-in-95 duration-200 text-left">
-                  <Link to="#" className="block px-5 py-2.5 text-sm text-gray-600 hover:bg-purple-50 hover:text-[#74045F] transition-all text-left">ประวัติหน่วยงาน</Link>
-                  <Link to="#" className="block px-5 py-2.5 text-sm text-gray-600 hover:bg-purple-50 hover:text-[#74045F] transition-all text-left">โครงสร้างองค์กร</Link>
-                  <Link to="#" className="block px-5 py-2.5 text-sm text-gray-600 hover:bg-purple-50 hover:text-[#74045F] transition-all text-left">วิสัยทัศน์ / พันธกิจ</Link>
+                  <Link to="/AboutPage" className="block px-5 py-2.5 text-sm text-gray-600 hover:bg-purple-50 hover:text-[#74045F] transition-all text-left">ประวัติหน่วยงาน</Link>
+                  <Link to="/OrgStructure" className="block px-5 py-2.5 text-sm text-gray-600 hover:bg-purple-50 hover:text-[#74045F] transition-all text-left">โครงสร้างองค์กร</Link>
+                  <Link to="/VisionMission" className="block px-5 py-2.5 text-sm text-gray-600 hover:bg-purple-50 hover:text-[#74045F] transition-all text-left">วิสัยทัศน์ / พันธกิจ</Link>
                 </div>
               )}
             </div>
