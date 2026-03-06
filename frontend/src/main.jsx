@@ -33,8 +33,15 @@ import ContactPage from "./components/ContactPage.jsx";
 import AboutPage from "./components/AboutPage.jsx"; 
 import OrgStructure from "./components/OrgStructure.jsx";
 import VisionMission from "./components/VisionMission.jsx";
-// ✅ เพิ่มการ Import หน้าการบริหารงาน
+
+// ✅ เพิ่มการ Import หน้าการบริหารงาน และหน้าแผนกต่างๆ
 import ManagementPage from "./components/ManagementPage.jsx";
+import AdminDivision from "./components/AdminDivision.jsx";
+import SupportDepartment from "./components/SupportDepartment.jsx";
+import MeterTransformerDept from "./components/MeterTransformerDept.jsx";
+import CustomerServiceDept from "./components/CustomerServiceDept.jsx";
+import OperationsDept from "./components/OperationsDept.jsx";
+import ConstructionDept from "./components/ConstructionDept.jsx";
 
 // ✅ 1. นำเข้าหน้าพิจารณาเอกสาร และหน้าส่งเอกสารสำหรับ Admin ให้ครบถ้วน
 import AdminApprovalCenter from "./components/AdminApprovalCenter.jsx"; 
@@ -79,8 +86,15 @@ createRoot(document.getElementById("root")).render(
         <Route path="/AboutPage" element={<AboutPage />} />
         <Route path="/OrgStructure" element={<OrgStructure />} />
         <Route path="/VisionMission" element={<VisionMission />} />
-        {/* ✅ เพิ่ม Route สำหรับหน้าการบริหารงาน */}
+        <Route path="/MeterTransformerDept" element={<MeterTransformerDept />} />
+
+        {/* ✅ เพิ่ม Route สำหรับหน้าการบริหารงาน และแผนกสนับสนุน */}
         <Route path="/ManagementPage" element={<ManagementPage />} />
+        <Route path="/AdminDivision" element={<AdminDivision />} />
+        <Route path="/SupportDepartment" element={<SupportDepartment />} />
+        <Route path="/CustomerServiceDept" element={<CustomerServiceDept />} />
+        <Route path="/OperationsDept" element={<OperationsDept />} />
+        <Route path="/ConstructionDept" element={<ConstructionDept />} />
 
         <Route path="/adminapprovalcenter" element={<AdminApprovalCenter />} />
         <Route path="/AdminSubmitApproval" element={<AdminSubmitApproval />} />

@@ -61,12 +61,12 @@ function Footer() {
                 แผนก
               </h3>
               <ul className="space-y-1.5 text-[#8A0F7C] text-sm md:text-base leading-relaxed">
-                <li><a href="#" className="hover:text-[#5E0856] hover:underline transition">กองบริหาร</a></li>
-                <li><a href="#" className="hover:text-[#5E0856] hover:underline transition">แผนกสนับสนุน</a></li>
-                <li><a href="#" className="hover:text-[#5E0856] hover:underline transition">แผนกมิเตอร์หม้อแปลง</a></li>
-                <li><a href="#" className="hover:text-[#5E0856] hover:underline transition">แผนกบริการลูกค้าสัมพันธ์</a></li>
-                <li><a href="#" className="hover:text-[#5E0856] hover:underline transition">แผนกปฏิบัติการ</a></li>
-                <li><a href="#" className="hover:text-[#5E0856] hover:underline transition">แผนกก่อสร้างระบบไฟฟ้า</a></li>
+                <li><Link to="/AdminDivision" className="hover:text-[#5E0856] hover:underline transition">กองบริหาร</Link></li>
+                <li><Link to="/SupportDepartment" className="hover:text-[#5E0856] hover:underline transition">แผนกสนับสนุน</Link></li>
+                <li><Link to="/MeterTransformerDept" className="hover:text-[#5E0856] hover:underline transition">แผนกมิเตอร์หม้อแปลง</Link></li>
+                <li><Link to="/CustomerServiceDept" className="hover:text-[#5E0856] hover:underline transition">แผนกบริการลูกค้าสัมพันธ์</Link></li>
+                <li><Link to="/OperationsDept" className="hover:text-[#5E0856] hover:underline transition">แผนกปฏิบัติการ</Link></li>
+                <li><Link to="/ConstructionDept" className="hover:text-[#5E0856] hover:underline transition">แผนกก่อสร้างระบบไฟฟ้า</Link></li>
               </ul>
             </div>
 
