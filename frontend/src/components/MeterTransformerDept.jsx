@@ -51,7 +51,7 @@ export default function MeterTransformerDept() {
       <header className="relative bg-[#74045F] py-20 overflow-hidden">
         <div className="container mx-auto max-w-[1320px] px-6 relative z-10 text-center text-white">
           <h1 className="text-3xl md:text-4xl font-black mb-4 tracking-tight">
-            แผนกมิเตอร์และหม้อแปลง
+            แผนกมิเตอร์หม้อแปลง
           </h1>
           <p className="text-white opacity-90 font-bold text-lg max-w-2xl mx-auto">
             การไฟฟ้าส่วนภูมิภาคจังหวัดเชียงใหม่ 2
